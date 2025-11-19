@@ -35,7 +35,7 @@ struct LoginView: View {
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.primaryGradient)
+                            .fill(Color.warningGradient)
                             .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
                     )
                     
@@ -59,7 +59,7 @@ struct LoginView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 54)
-                            .background(Color.primaryGradient)
+                            .background(Color.warningGradient)
                             .foregroundColor(.white)
                             .cornerRadius(12)
                             .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)

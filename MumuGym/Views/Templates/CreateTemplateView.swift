@@ -20,7 +20,7 @@ struct CreateTemplateView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.primaryGradient
+                Color.warningGradient
                 .ignoresSafeArea()
                 
                 ScrollView {

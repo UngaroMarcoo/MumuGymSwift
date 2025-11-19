@@ -39,7 +39,7 @@ extension Color {
     
     // Gradient definitions
     static let primaryGradient = LinearGradient(
-        gradient: Gradient(colors: [primaryOrange1, primaryOrange2]),
+        gradient: Gradient(colors: [primaryBlue1, primaryBlue2]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )

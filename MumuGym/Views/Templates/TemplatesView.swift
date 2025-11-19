@@ -126,7 +126,7 @@ struct TemplatesView: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.primaryGradient)
+                    .fill(Color.warningGradient)
                     .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
             )
             

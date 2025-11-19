@@ -80,7 +80,7 @@ struct TemplateDetailView: View {
                 HStack {
                     Image(systemName: "doc.text.fill")
                         .font(.title2)
-                        .foregroundStyle(Color.primaryGradient)
+                        .foregroundStyle(Color.warningGradient)
                     
                     Text("Template Details")
                         .font(.headline)
@@ -133,7 +133,7 @@ struct TemplateDetailView: View {
             HStack {
                 Image(systemName: "dumbbell.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Exercises")
                     .font(.headline)
@@ -245,8 +245,8 @@ struct ModernTemplateExerciseDetailCard: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.primaryGradient.opacity(0.15))
-                    .foregroundStyle(Color.primaryGradient)
+                    .background(Color.warningGradient.opacity(0.15))
+                    .foregroundStyle(Color.warningGradient)
                     .cornerRadius(8)
             }
             
@@ -287,7 +287,7 @@ struct ModernExerciseDetailItem: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(Color.primaryGradient)
+                .foregroundStyle(Color.warningGradient)
             
             Text(value)
                 .font(.subheadline)
@@ -314,7 +314,7 @@ struct ModernInfoCard: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(Color.primaryGradient)
+                .foregroundStyle(Color.warningGradient)
             
             Text(value)
                 .font(.headline)
@@ -441,7 +441,7 @@ struct EditTemplateView: View {
             HStack {
                 Image(systemName: "doc.text.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Template Details")
                     .font(.headline)
@@ -478,7 +478,7 @@ struct EditTemplateView: View {
             HStack {
                 Image(systemName: "dumbbell.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Exercises")
                     .font(.headline)
@@ -519,7 +519,7 @@ struct EditTemplateView: View {
         VStack(spacing: 16) {
             Image(systemName: "dumbbell.fill")
                 .font(.system(size: 50))
-                .foregroundStyle(Color.primaryGradient.opacity(0.6))
+                .foregroundStyle(Color.warningGradient.opacity(0.6))
             
             Text("No exercises added")
                 .font(.title3)

@@ -80,7 +80,7 @@ struct TemplateEditView: View {
             HStack {
                 Image(systemName: "doc.text.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Template Name")
                     .font(.headline)
@@ -110,7 +110,7 @@ struct TemplateEditView: View {
             HStack {
                 Image(systemName: "dumbbell.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Exercises")
                     .font(.headline)
@@ -136,7 +136,7 @@ struct TemplateEditView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 50))
-                        .foregroundStyle(Color.primaryGradient.opacity(0.6))
+                        .foregroundStyle(Color.warningGradient.opacity(0.6))
                     
                     Text("No exercises added yet")
                         .font(.title3)
@@ -450,7 +450,7 @@ struct AddExerciseToTemplateView: View {
             HStack {
                 Image(systemName: "slider.horizontal.3")
                     .font(.title2)
-                    .foregroundStyle(Color.primaryGradient)
+                    .foregroundStyle(Color.warningGradient)
                 
                 Text("Exercise Configuration")
                     .font(.headline)
