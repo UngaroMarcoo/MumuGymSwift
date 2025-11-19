@@ -20,34 +20,17 @@ struct TemplateEditView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                Form {
-                    Section("Template Name") {
-                        TextField("Enter template name", text: $templateName)
+            ZStack {
+                Color.appBackground
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        templateNameSection
+                        exercisesSection
                     }
-                    
-                    Section("Exercises") {
-                        if templateExercises.isEmpty {
-                            Text("No exercises added yet")
-                                .foregroundColor(.secondary)
-                                .font(.subheadline)
-                        } else {
-                            ForEach(templateExercises.indices, id: \.self) { index in
-                                let exercise = templateExercises[index]
-                                ExerciseRowView(
-                                    exercise: exercise,
-                                    onDelete: {
-                                        templateExercises.remove(at: index)
-                                    }
-                                )
-                            }
-                        }
-                        
-                        Button("Add Exercise") {
-                            showingAddExercise = true
-                        }
-                        .foregroundColor(.blue)
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
             }
             .navigationTitle("Edit Template")
@@ -92,6 +75,104 @@ struct TemplateEditView: View {
         }
     }
     
+    private var templateNameSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "doc.text.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
+                Text("Template Name")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+            }
+            
+            TextField("Enter template name", text: $templateName)
+                .padding(12)
+                .background(Color.cardBackground)
+                .cornerRadius(12)
+                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private var exercisesSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "dumbbell.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
+                Text("Exercises")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                Button("Add Exercise") {
+                    showingAddExercise = true
+                }
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.buttonPrimary)
+                .cornerRadius(20)
+                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+            }
+            
+            if templateExercises.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 50))
+                        .foregroundStyle(Color.primaryGradient.opacity(0.6))
+                    
+                    Text("No exercises added yet")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Add exercises to customize your template")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+            } else {
+                LazyVStack(spacing: 12) {
+                    ForEach(templateExercises.indices, id: \.self) { index in
+                        let exercise = templateExercises[index]
+                        ModernExerciseRowView(
+                            exercise: exercise,
+                            onDelete: {
+                                templateExercises.remove(at: index)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
+    }
+    
     private func loadTemplateData() {
         templateName = template.name ?? ""
         if let exercises = template.exercises?.allObjects as? [WorkoutTemplateExercise] {
@@ -131,34 +212,76 @@ struct TemplateEditView: View {
     }
 }
 
-struct ExerciseRowView: View {
+struct ModernExerciseRowView: View {
     let exercise: WorkoutTemplateExercise
     let onDelete: () -> Void
     
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(exercise.exercise?.name ?? "Unknown")
                     .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 
-                HStack {
-                    Text("\(exercise.sets) sets")
-                    Text("•")
-                    Text("\(exercise.reps) reps")
-                    Text("•")
-                    Text("\(exercise.weight, default: "%.1f") kg")
+                Text(exercise.exercise?.targetMuscle ?? "")
+                    .font(.caption)
+                    .foregroundColor(.textSecondary)
+                
+                HStack(spacing: 12) {
+                    InfoTag(title: "Sets", value: "\(exercise.sets)")
+                    InfoTag(title: "Reps", value: "\(exercise.reps)")
+                    InfoTag(title: "Weight", value: "\(exercise.weight, default: "%.1f") kg")
                 }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
             }
             
             Spacer()
             
             Button(action: onDelete) {
-                Image(systemName: "trash")
-                    .foregroundColor(.red)
+                Image(systemName: "trash.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.deleteButtonGradient)
             }
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+struct InfoTag: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.caption2)
+                .foregroundColor(.textSecondary)
+            Text(value)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.surfaceBackground)
+        )
+    }
+}
+
+// Keep the old ExerciseRowView for compatibility
+struct ExerciseRowView: View {
+    let exercise: WorkoutTemplateExercise
+    let onDelete: () -> Void
+    
+    var body: some View {
+        ModernExerciseRowView(exercise: exercise, onDelete: onDelete)
     }
 }
 
@@ -187,70 +310,15 @@ struct AddExerciseToTemplateView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                if selectedExercise == nil {
-                    // Exercise selection
-                    List {
-                        ForEach(filteredExercises, id: \.objectID) { exercise in
-                            Button(action: { selectedExercise = exercise }) {
-                                HStack {
-                                    Text(exercise.name ?? "Unknown")
-                                        .foregroundColor(.primary)
-                                    
-                                    Spacer()
-                                    
-                                    Text(exercise.targetMuscle ?? "")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                        }
-                    }
-                    .searchable(text: $searchText, prompt: "Search exercises")
-                } else {
-                    // Exercise configuration
-                    Form {
-                        Section("Exercise") {
-                            HStack {
-                                Text("Selected")
-                                Spacer()
-                                Text(selectedExercise?.name ?? "Unknown")
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            Button("Change Exercise") {
-                                selectedExercise = nil
-                            }
-                            .foregroundColor(.blue)
-                        }
-                        
-                        Section("Configuration") {
-                            HStack {
-                                Text("Sets")
-                                Spacer()
-                                Stepper("\(sets)", value: $sets, in: 1...10)
-                            }
-                            
-                            HStack {
-                                Text("Reps")
-                                Spacer()
-                                Stepper("\(reps)", value: $reps, in: 1...50)
-                            }
-                            
-                            HStack {
-                                Text("Weight (kg)")
-                                Spacer()
-                                TextField("0.0", value: $weight, format: .number)
-                                    .keyboardType(.decimalPad)
-                                    .multilineTextAlignment(.trailing)
-                            }
-                            
-                            HStack {
-                                Text("Rest Time (sec)")
-                                Spacer()
-                                Stepper("\(restTime)", value: $restTime, in: 30...300, step: 15)
-                            }
-                        }
+            ZStack {
+                Color.appBackground
+                    .ignoresSafeArea()
+                
+                VStack {
+                    if selectedExercise == nil {
+                        exerciseSelectionView
+                    } else {
+                        exerciseConfigurationView
                     }
                 }
             }
@@ -274,6 +342,182 @@ struct AddExerciseToTemplateView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private var exerciseSelectionView: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(filteredExercises, id: \.objectID) { exercise in
+                    Button(action: { selectedExercise = exercise }) {
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(exercise.name ?? "Unknown")
+                                    .font(.headline)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.textPrimary)
+                                
+                                Text(exercise.targetMuscle ?? "")
+                                    .font(.subheadline)
+                                    .foregroundColor(.textSecondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.textSecondary)
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.cardBackground)
+                                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
+        .searchable(text: $searchText, prompt: "Search exercises")
+    }
+    
+    private var exerciseConfigurationView: some View {
+        ScrollView {
+            VStack(spacing: 25) {
+                selectedExerciseCard
+                configurationSection
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+        }
+    }
+    
+    private var selectedExerciseCard: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.successGradient)
+                
+                Text("Selected Exercise")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                Button("Change") {
+                    selectedExercise = nil
+                }
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.editButtonGradient)
+                .cornerRadius(20)
+            }
+            
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(selectedExercise?.name ?? "Unknown")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text(selectedExercise?.targetMuscle ?? "")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private var configurationSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "slider.horizontal.3")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
+                Text("Exercise Configuration")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+            }
+            
+            VStack(spacing: 20) {
+                ConfigurationRow(title: "Sets", value: $sets, range: 1...10)
+                ConfigurationRow(title: "Reps", value: $reps, range: 1...50)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Weight (kg)")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+                    
+                    TextField("0.0", value: $weight, format: .number)
+                        .keyboardType(.decimalPad)
+                        .padding(12)
+                        .background(Color.surfaceBackground)
+                        .cornerRadius(12)
+                        .shadow(color: Color.shadowLight, radius: 2, x: 0, y: 1)
+                }
+                
+                ConfigurationRow(title: "Rest Time (sec)", value: $restTime, range: 30...300, step: 15)
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
+    }
+}
+
+struct ConfigurationRow: View {
+    let title: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    var step: Int = 1
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+            
+            HStack {
+                Text("\(value)")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
+                    .frame(minWidth: 40)
+                
+                Stepper("", value: $value, in: range, step: step)
+                    .labelsHidden()
+            }
+            .padding(12)
+            .background(Color.surfaceBackground)
+            .cornerRadius(12)
+            .shadow(color: Color.shadowLight, radius: 2, x: 0, y: 1)
         }
     }
 }

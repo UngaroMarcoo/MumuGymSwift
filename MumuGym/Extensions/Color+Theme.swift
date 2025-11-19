@@ -65,7 +65,24 @@ extension Color {
         endPoint: .trailing
     )
     
-    // Action colors
+    // Action color gradients
+    static let editButtonGradient = LinearGradient(
+        gradient: Gradient(colors: [accentTeal, accentTeal.opacity(0.8)]),
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    static let deleteButtonGradient = LinearGradient(
+        gradient: Gradient(colors: [Color.red, Color.red.opacity(0.8)]),
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    static let successGradientButton = LinearGradient(
+        gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
+    // Solid colors for specific cases
     static let editButtonColor = accentTeal
     static let deleteButtonColor = Color.red
     static let successColor = Color.green

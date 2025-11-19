@@ -19,14 +19,19 @@ struct TemplateDetailView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    headerSection
-                    exercisesSection
-                    actionsSection
+            ZStack {
+                Color.appBackground
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        headerSection
+                        exercisesSection
+                        actionsSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
             }
             .navigationTitle(template.name ?? "Template")
             .navigationBarTitleDisplayMode(.large)
@@ -69,56 +74,88 @@ struct TemplateDetailView: View {
     }
     
     private var headerSection: some View {
-        VStack(spacing: 16) {
-            HStack {
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
+        VStack(spacing: 20) {
+            // Template Title Section
+            VStack(spacing: 16) {
+                HStack {
+                    Image(systemName: "doc.text.fill")
+                        .font(.title2)
+                        .foregroundStyle(Color.primaryGradient)
+                    
+                    Text("Template Details")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Spacer()
+                    
+                    if template.isDefault {
+                        Image(systemName: "star.fill")
+                            .font(.title3)
+                            .foregroundStyle(Color.warningGradient)
+                    }
+                }
+                
+                HStack {
+                    VStack(alignment: .leading, spacing: 8) {
                         Text(template.name ?? "Unknown")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundColor(.textPrimary)
                         
-                        if template.isDefault {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.orange)
-                        }
+                        Text("\(templateExercises.count) exercises")
+                            .font(.subheadline)
+                            .foregroundColor(.textSecondary)
                     }
                     
-                    Text("\(templateExercises.count) exercises")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    Spacer()
                 }
-                
-                Spacer()
             }
+            .padding(.vertical, 24)
+            .padding(.horizontal, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+            )
             
-            HStack(spacing: 20) {
-                InfoCard(title: "Exercises", value: "\(templateExercises.count)", icon: "dumbbell")
-                InfoCard(title: "Est. Time", value: estimatedTime, icon: "clock")
-                InfoCard(title: "Difficulty", value: difficulty, icon: "flame")
+            // Stats Cards
+            HStack(spacing: 15) {
+                ModernInfoCard(title: "Exercises", value: "\(templateExercises.count)", icon: "dumbbell")
+                ModernInfoCard(title: "Est. Time", value: estimatedTime, icon: "clock")
+                ModernInfoCard(title: "Difficulty", value: difficulty, icon: "flame")
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
     }
     
     private var exercisesSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "dumbbell.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
                 Text("Exercises")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
             }
             
             LazyVStack(spacing: 12) {
                 ForEach(templateExercises, id: \.objectID) { templateExercise in
-                    TemplateExerciseDetailCard(templateExercise: templateExercise)
+                    ModernTemplateExerciseDetailCard(templateExercise: templateExercise)
                 }
             }
         }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
     }
     
     private var actionsSection: some View {
@@ -126,6 +163,7 @@ struct TemplateDetailView: View {
             NavigationLink(destination: LiveWorkoutView(template: template)) {
                 HStack {
                     Image(systemName: "play.fill")
+                        .font(.title3)
                     Text("Start Workout")
                         .fontWeight(.semibold)
                     
@@ -133,13 +171,15 @@ struct TemplateDetailView: View {
                         Spacer()
                         ProgressView()
                             .scaleEffect(0.8)
+                            .tint(.white)
                     }
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.green)
+                .frame(height: 55)
+                .background(Color.successGradient)
                 .foregroundColor(.white)
-                .cornerRadius(12)
+                .cornerRadius(16)
+                .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
             }
             .disabled(isStartingWorkout)
             
@@ -147,10 +187,11 @@ struct TemplateDetailView: View {
                 showingEditTemplate = true
             }
             .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(Color.blue)
+            .frame(height: 55)
+            .background(Color.editButtonGradient)
             .foregroundColor(.white)
-            .cornerRadius(12)
+            .cornerRadius(16)
+            .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
         }
         .padding(.vertical, 20)
     }
@@ -180,56 +221,124 @@ struct TemplateDetailView: View {
     }
 }
 
-struct TemplateExerciseDetailCard: View {
+struct ModernTemplateExerciseDetailCard: View {
     let templateExercise: WorkoutTemplateExercise
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(templateExercise.exercise?.name ?? "Unknown")
                         .font(.headline)
-                        .fontWeight(.medium)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
                     
                     Text(templateExercise.exercise?.targetMuscle ?? "")
                         .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.textSecondary)
                 }
                 
                 Spacer()
                 
                 Text("#\(templateExercise.order + 1)")
                     .font(.caption)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundColor(.blue)
+                    .background(Color.primaryGradient.opacity(0.15))
+                    .foregroundStyle(Color.primaryGradient)
                     .cornerRadius(8)
             }
             
-            HStack(spacing: 20) {
-                ExerciseDetailItem(label: "Sets", value: "\(templateExercise.sets)")
-                ExerciseDetailItem(label: "Reps", value: "\(templateExercise.reps)")
+            HStack(spacing: 15) {
+                ModernExerciseDetailItem(label: "Sets", value: "\(templateExercise.sets)", icon: "repeat")
+                ModernExerciseDetailItem(label: "Reps", value: "\(templateExercise.reps)", icon: "arrow.clockwise")
                 
                 if templateExercise.weight > 0 {
-                    ExerciseDetailItem(label: "Weight", value: "\(templateExercise.weight, default: "%.1f") kg")
+                    ModernExerciseDetailItem(label: "Weight", value: "\(templateExercise.weight, default: "%.1f") kg", icon: "scalemass")
                 }
                 
-                ExerciseDetailItem(label: "Rest", value: "\(templateExercise.restTime) sec")
+                ModernExerciseDetailItem(label: "Rest", value: "\(templateExercise.restTime)s", icon: "clock")
             }
             
             if let instructions = templateExercise.exercise?.instructions, !instructions.isEmpty {
                 Text(instructions)
                     .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 4)
+                    .foregroundColor(.textSecondary)
+                    .padding(.top, 8)
+                    .padding(12)
+                    .background(Color.surfaceBackground)
+                    .cornerRadius(8)
             }
         }
         .padding(16)
-        .background(Color.white)
+        .background(Color.cardBackground)
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+    }
+}
+
+struct ModernExerciseDetailItem: View {
+    let label: String
+    let value: String
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundStyle(Color.primaryGradient)
+            
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+            
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.surfaceBackground)
+        .cornerRadius(8)
+    }
+}
+
+struct ModernInfoCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(Color.primaryGradient)
+            
+            Text(value)
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .background(Color.cardBackground)
+        .cornerRadius(12)
+        .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
+    }
+}
+
+// Keep old components for compatibility
+struct TemplateExerciseDetailCard: View {
+    let templateExercise: WorkoutTemplateExercise
+    
+    var body: some View {
+        ModernTemplateExerciseDetailCard(templateExercise: templateExercise)
     }
 }
 
@@ -241,11 +350,12 @@ struct ExerciseDetailItem: View {
         VStack(spacing: 4) {
             Text(label)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.textSecondary)
             
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
+                .foregroundColor(.textPrimary)
         }
     }
 }
@@ -256,23 +366,7 @@ struct InfoCard: View {
     let icon: String
     
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.blue)
-            
-            Text(value)
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            Text(title)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.white)
-        .cornerRadius(12)
+        ModernInfoCard(title: title, value: value, icon: icon)
     }
 }
 
@@ -296,13 +390,18 @@ struct EditTemplateView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    templateInfoSection
-                    exercisesSection
+            ZStack {
+                Color.appBackground
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        templateInfoSection
+                        exercisesSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
             }
             .navigationTitle("Edit Template")
             .navigationBarTitleDisplayMode(.inline)
@@ -340,34 +439,51 @@ struct EditTemplateView: View {
     private var templateInfoSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "doc.text.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
                 Text("Template Details")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("Template Name")
                     .font(.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 
                 TextField("Enter template name", text: $templateName)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(12)
+                    .background(Color.surfaceBackground)
+                    .cornerRadius(12)
+                    .shadow(color: Color.shadowLight, radius: 2, x: 0, y: 1)
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
     }
     
     private var exercisesSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "dumbbell.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.primaryGradient)
+                
                 Text("Exercises")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
                 
@@ -375,7 +491,13 @@ struct EditTemplateView: View {
                     showingExercisePicker = true
                 }
                 .font(.subheadline)
-                .foregroundColor(.blue)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.buttonPrimary)
+                .cornerRadius(20)
+                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
             }
             
             if selectedExercises.isEmpty {
@@ -384,34 +506,43 @@ struct EditTemplateView: View {
                 exercisesList
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
+        )
     }
     
     private var emptyExercisesView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "dumbbell")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
+        VStack(spacing: 16) {
+            Image(systemName: "dumbbell.fill")
+                .font(.system(size: 50))
+                .foregroundStyle(Color.primaryGradient.opacity(0.6))
             
             Text("No exercises added")
-                .font(.headline)
-                .foregroundColor(.primary)
+                .font(.title3)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
             
             Text("Add exercises to create your workout template")
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(.textSecondary)
                 .multilineTextAlignment(.center)
             
             Button("Add First Exercise") {
                 showingExercisePicker = true
             }
-            .buttonStyle(.borderedProminent)
+            .frame(width: 180, height: 44)
+            .background(Color.buttonPrimary)
+            .foregroundColor(.white)
+            .cornerRadius(22)
+            .fontWeight(.semibold)
+            .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 30)
+        .padding(.vertical, 40)
     }
     
     private var exercisesList: some View {
