@@ -25,6 +25,9 @@ struct TemplatesView: View {
     @State private var showingTemplateChoice = false
     @State private var showingPredefinedTemplates = false
     @State private var selectedTemplate: WorkoutTemplate?
+    @State private var templateToEdit: WorkoutTemplate?
+    @State private var showingDeleteAlert = false
+    @State private var templateToDelete: WorkoutTemplate?
     
     init() {
         _templates = FetchRequest(
@@ -78,6 +81,21 @@ struct TemplatesView: View {
         .sheet(item: $selectedTemplate) { template in
             TemplateDetailView(template: template)
         }
+        .sheet(item: $templateToEdit) { template in
+            TemplateEditView(template: template)
+        }
+        .alert("Delete Template", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                templateToDelete = nil
+            }
+            Button("Delete", role: .destructive) {
+                if let template = templateToDelete {
+                    deleteTemplate(template)
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this template? This action cannot be undone.")
+        }
     }
     
     private var emptyTemplatesView: some View {
@@ -115,9 +133,19 @@ struct TemplatesView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(templates, id: \.objectID) { template in
-                    TemplateCard(template: template) {
-                        selectedTemplate = template
-                    }
+                    TemplateCard(
+                        template: template,
+                        action: {
+                            selectedTemplate = template
+                        },
+                        onEdit: {
+                            templateToEdit = template
+                        },
+                        onDelete: {
+                            templateToDelete = template
+                            showingDeleteAlert = true
+                        }
+                    )
                     .padding(.horizontal, 20)
                 }
             }
@@ -163,48 +191,79 @@ struct TemplatesView: View {
         }
     }
     
+    private func deleteTemplate(_ template: WorkoutTemplate) {
+        viewContext.delete(template)
+        try? viewContext.save()
+        templateToDelete = nil
+    }
+    
 }
 
 struct TemplateCard: View {
     let template: WorkoutTemplate
     let action: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
     
     var exerciseCount: Int {
         template.exercises?.count ?? 0
     }
     
     var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text(template.name ?? "Unknown")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                        .lineLimit(2)
-                    
-                    Spacer()
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("\(exerciseCount) exercises")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Est. 45-60 min")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(template.name ?? "Unknown")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
                 
                 Spacer()
+                
+                HStack(spacing: 12) {
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .frame(width: 30, height: 30)
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .frame(width: 30, height: 30)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(6)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
-            .padding(16)
-            .frame(height: 120)
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(exerciseCount) exercises")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
+                Text("Est. 45-60 min")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
         }
-        .buttonStyle(PlainButtonStyle())
+        .padding(16)
+        .frame(height: 120)
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            action()
+        }
     }
 }
 
