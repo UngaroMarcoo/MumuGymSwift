@@ -70,7 +70,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "doc.text.fill")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Template Details")
@@ -107,7 +107,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .foregroundColor(Color.primaryPurple)
+                    .foregroundColor(Color.primaryBlue2)
                     .font(.title2)
                 
                 Text("Exercises")
@@ -127,7 +127,7 @@ struct CreateTemplateView: View {
                 .padding(.vertical, 8)
                 .background(Color.buttonPrimary)
                 .cornerRadius(20)
-                .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+                .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 4, x: 0, y: 2)
             }
             
             if selectedExercises.isEmpty {
@@ -149,7 +149,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             Image(systemName: "dumbbell.fill")
                 .font(.system(size: 50))
-                .foregroundColor(Color.primaryBlue.opacity(0.6))
+                .foregroundColor(Color.primaryBlue1.opacity(0.6))
             
             Text("No exercises added")
                 .font(.title3)
@@ -169,7 +169,7 @@ struct CreateTemplateView: View {
             .foregroundColor(.white)
             .cornerRadius(22)
             .fontWeight(.semibold)
-            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 6, x: 0, y: 3)
+            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 6, x: 0, y: 3)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 40)
@@ -365,7 +365,7 @@ struct ExercisePickerView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(selectedMuscleGroup == group ? Color.primaryBlue : Color(.systemGray5))
+                        .background(selectedMuscleGroup == group ? Color.primaryBlue1 : Color(.systemGray5))
                         .foregroundColor(selectedMuscleGroup == group ? .white : .primary)
                         .cornerRadius(20)
                     }
@@ -426,8 +426,8 @@ struct ExercisePickerRow: View {
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.primaryBlue.opacity(0.15))
-                        .foregroundColor(Color.primaryBlue)
+                        .background(Color.primaryBlue1.opacity(0.15))
+                        .foregroundColor(Color.primaryBlue1)
                         .cornerRadius(8)
                     
                     Image(systemName: "chevron.right")

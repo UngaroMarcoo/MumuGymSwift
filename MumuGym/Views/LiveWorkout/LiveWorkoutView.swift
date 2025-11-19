@@ -87,7 +87,7 @@ struct LiveWorkoutView: View {
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.primaryGradient)
-                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 12, x: 0, y: 6)
+                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 12, x: 0, y: 6)
             )
             
             // Action buttons
@@ -112,10 +112,10 @@ struct LiveWorkoutView: View {
                                 .fill(Color.cardBackground)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.primaryBlue, lineWidth: 2)
+                                        .stroke(Color.primaryBlue1, lineWidth: 2)
                                 )
                         )
-                        .foregroundColor(.primaryBlue)
+                        .foregroundColor(.primaryBlue1)
                         .fontWeight(.semibold)
                 }
             }
@@ -155,7 +155,7 @@ struct LiveWorkoutView: View {
             HStack(spacing: 20) {
                 HStack(spacing: 6) {
                     Image(systemName: "clock.fill")
-                        .foregroundColor(Color.primaryBlue)
+                        .foregroundColor(Color.primaryBlue1)
                     Text("\(workoutSession.formattedDuration)")
                         .fontWeight(.medium)
                 }
@@ -164,7 +164,7 @@ struct LiveWorkoutView: View {
                 
                 HStack(spacing: 6) {
                     Image(systemName: "dumbbell.fill")
-                        .foregroundColor(Color.primaryPurple)
+                        .foregroundColor(Color.primaryBlue2)
                     Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
                         .fontWeight(.medium)
                 }
@@ -205,8 +205,8 @@ struct LiveWorkoutView: View {
             VStack(spacing: 20) {
                 Image(systemName: "plus.circle.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(Color.primaryBlue)
-                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .foregroundColor(Color.primaryBlue1)
+                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 4, x: 0, y: 2)
                 
                 Text("Add your first exercise")
                     .font(.title2)
@@ -245,7 +245,7 @@ struct LiveWorkoutView: View {
                 .foregroundColor(.white)
                 .cornerRadius(25)
                 .fontWeight(.semibold)
-                .shadow(color: Color.primaryBlue.opacity(0.3), radius: 6, x: 0, y: 3)
+                .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 6, x: 0, y: 3)
             }
             
             Button("Finish") {
@@ -363,12 +363,12 @@ struct CurrentExerciseView: View {
                     .padding(.vertical, 8)
                     .background(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.primaryBlue.opacity(0.2), Color.primaryBlue.opacity(0.1)]),
+                            gradient: Gradient(colors: [Color.primaryBlue1.opacity(0.2), Color.primaryBlue1.opacity(0.1)]),
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .cornerRadius(20)
             }
             
@@ -419,9 +419,9 @@ struct CurrentExerciseView: View {
             .foregroundColor(.white)
             .padding(.horizontal, 20)
             .padding(.vertical, 8)
-            .background(Color.primaryBlue)
+            .background(Color.primaryBlue1)
             .cornerRadius(16)
-            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 4, x: 0, y: 2)
         }
         .padding(.vertical, 24)
         .padding(.horizontal, 20)
@@ -468,11 +468,11 @@ struct CurrentExerciseView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(canGoNext ? Color.buttonPrimary : LinearGradient(gradient: Gradient(colors: [Color.primaryBlue.opacity(0.3), Color.primaryPurple.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
+            .background(canGoNext ? Color.buttonPrimary : LinearGradient(gradient: Gradient(colors: [Color.primaryBlue1.opacity(0.3), Color.primaryBlue2.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
             .foregroundColor(.white)
             .cornerRadius(25)
             .fontWeight(.semibold)
-            .shadow(color: canGoNext ? Color.primaryBlue.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
+            .shadow(color: canGoNext ? Color.primaryBlue1.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             .disabled(!canGoNext)
         }
     }
@@ -494,8 +494,8 @@ struct SetRow: View {
                 .font(.headline)
                 .fontWeight(.bold)
                 .frame(width: 35, height: 35)
-                .background(set.completed ? Color.green.opacity(0.2) : Color.primaryBlue.opacity(0.1))
-                .foregroundColor(set.completed ? .green : Color.primaryBlue)
+                .background(set.completed ? Color.green.opacity(0.2) : Color.primaryBlue1.opacity(0.1))
+                .foregroundColor(set.completed ? .green : Color.primaryBlue1)
                 .cornerRadius(17.5)
             
             // Reps input
@@ -670,7 +670,7 @@ struct AddExerciseToWorkoutView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )

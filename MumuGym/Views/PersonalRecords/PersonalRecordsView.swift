@@ -32,7 +32,7 @@ struct PersonalRecordsView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -113,7 +113,7 @@ struct PersonalRecordsView: View {
             .foregroundColor(.white)
             .cornerRadius(25)
             .fontWeight(.semibold)
-            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
@@ -126,7 +126,7 @@ struct PersonalRecordsView: View {
                     VStack(spacing: 12) {
                         HStack {
                             Image(systemName: "dumbbell.fill")
-                                .foregroundColor(Color.primaryPurple)
+                                .foregroundColor(Color.primaryBlue2)
                                 .font(.title2)
                             
                             Text(exerciseGroup.key)
@@ -142,7 +142,7 @@ struct PersonalRecordsView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 4)
-                                .background(Color.primaryBlue)
+                                .background(Color.primaryBlue1)
                                 .cornerRadius(10)
                         }
                         .padding(.vertical, 20)
@@ -366,7 +366,7 @@ struct AddPersonalRecordView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -419,7 +419,7 @@ struct AddPersonalRecordView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Exercise")
@@ -473,7 +473,7 @@ struct AddPersonalRecordView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.primaryPurple)
+                    .foregroundColor(Color.primaryBlue2)
                     .font(.title2)
                 
                 Text("Performance")
@@ -533,7 +533,7 @@ struct AddPersonalRecordView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "calendar.circle.fill")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Date")
@@ -585,7 +585,7 @@ struct AddPersonalRecordView: View {
                 Text("\(calculateOneRM(weight: weight, reps: reps), default: "%.1f") kg")
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
             }
             .padding(16)
             .background(Color.white.opacity(0.9))
@@ -721,7 +721,7 @@ struct PersonalRecordDetailView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -780,7 +780,7 @@ struct PersonalRecordDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.primaryPurple)
+                    .foregroundColor(Color.primaryBlue2)
                     .font(.title2)
                 
                 Text("Performance Details")
@@ -809,7 +809,7 @@ struct PersonalRecordDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "function")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Calculations")
@@ -890,7 +890,7 @@ struct CalculationRow: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundColor(Color.primaryBlue)
+                .foregroundColor(Color.primaryBlue1)
         }
     }
 }
@@ -981,7 +981,7 @@ struct ExerciseRowSelectionView: View {
                 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(Color.primaryBlue)
+                        .foregroundColor(Color.primaryBlue1)
                         .font(.title3)
                 }
             }

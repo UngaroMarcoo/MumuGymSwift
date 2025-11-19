@@ -24,8 +24,12 @@ struct ColorTheme {
 
 extension Color {
     // Modern app theme colors
-    static let primaryBlue = Color(red: 0.2, green: 0.4, blue: 0.9)      // #3366E6
-    static let primaryPurple = Color(red: 0.5, green: 0.2, blue: 0.9)    // #8033E6
+    static let primaryBlue1 = Color(red: 0.15, green: 0.45, blue: 0.95) // #2673F2
+    static let primaryBlue2 = Color(red: 0.05, green: 0.25, blue: 0.80) // #0D40CC
+    static let primaryOrange1 = Color(red: 0.95, green: 0.55, blue: 0.10) // #F28C1A
+    static let primaryOrange2 = Color(red: 0.98, green: 0.35, blue: 0.10) // #FA5A1A
+    static let primaryGreen1 = Color(red: 0.10, green: 0.70, blue: 0.30) // #19B34D
+    static let primaryGreen2 = Color(red: 0.15, green: 0.85, blue: 0.40) // #26D966
     static let accentTeal = Color(red: 0.1, green: 0.7, blue: 0.8)       // #1AB3CC
     
     // Background colors
@@ -35,21 +39,21 @@ extension Color {
     
     // Gradient definitions
     static let primaryGradient = LinearGradient(
-        gradient: Gradient(colors: [primaryBlue, primaryPurple]),
+        gradient: Gradient(colors: [primaryBlue2, primaryBlue1]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )
     
     static let successGradient = LinearGradient(
-        gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
-        startPoint: .leading,
-        endPoint: .trailing
+        gradient: Gradient(colors: [primaryGreen1, primaryGreen2]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
     )
     
     static let warningGradient = LinearGradient(
-        gradient: Gradient(colors: [Color.orange, Color.orange.opacity(0.8)]),
-        startPoint: .leading,
-        endPoint: .trailing
+        gradient: Gradient(colors: [primaryOrange1, primaryOrange2]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
     )
     
     // Text colors

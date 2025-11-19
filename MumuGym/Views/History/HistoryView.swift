@@ -23,7 +23,7 @@ struct HistoryView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -63,8 +63,8 @@ struct HistoryView: View {
             VStack(spacing: 20) {
                 Image(systemName: "clock.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(Color.primaryBlue)
-                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .foregroundColor(Color.primaryBlue1)
+                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 4, x: 0, y: 2)
                 
                 Text("No Workouts Yet")
                     .font(.title2)
@@ -91,7 +91,7 @@ struct HistoryView: View {
                     .foregroundColor(.white)
                     .cornerRadius(25)
                     .fontWeight(.semibold)
-                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 8, x: 0, y: 4)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -105,7 +105,7 @@ struct HistoryView: View {
                     VStack(spacing: 12) {
                         HStack {
                             Image(systemName: "calendar.circle.fill")
-                                .foregroundColor(Color.primaryPurple)
+                                .foregroundColor(Color.primaryBlue2)
                                 .font(.title2)
                             
                             Text(dateGroup.key)
@@ -260,7 +260,7 @@ struct WorkoutStat: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(Color.primaryBlue)
+                .foregroundColor(Color.primaryBlue1)
             
             Text(value)
                 .font(.headline)
@@ -309,7 +309,7 @@ struct WorkoutDetailView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -364,7 +364,7 @@ struct WorkoutDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .foregroundColor(Color.primaryPurple)
+                    .foregroundColor(Color.primaryBlue2)
                     .font(.title2)
                 
                 Text("Exercises")

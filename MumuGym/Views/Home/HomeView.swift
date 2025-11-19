@@ -30,7 +30,7 @@ struct HomeView: View {
                     Button("Logout") {
                         authManager.logout()
                     }
-                    .foregroundColor(.primaryBlue)
+                    .foregroundColor(.primaryBlue1)
                     .fontWeight(.medium)
                 }
             }
@@ -73,7 +73,7 @@ struct HomeView: View {
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.primaryGradient)
-                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 8, x: 0, y: 4)
             )
         }
     }
@@ -82,7 +82,7 @@ struct HomeView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.primaryBlue)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title3)
                 
                 Text("Weight Tracking")
@@ -102,7 +102,7 @@ struct HomeView: View {
                 .padding(.vertical, 6)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.primaryBlue)
+                        .fill(Color.primaryBlue1)
                 )
             }
             
@@ -110,13 +110,13 @@ struct HomeView: View {
                 weightCard(
                     title: "Current Weight",
                     value: currentWeight.isEmpty ? "--" : "\(currentWeight) kg",
-                    color: Color.primaryBlue
+                    color: Color.primaryBlue1
                 )
                 
                 weightCard(
                     title: "Target Weight",
                     value: targetWeight.isEmpty ? "--" : "\(targetWeight) kg",
-                    color: Color.primaryPurple
+                    color: Color.primaryBlue2
                 )
             }
             
@@ -239,7 +239,7 @@ struct HomeView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "bolt.fill")
-                    .foregroundColor(Color.primaryPurple)
+                    .foregroundColor(Color.primaryBlue2)
                     .font(.title3)
                 
                 Text("Quick Actions")
@@ -342,7 +342,7 @@ struct WeightEntryView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.primaryGradient)
-                            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 8, x: 0, y: 4)
                     )
                     
                     // Weight entry form
@@ -379,7 +379,7 @@ struct WeightEntryView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.primaryBlue)
+                    .foregroundColor(.primaryBlue1)
                     .fontWeight(.medium)
                 }
             }
@@ -401,7 +401,7 @@ struct WeightEntryView: View {
                         .fill(Color.surfaceBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryBlue.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.primaryBlue1.opacity(0.3), lineWidth: 1)
                         )
                 )
         }
