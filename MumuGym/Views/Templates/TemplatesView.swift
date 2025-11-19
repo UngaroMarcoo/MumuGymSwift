@@ -120,10 +120,11 @@ struct TemplatesView: View {
                 showingTemplateChoice = true
             }
             .frame(width: 200, height: 50)
-            .background(Color.blue)
+            .background(Color.buttonPrimary)
             .foregroundColor(.white)
-            .cornerRadius(12)
-            .fontWeight(.medium)
+            .cornerRadius(16)
+            .fontWeight(.semibold)
+            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
@@ -210,56 +211,56 @@ struct TemplateCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(template.name ?? "Unknown")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
                     .lineLimit(2)
                 
-                Spacer()
-                
-                HStack(spacing: 12) {
-                    Button(action: onEdit) {
-                        Image(systemName: "pencil")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                            .frame(width: 30, height: 30)
-                            .background(Color.blue.opacity(0.1))
-                            .cornerRadius(6)
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(exerciseCount) exercises")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                     
-                    Button(action: onDelete) {
-                        Image(systemName: "trash")
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .frame(width: 30, height: 30)
-                            .background(Color.red.opacity(0.1))
-                            .cornerRadius(6)
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    Text("Est. 45-60 min")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-            }
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(exerciseCount) exercises")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
                 
-                Text("Est. 45-60 min")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Spacer()
             }
             
             Spacer()
+            
+            VStack(spacing: 8) {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(Color.editButtonColor)
+                        .background(Color.white)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Button(action: onDelete) {
+                    Image(systemName: "trash.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(Color.deleteButtonColor)
+                        .background(Color.white)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
         }
-        .padding(16)
+        .padding(20)
         .frame(height: 120)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+        )
         .contentShape(Rectangle())
         .onTapGesture {
             action()

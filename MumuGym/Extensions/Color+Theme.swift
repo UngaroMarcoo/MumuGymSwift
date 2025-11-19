@@ -23,9 +23,25 @@ struct ColorTheme {
 }
 
 extension Color {
-    static let primaryBlue = Color(red: 0.2, green: 0.4, blue: 0.9)
+    // App theme colors matching splash screen
+    static let primaryBlue = Color.blue.opacity(0.8)
+    static let primaryPurple = Color.purple.opacity(0.6)
+    static let appGradientStart = Color.blue.opacity(0.8)
+    static let appGradientEnd = Color.purple.opacity(0.6)
+    
+    // UI colors
     static let lightGray = Color(.systemGray6)
     static let cardBackground = Color.white
     static let textPrimary = Color(.label)
     static let textSecondary = Color(.secondaryLabel)
+    
+    // Button colors
+    static let buttonPrimary = LinearGradient(
+        gradient: Gradient(colors: [appGradientStart, appGradientEnd]),
+        startPoint: .leading,
+        endPoint: .trailing
+    )
+    
+    static let editButtonColor = Color.blue.opacity(0.8)
+    static let deleteButtonColor = Color.red.opacity(0.8)
 }

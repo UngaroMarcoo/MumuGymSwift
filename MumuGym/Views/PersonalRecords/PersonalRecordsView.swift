@@ -85,7 +85,12 @@ struct PersonalRecordsView: View {
             Button("Add First Record") {
                 showingAddRecord = true
             }
-            .buttonStyle(PrimaryButtonStyle())
+            .frame(width: 180, height: 50)
+            .background(Color.buttonPrimary)
+            .foregroundColor(.white)
+            .cornerRadius(16)
+            .fontWeight(.semibold)
+            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
@@ -317,13 +322,24 @@ struct AddPersonalRecordView: View {
         NavigationView {
             Form {
                 Section("Exercise") {
-                    Picker("Select Exercise", selection: $selectedExercise) {
-                        Text("Choose an exercise").tag(nil as Exercise?)
-                        ForEach(exercises, id: \.objectID) { exercise in
-                            Text(exercise.name ?? "Unknown").tag(exercise as Exercise?)
+                    NavigationLink(destination: ExerciseSelectionView(
+                        exercises: exercises,
+                        selectedExercise: $selectedExercise
+                    )) {
+                        HStack {
+                            Text("Exercise")
+                            Spacer()
+                            if let exercise = selectedExercise {
+                                Text(exercise.name ?? "Unknown")
+                                    .foregroundColor(.secondary)
+                            } else {
+                                Text("Choose an exercise")
+                                    .foregroundColor(.secondary)
+                            }
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.secondary)
                         }
                     }
-                    .pickerStyle(.navigationLink)
                 }
                 
                 Section("Performance") {
@@ -566,6 +582,102 @@ struct CalculationRow: View {
                 .fontWeight(.medium)
                 .foregroundColor(.blue)
         }
+    }
+}
+
+struct ExerciseSelectionView: View {
+    let exercises: [Exercise]
+    @Binding var selectedExercise: Exercise?
+    @Environment(\.dismiss) private var dismiss
+    
+    @State private var searchText = ""
+    
+    private var filteredExercises: [Exercise] {
+        if searchText.isEmpty {
+            return exercises
+        } else {
+            return exercises.filter { exercise in
+                exercise.name?.localizedCaseInsensitiveContains(searchText) ?? false ||
+                exercise.targetMuscle?.localizedCaseInsensitiveContains(searchText) ?? false
+            }
+        }
+    }
+    
+    private var groupedExercises: [(key: String, value: [Exercise])] {
+        let grouped = Dictionary(grouping: filteredExercises) { exercise in
+            exercise.targetMuscle?.capitalized ?? "Other"
+        }
+        return grouped.sorted { $0.key < $1.key }
+    }
+    
+    var body: some View {
+        List {
+            ForEach(groupedExercises, id: \.key) { group in
+                Section(group.key) {
+                    ForEach(group.value, id: \.objectID) { exercise in
+                        ExerciseRowSelectionView(
+                            exercise: exercise,
+                            isSelected: selectedExercise?.objectID == exercise.objectID
+                        ) {
+                            selectedExercise = exercise
+                            dismiss()
+                        }
+                    }
+                }
+            }
+        }
+        .navigationTitle("Select Exercise")
+        .navigationBarTitleDisplayMode(.inline)
+        .searchable(text: $searchText, prompt: "Search exercises")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button("Cancel") {
+                    dismiss()
+                }
+            }
+        }
+    }
+}
+
+struct ExerciseRowSelectionView: View {
+    let exercise: Exercise
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                ExerciseImageView(
+                    imageUrl: exercise.imageUrl,
+                    exerciseName: exercise.name ?? "",
+                    size: CGSize(width: 50, height: 50)
+                )
+                .frame(width: 50, height: 50)
+                .cornerRadius(8)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(exercise.name ?? "Unknown")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    if let targetMuscle = exercise.targetMuscle {
+                        Text(targetMuscle.capitalized)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(Color.primaryBlue)
+                        .font(.title3)
+                }
+            }
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
