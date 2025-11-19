@@ -24,10 +24,10 @@ struct ColorTheme {
 
 extension Color {
     // Modern app theme colors
-    static let primaryBlue1 = Color(red: 0.15, green: 0.45, blue: 0.95) // #2673F2
-    static let primaryBlue2 = Color(red: 0.05, green: 0.25, blue: 0.80) // #0D40CC
-    static let primaryOrange1 = Color(red: 0.95, green: 0.55, blue: 0.10) // #F28C1A
-    static let primaryOrange2 = Color(red: 0.98, green: 0.35, blue: 0.10) // #FA5A1A
+    static let primaryBlue1 = Color(red: 0.30, green: 0.60, blue: 0.98) // #4C99FA
+    static let primaryBlue2 = Color(red: 0.20, green: 0.45, blue: 0.90) // #3372E6
+    static let primaryOrange1 = Color(red: 0.98, green: 0.35, blue: 0.10) // #FA5A1A
+    static let primaryOrange2 = Color(red: 0.95, green: 0.55, blue: 0.10) // #F28C1A
     static let primaryGreen1 = Color(red: 0.10, green: 0.70, blue: 0.30) // #19B34D
     static let primaryGreen2 = Color(red: 0.15, green: 0.85, blue: 0.40) // #26D966
     static let accentTeal = Color(red: 0.1, green: 0.7, blue: 0.8)       // #1AB3CC
@@ -39,7 +39,7 @@ extension Color {
     
     // Gradient definitions
     static let primaryGradient = LinearGradient(
-        gradient: Gradient(colors: [primaryBlue2, primaryBlue1]),
+        gradient: Gradient(colors: [primaryOrange1, primaryOrange2]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )

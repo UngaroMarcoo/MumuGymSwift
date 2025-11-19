@@ -36,7 +36,7 @@ struct MainTabView: View {
                     Text("Records")
                 }
         }
-        .accentColor(Color.primaryBlue1)
+        .accentColor(Color.primaryOrange1)
     }
 }
 

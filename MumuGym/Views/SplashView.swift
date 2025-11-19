@@ -8,7 +8,7 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
+                gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

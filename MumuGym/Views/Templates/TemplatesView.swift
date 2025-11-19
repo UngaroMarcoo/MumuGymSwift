@@ -127,7 +127,7 @@ struct TemplatesView: View {
             .background(
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.primaryGradient)
-                    .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 12, x: 0, y: 6)
+                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
             )
             
             // Action button

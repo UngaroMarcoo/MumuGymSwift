@@ -22,7 +22,7 @@ struct RegistrationView: View {
         NavigationView {
             ZStack {
                 LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryBlue1, Color.primaryBlue2]),
+                    gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )
@@ -90,7 +90,7 @@ struct RegistrationView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "person.fill")
-                    .foregroundColor(Color.primaryBlue1)
+                    .foregroundColor(Color.primaryOrange1)
                     .font(.title2)
                 
                 Text("Personal Information")
@@ -139,7 +139,7 @@ struct RegistrationView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "envelope.fill")
-                    .foregroundColor(Color.primaryBlue2)
+                    .foregroundColor(Color.primaryOrange2)
                     .font(.title2)
                 
                 Text("Account Information")
@@ -179,7 +179,7 @@ struct RegistrationView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "gear.circle.fill")
-                    .foregroundColor(Color.primaryBlue1)
+                    .foregroundColor(Color.primaryOrange1)
                     .font(.title2)
                 
                 Text("Preferences")
@@ -202,7 +202,7 @@ struct RegistrationView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            .toggleStyle(SwitchToggleStyle(tint: Color.primaryBlue1))
+            .toggleStyle(SwitchToggleStyle(tint: Color.primaryOrange1))
             .padding(16)
             .background(Color.white.opacity(0.9))
             .cornerRadius(12)
@@ -234,7 +234,7 @@ struct RegistrationView: View {
             .background(Color.buttonPrimary)
             .foregroundColor(.white)
             .cornerRadius(25)
-            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .disabled(isLoading || !isFormValid)
         .opacity(isLoading || !isFormValid ? 0.6 : 1.0)

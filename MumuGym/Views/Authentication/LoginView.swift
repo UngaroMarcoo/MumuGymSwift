@@ -36,7 +36,7 @@ struct LoginView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(Color.primaryGradient)
-                            .shadow(color: Color.primaryBlue1.opacity(0.3), radius: 12, x: 0, y: 6)
+                            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
                     )
                     
                     // Login form
@@ -144,7 +144,7 @@ struct CustomTextField: View {
                         .fill(Color.surfaceBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryBlue1.opacity(0.3), lineWidth: 1)
+                                .stroke(Color.primaryOrange1.opacity(0.3), lineWidth: 1)
                         )
                 )
                 .autocapitalization(.none)
@@ -183,7 +183,7 @@ struct CustomSecureField: View {
                     .fill(Color.surfaceBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primaryBlue1.opacity(0.3), lineWidth: 1)
+                            .stroke(Color.primaryOrange1.opacity(0.3), lineWidth: 1)
                     )
             )
         }
