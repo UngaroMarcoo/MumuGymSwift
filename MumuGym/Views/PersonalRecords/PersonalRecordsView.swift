@@ -1,0 +1,576 @@
+import SwiftUI
+import CoreData
+
+struct PersonalRecordsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var authManager: AuthenticationManager
+    
+    @FetchRequest var personalRecords: FetchedResults<PersonalRecord>
+    @FetchRequest var exercises: FetchedResults<Exercise>
+    
+    @State private var showingAddRecord = false
+    @State private var selectedRecord: PersonalRecord?
+    @State private var showingDeleteAlert = false
+    @State private var recordToDelete: PersonalRecord?
+    
+    init() {
+        _personalRecords = FetchRequest(
+            entity: PersonalRecord.entity(),
+            sortDescriptors: [
+                NSSortDescriptor(keyPath: \PersonalRecord.exerciseName, ascending: true),
+                NSSortDescriptor(keyPath: \PersonalRecord.date, ascending: false)
+            ]
+        )
+        
+        _exercises = FetchRequest(
+            entity: Exercise.entity(),
+            sortDescriptors: [NSSortDescriptor(keyPath: \Exercise.name, ascending: true)]
+        )
+    }
+    
+    var body: some View {
+        NavigationView {
+            Group {
+                if personalRecords.isEmpty {
+                    emptyStateView
+                } else {
+                    recordsList
+                }
+            }
+            .navigationTitle("Personal Records")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingAddRecord = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingAddRecord) {
+            AddPersonalRecordView(exercises: Array(exercises))
+        }
+        .sheet(item: $selectedRecord) { record in
+            PersonalRecordDetailView(record: record)
+        }
+        .alert("Delete Record", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                recordToDelete = nil
+            }
+            Button("Delete", role: .destructive) {
+                if let record = recordToDelete {
+                    deleteRecord(record)
+                }
+            }
+        } message: {
+            Text("Are you sure you want to delete this personal record?")
+        }
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.orange)
+            
+            Text("No Personal Records")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Track your best lifts and see your progress over time")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Button("Add First Record") {
+                showingAddRecord = true
+            }
+            .buttonStyle(PrimaryButtonStyle())
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(40)
+    }
+    
+    private var recordsList: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(groupedRecords, id: \.key) { exerciseGroup in
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text(exerciseGroup.key)
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            
+                            Spacer()
+                            
+                            Text("\(exerciseGroup.value.count) record\(exerciseGroup.value.count == 1 ? "" : "s")")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.horizontal, 20)
+                        
+                        PersonalRecordCard(
+                            records: exerciseGroup.value,
+                            onTap: { record in selectedRecord = record },
+                            onDelete: { record in
+                                recordToDelete = record
+                                showingDeleteAlert = true
+                            }
+                        )
+                        .padding(.horizontal, 20)
+                    }
+                }
+            }
+            .padding(.top, 16)
+            .padding(.bottom, 100)
+        }
+    }
+    
+    private var groupedRecords: [(key: String, value: [PersonalRecord])] {
+        let grouped = Dictionary(grouping: personalRecords) { $0.exerciseName ?? "Unknown" }
+        return grouped.sorted { $0.key < $1.key }
+    }
+    
+    private func deleteRecord(_ record: PersonalRecord) {
+        viewContext.delete(record)
+        try? viewContext.save()
+        recordToDelete = nil
+    }
+}
+
+struct PersonalRecordCard: View {
+    let records: [PersonalRecord]
+    let onTap: (PersonalRecord) -> Void
+    let onDelete: (PersonalRecord) -> Void
+    
+    private var bestRecord: PersonalRecord? {
+        records.max { first, second in
+            // Calculate 1RM using Epley formula: weight * (1 + reps/30)
+            let firstRM = first.weight * (1 + Double(first.reps) / 30)
+            let secondRM = second.weight * (1 + Double(second.reps) / 30)
+            return firstRM < secondRM
+        }
+    }
+    
+    private var latestRecord: PersonalRecord? {
+        records.max { $0.date! < $1.date! }
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            if let best = bestRecord {
+                Button(action: { onTap(best) }) {
+                    VStack(spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Best Performance")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                HStack(spacing: 8) {
+                                    Text("\(best.weight, default: "%.1f") kg")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.orange)
+                                    
+                                    Text("×")
+                                        .font(.title3)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Text("\(best.reps)")
+                                        .font(.title2)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.orange)
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            VStack(alignment: .trailing, spacing: 4) {
+                                Text("Est. 1RM")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Text("\(calculateOneRM(weight: best.weight, reps: Int(best.reps)), default: "%.1f") kg")
+                                    .font(.headline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                        
+                        if let latest = latestRecord, latest != best {
+                            Divider()
+                            
+                            HStack {
+                                Text("Latest: \(latest.weight, default: "%.1f") kg × \(latest.reps)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                
+                                Spacer()
+                                
+                                Text(formatDate(latest.date))
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding(20)
+                    .background(Color.white)
+                    .cornerRadius(16)
+                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            
+            if records.count > 1 {
+                recordsHistory
+            }
+        }
+    }
+    
+    private var recordsHistory: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("History")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                Text("See all (\(records.count))")
+                    .font(.caption)
+                    .foregroundColor(.blue)
+            }
+            
+            LazyVStack(spacing: 6) {
+                ForEach(records.prefix(3), id: \.objectID) { record in
+                    HStack {
+                        Text("\(record.weight, default: "%.1f") kg × \(record.reps)")
+                            .font(.subheadline)
+                        
+                        Spacer()
+                        
+                        Text(formatDate(record.date))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Button(action: { onDelete(record) }) {
+                            Image(systemName: "trash")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.vertical, 4)
+                    .onTapGesture {
+                        onTap(record)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+    
+    private func calculateOneRM(weight: Double, reps: Int) -> Double {
+        if reps == 1 {
+            return weight
+        }
+        // Epley formula: 1RM = weight * (1 + reps/30)
+        return weight * (1 + Double(reps) / 30)
+    }
+    
+    private func formatDate(_ date: Date?) -> String {
+        guard let date = date else { return "--" }
+        
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) {
+            return "Today"
+        } else if calendar.isDateInYesterday(date) {
+            return "Yesterday"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            return formatter.string(from: date)
+        }
+    }
+}
+
+struct AddPersonalRecordView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject private var authManager: AuthenticationManager
+    
+    let exercises: [Exercise]
+    
+    @State private var selectedExercise: Exercise?
+    @State private var weight = ""
+    @State private var reps = ""
+    @State private var date = Date()
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Exercise") {
+                    Picker("Select Exercise", selection: $selectedExercise) {
+                        Text("Choose an exercise").tag(nil as Exercise?)
+                        ForEach(exercises, id: \.objectID) { exercise in
+                            Text(exercise.name ?? "Unknown").tag(exercise as Exercise?)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
+                }
+                
+                Section("Performance") {
+                    HStack {
+                        Text("Weight (kg)")
+                        Spacer()
+                        TextField("0.0", text: $weight)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+                    
+                    HStack {
+                        Text("Reps")
+                        Spacer()
+                        TextField("0", text: $reps)
+                            .keyboardType(.numberPad)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+                
+                Section("Date") {
+                    DatePicker("Date", selection: $date, displayedComponents: .date)
+                }
+                
+                if selectedExercise != nil, !weight.isEmpty, !reps.isEmpty,
+                   let weightValue = Double(weight), let repsValue = Int(reps) {
+                    Section("Estimated 1RM") {
+                        HStack {
+                            Text("One Rep Max")
+                            Spacer()
+                            Text("\(calculateOneRM(weight: weightValue, reps: repsValue), default: "%.1f") kg")
+                                .fontWeight(.semibold)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("New Personal Record")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveRecord()
+                    }
+                    .disabled(!isValidInput)
+                }
+            }
+        }
+        .alert("Error", isPresented: $showingAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+    
+    private var isValidInput: Bool {
+        selectedExercise != nil &&
+        !weight.isEmpty &&
+        !reps.isEmpty &&
+        Double(weight) != nil &&
+        Int(reps) != nil &&
+        Double(weight)! > 0 &&
+        Int(reps)! > 0
+    }
+    
+    private func calculateOneRM(weight: Double, reps: Int) -> Double {
+        if reps == 1 {
+            return weight
+        }
+        return weight * (1 + Double(reps) / 30)
+    }
+    
+    private func saveRecord() {
+        guard let user = authManager.currentUser,
+              let exercise = selectedExercise,
+              let weightValue = Double(weight),
+              let repsValue = Int(reps) else {
+            alertMessage = "Please fill in all fields correctly"
+            showingAlert = true
+            return
+        }
+        
+        let record = PersonalRecord(context: viewContext)
+        record.exerciseName = exercise.name
+        record.weight = weightValue
+        record.reps = Int16(repsValue)
+        record.date = date
+        record.user = user
+        
+        do {
+            try viewContext.save()
+            dismiss()
+        } catch {
+            alertMessage = "Failed to save record: \(error.localizedDescription)"
+            showingAlert = true
+        }
+    }
+}
+
+struct PersonalRecordDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    let record: PersonalRecord
+    
+    private var formattedDate: String {
+        guard let date = record.date else { return "--" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        return formatter.string(from: date)
+    }
+    
+    private var oneRM: Double {
+        let reps = Int(record.reps)
+        if reps == 1 {
+            return record.weight
+        }
+        return record.weight * (1 + Double(reps) / 30)
+    }
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 25) {
+                    headerSection
+                    detailsSection
+                    calculationsSection
+                }
+                .padding(20)
+            }
+            .navigationTitle(record.exerciseName ?? "Record")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+    
+    private var headerSection: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.orange)
+            
+            Text(record.exerciseName ?? "Unknown Exercise")
+                .font(.title)
+                .fontWeight(.bold)
+            
+            Text(formattedDate)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var detailsSection: some View {
+        VStack(spacing: 16) {
+            HStack(spacing: 20) {
+                RecordDetailCard(title: "Weight", value: "\(record.weight, default: "%.1f") kg", icon: "scalemass")
+                RecordDetailCard(title: "Reps", value: "\(record.reps)", icon: "repeat")
+            }
+        }
+    }
+    
+    private var calculationsSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("Calculations")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+            }
+            
+            VStack(spacing: 12) {
+                CalculationRow(label: "Estimated 1RM", value: "\(oneRM, default: "%.1f") kg")
+                CalculationRow(label: "Volume (Weight × Reps)", value: "\(record.weight * Double(record.reps), default: "%.1f") kg")
+                
+                if record.reps > 1 {
+                    CalculationRow(label: "75% of 1RM", value: "\(oneRM * 0.75, default: "%.1f") kg")
+                    CalculationRow(label: "85% of 1RM", value: "\(oneRM * 0.85, default: "%.1f") kg")
+                    CalculationRow(label: "95% of 1RM", value: "\(oneRM * 0.95, default: "%.1f") kg")
+                }
+            }
+            .padding(16)
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+        }
+    }
+}
+
+struct RecordDetailCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(.blue)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text(title)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(Color.white)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+}
+
+struct CalculationRow: View {
+    let label: String
+    let value: String
+    
+    var body: some View {
+        HStack {
+            Text(label)
+                .font(.subheadline)
+            
+            Spacer()
+            
+            Text(value)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundColor(.blue)
+        }
+    }
+}
+
+#Preview {
+    PersonalRecordsView()
+        .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        .environmentObject(AuthenticationManager.shared)
+}

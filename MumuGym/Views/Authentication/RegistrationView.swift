@@ -1,0 +1,199 @@
+import SwiftUI
+
+struct RegistrationView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var authManager: AuthenticationManager
+    
+    @State private var firstName = ""
+    @State private var lastName = ""
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
+    @State private var age = ""
+    @State private var gender = "Male"
+    @State private var emailSubscription = true
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
+    @State private var isLoading = false
+    
+    private let genders = ["Male", "Female", "Other", "Prefer not to say"]
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 25) {
+                    headerSection
+                    personalInfoSection
+                    accountInfoSection
+                    preferencesSection
+                    registerButton
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+            }
+            .navigationTitle("Create Account")
+            .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+        .alert("Error", isPresented: $showingAlert) {
+            Button("OK") { }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+    
+    private var headerSection: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "person.crop.circle.fill.badge.plus")
+                .font(.system(size: 50))
+                .foregroundColor(.blue)
+            
+            Text("Join MumuGym")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Start your fitness journey today")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding(.bottom, 10)
+    }
+    
+    private var personalInfoSection: some View {
+        VStack(spacing: 15) {
+            HStack(spacing: 15) {
+                CustomTextField(title: "First Name", text: $firstName)
+                CustomTextField(title: "Last Name", text: $lastName)
+            }
+            
+            CustomTextField(title: "Age", text: $age, keyboardType: .numberPad)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Gender")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                
+                Picker("Gender", selection: $gender) {
+                    ForEach(genders, id: \.self) { gender in
+                        Text(gender).tag(gender)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+        }
+    }
+    
+    private var accountInfoSection: some View {
+        VStack(spacing: 15) {
+            CustomTextField(title: "Email", text: $email, keyboardType: .emailAddress)
+            CustomSecureField(title: "Password", text: $password)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                CustomSecureField(title: "Confirm Password", text: $confirmPassword)
+                
+                if !confirmPassword.isEmpty && password != confirmPassword {
+                    Text("Passwords don't match")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                }
+            }
+        }
+    }
+    
+    private var preferencesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(isOn: $emailSubscription) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Email notifications")
+                        .font(.headline)
+                    
+                    Text("Receive workout tips and updates")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .toggleStyle(SwitchToggleStyle(tint: .blue))
+        }
+        .padding(.vertical, 8)
+    }
+    
+    private var registerButton: some View {
+        Button(action: handleRegistration) {
+            HStack {
+                if isLoading {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                        .tint(.white)
+                } else {
+                    Text("Create Account")
+                        .fontWeight(.semibold)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(Color.blue)
+            .foregroundColor(.white)
+            .cornerRadius(12)
+        }
+        .disabled(isLoading || !isFormValid)
+        .opacity(isLoading || !isFormValid ? 0.6 : 1.0)
+        .padding(.top, 20)
+    }
+    
+    private var isFormValid: Bool {
+        !firstName.isEmpty &&
+        !lastName.isEmpty &&
+        !email.isEmpty &&
+        !password.isEmpty &&
+        !confirmPassword.isEmpty &&
+        !age.isEmpty &&
+        password == confirmPassword &&
+        password.count >= 6 &&
+        Int(age) != nil &&
+        Int(age)! > 0
+    }
+    
+    private func handleRegistration() {
+        guard let ageInt = Int(age) else {
+            alertMessage = "Please enter a valid age"
+            showingAlert = true
+            return
+        }
+        
+        isLoading = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let result = authManager.register(
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                password: password,
+                age: Int16(ageInt),
+                gender: gender,
+                emailSubscription: emailSubscription
+            )
+            
+            switch result {
+            case .success(_):
+                dismiss()
+            case .failure(let error):
+                alertMessage = error.localizedDescription
+                showingAlert = true
+            }
+            
+            isLoading = false
+        }
+    }
+}
+
+#Preview {
+    RegistrationView()
+        .environmentObject(AuthenticationManager.shared)
+}
