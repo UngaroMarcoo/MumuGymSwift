@@ -19,13 +19,22 @@ struct CreateTemplateView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    templateInfoSection
-                    exercisesSection
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.appGradientStart, Color.appGradientEnd]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        templateInfoSection
+                        exercisesSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
             }
             .navigationTitle("New Template")
             .navigationBarTitleDisplayMode(.inline)
@@ -34,12 +43,16 @@ struct CreateTemplateView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveTemplate()
                     }
+                    .foregroundColor(isValidTemplate ? .white : .white.opacity(0.5))
+                    .fontWeight(.semibold)
                     .disabled(!isValidTemplate)
                 }
             }
@@ -60,34 +73,51 @@ struct CreateTemplateView: View {
     private var templateInfoSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "doc.text.fill")
+                    .foregroundColor(Color.primaryBlue)
+                    .font(.title2)
+                
                 Text("Template Details")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("Template Name")
                     .font(.subheadline)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
                 
                 TextField("Enter template name", text: $templateName)
-                    .textFieldStyle(.roundedBorder)
+                    .padding(12)
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(12)
+                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var exercisesSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "dumbbell.fill")
+                    .foregroundColor(Color.primaryPurple)
+                    .font(.title2)
+                
                 Text("Exercises")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
                 
@@ -95,7 +125,13 @@ struct CreateTemplateView: View {
                     showingExercisePicker = true
                 }
                 .font(.subheadline)
-                .foregroundColor(.blue)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(Color.buttonPrimary)
+                .cornerRadius(20)
+                .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
             }
             
             if selectedExercises.isEmpty {
@@ -104,20 +140,24 @@ struct CreateTemplateView: View {
                 exercisesList
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var emptyExercisesView: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "dumbbell")
-                .font(.system(size: 40))
-                .foregroundColor(.gray)
+        VStack(spacing: 16) {
+            Image(systemName: "dumbbell.fill")
+                .font(.system(size: 50))
+                .foregroundColor(Color.primaryBlue.opacity(0.6))
             
             Text("No exercises added")
-                .font(.headline)
+                .font(.title3)
+                .fontWeight(.semibold)
                 .foregroundColor(.primary)
             
             Text("Add exercises to create your workout template")
@@ -128,10 +168,15 @@ struct CreateTemplateView: View {
             Button("Add First Exercise") {
                 showingExercisePicker = true
             }
-            .buttonStyle(.borderedProminent)
+            .frame(width: 180, height: 44)
+            .background(Color.buttonPrimary)
+            .foregroundColor(.white)
+            .cornerRadius(22)
+            .fontWeight(.semibold)
+            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 6, x: 0, y: 3)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 30)
+        .padding(.vertical, 40)
     }
     
     private var exercisesList: some View {
@@ -220,8 +265,9 @@ struct TemplateExerciseRow: View {
                 Spacer()
                 
                 Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .foregroundColor(.red)
+                    Image(systemName: "trash.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(Color.deleteButtonColor)
                 }
             }
             
@@ -265,9 +311,12 @@ struct TemplateExerciseRow: View {
                 }
             }
         }
-        .padding(16)
-        .background(Color.white)
-        .cornerRadius(12)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.white.opacity(0.9))
+                .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
+        )
     }
 }
 
@@ -293,35 +342,8 @@ struct ExercisePickerView: View {
     var body: some View {
         NavigationView {
             VStack {
-                VStack {
-                    SearchBar(text: $searchText)
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(muscleGroups, id: \.self) { group in
-                                Button(group) {
-                                    selectedMuscleGroup = group
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(selectedMuscleGroup == group ? Color.blue : Color(.systemGray5))
-                                .foregroundColor(selectedMuscleGroup == group ? .white : .primary)
-                                .cornerRadius(20)
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-                .padding(.top, 10)
-                
-                List {
-                    ForEach(filteredExercises, id: \.objectID) { exercise in
-                        ExercisePickerRow(exercise: exercise) {
-                            onExerciseSelected(exercise)
-                            dismiss()
-                        }
-                    }
-                }
+                filterSection
+                exerciseList
             }
             .navigationTitle("Select Exercise")
             .navigationBarTitleDisplayMode(.inline)
@@ -330,6 +352,40 @@ struct ExercisePickerView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                }
+            }
+        }
+    }
+    
+    private var filterSection: some View {
+        VStack {
+            SearchBar(text: $searchText)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(muscleGroups, id: \.self) { group in
+                        Button(group) {
+                            selectedMuscleGroup = group
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(selectedMuscleGroup == group ? Color.primaryBlue : Color(.systemGray5))
+                        .foregroundColor(selectedMuscleGroup == group ? .white : .primary)
+                        .cornerRadius(20)
+                    }
+                }
+                .padding(.horizontal, 20)
+            }
+        }
+        .padding(.top, 10)
+    }
+    
+    private var exerciseList: some View {
+        List {
+            ForEach(filteredExercises, id: \.objectID) { exercise in
+                ExercisePickerRow(exercise: exercise) {
+                    onExerciseSelected(exercise)
+                    dismiss()
                 }
             }
         }
@@ -374,8 +430,8 @@ struct ExercisePickerRow: View {
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundColor(.blue)
+                        .background(Color.primaryBlue.opacity(0.15))
+                        .foregroundColor(Color.primaryBlue)
                         .cornerRadius(8)
                     
                     Image(systemName: "chevron.right")
