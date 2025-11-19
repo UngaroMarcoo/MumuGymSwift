@@ -12,16 +12,17 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 25) {
+                VStack(spacing: 20) {
                     headerSection
                     weightSection
                     quickStatsSection
                     quickActionsSection
-                    Spacer()
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+                .padding(.bottom, 20)
             }
+            .background(Color.appBackground)
             .navigationTitle("Welcome Back")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -29,7 +30,8 @@ struct HomeView: View {
                     Button("Logout") {
                         authManager.logout()
                     }
-                    .foregroundColor(.red)
+                    .foregroundColor(.primaryBlue)
+                    .fontWeight(.medium)
                 }
             }
         }
@@ -42,33 +44,51 @@ struct HomeView: View {
     }
     
     private var headerSection: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Hello, \(authManager.currentUser?.firstName ?? "User")!")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Text("Ready for today's workout?")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+        VStack(spacing: 16) {
+            // Gradient header bar
+            VStack(spacing: 12) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Hello, \(authManager.currentUser?.firstName ?? "User")!")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Ready for today's workout?")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { showingWeightEntry = true }) {
+                        Image(systemName: "person.crop.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
+                }
             }
-            
-            Spacer()
-            
-            Button(action: { showingWeightEntry = true }) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.blue)
-            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 24)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.primaryGradient)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+            )
         }
     }
     
     private var weightSection: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 16) {
             HStack {
+                Image(systemName: "scalemass.fill")
+                    .foregroundColor(Color.primaryBlue)
+                    .font(.title3)
+                
                 Text("Weight Tracking")
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
                 
@@ -76,20 +96,27 @@ struct HomeView: View {
                     showingWeightEntry = true
                 }
                 .font(.caption)
-                .foregroundColor(.blue)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.primaryBlue)
+                )
             }
             
-            HStack(spacing: 20) {
+            HStack(spacing: 12) {
                 weightCard(
                     title: "Current Weight",
                     value: currentWeight.isEmpty ? "--" : "\(currentWeight) kg",
-                    color: .blue
+                    color: Color.primaryBlue
                 )
                 
                 weightCard(
                     title: "Target Weight",
                     value: targetWeight.isEmpty ? "--" : "\(targetWeight) kg",
-                    color: .green
+                    color: Color.primaryPurple
                 )
             }
             
@@ -99,27 +126,36 @@ struct HomeView: View {
                 weightProgressView(current: current, target: target)
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
     }
     
     private func weightCard(title: String, value: String, color: Color) -> some View {
         VStack(spacing: 8) {
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .fontWeight(.medium)
+                .foregroundColor(.textSecondary)
             
             Text(value)
                 .font(.title3)
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(color)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.white)
-        .cornerRadius(12)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.surfaceBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
     
     private func weightProgressView(current: Double, target: Double) -> some View {
@@ -143,96 +179,122 @@ struct HomeView: View {
     }
     
     private var quickStatsSection: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 16) {
             HStack {
+                Image(systemName: "chart.bar.fill")
+                    .foregroundColor(Color.accentTeal)
+                    .font(.title3)
+                
                 Text("This Week")
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
             }
             
-            HStack(spacing: 15) {
+            HStack(spacing: 12) {
                 statCard(title: "Workouts", value: "3", icon: "dumbbell")
                 statCard(title: "Duration", value: "4.5h", icon: "clock")
                 statCard(title: "Calories", value: "1,250", icon: "flame")
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
     }
     
     private func statCard(title: String, value: String, icon: String) -> some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(.blue)
+                .font(.title3)
+                .foregroundColor(Color.accentTeal)
             
             Text(value)
                 .font(.title3)
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
+                .foregroundColor(.textPrimary)
             
             Text(title)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .fontWeight(.medium)
+                .foregroundColor(.textSecondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(Color.white)
-        .cornerRadius(12)
+        .padding(.vertical, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.surfaceBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.accentTeal.opacity(0.2), lineWidth: 1)
+                )
+        )
     }
     
     private var quickActionsSection: some View {
-        VStack(spacing: 15) {
+        VStack(spacing: 16) {
             HStack {
+                Image(systemName: "bolt.fill")
+                    .foregroundColor(Color.primaryPurple)
+                    .font(.title3)
+                
                 Text("Quick Actions")
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
             }
             
-            VStack(spacing: 12) {
-                NavigationLink(destination: TemplatesView()) {
-                    actionButton(title: "Start Quick Workout", icon: "play.fill", color: .green)
+            VStack(spacing: 10) {
+                NavigationLink(destination: LiveWorkoutView()) {
+                    actionButton(title: "Start Quick Workout", icon: "play.fill", gradient: Color.successGradient)
                 }
                 
                 NavigationLink(destination: TemplatesView()) {
-                    actionButton(title: "Create New Template", icon: "plus.circle.fill", color: .blue)
+                    actionButton(title: "Browse Templates", icon: "doc.text.fill", gradient: Color.primaryGradient)
                 }
                 
                 NavigationLink(destination: PersonalRecordsView()) {
-                    actionButton(title: "Log Personal Record", icon: "trophy.fill", color: .orange)
+                    actionButton(title: "Log Personal Record", icon: "trophy.fill", gradient: Color.warningGradient)
                 }
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
     }
     
-    private func actionButton(title: String, icon: String, color: Color) -> some View {
+    private func actionButton(title: String, icon: String, gradient: LinearGradient) -> some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(color)
+                .font(.title3)
+                .foregroundColor(.white)
             
             Text(title)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
             
             Spacer()
             
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.white.opacity(0.8))
         }
         .padding(.vertical, 16)
-        .padding(.horizontal, 16)
-        .background(Color.white)
-        .cornerRadius(12)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(gradient)
+                .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 2)
+        )
     }
     
     private func loadUserWeights() {
@@ -261,31 +323,55 @@ struct WeightEntryView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 30) {
-                VStack(spacing: 20) {
-                    Text("Update Your Weights")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    VStack(spacing: 16) {
-                        CustomTextField(title: "Current Weight (kg)", text: $tempCurrentWeight, keyboardType: .decimalPad)
-                        CustomTextField(title: "Target Weight (kg)", text: $tempTargetWeight, keyboardType: .decimalPad)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header with gradient
+                    VStack(spacing: 12) {
+                        Image(systemName: "scalemass.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.white)
+                        
+                        Text("Update Your Weights")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 24)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.primaryGradient)
+                            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+                    )
+                    
+                    // Weight entry form
+                    VStack(spacing: 20) {
+                        weightEntryField(title: "Current Weight (kg)", text: $tempCurrentWeight)
+                        weightEntryField(title: "Target Weight (kg)", text: $tempTargetWeight)
+                        
+                        Button("Save Changes") {
+                            saveWeights()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.successGradient)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .fontWeight(.semibold)
+                        .disabled(tempCurrentWeight.isEmpty && tempTargetWeight.isEmpty)
+                        .opacity(tempCurrentWeight.isEmpty && tempTargetWeight.isEmpty ? 0.6 : 1.0)
+                    }
+                    .padding(20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.cardBackground)
+                            .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                    )
                 }
-                
-                Button("Save") {
-                    saveWeights()
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(12)
-                .disabled(tempCurrentWeight.isEmpty && tempTargetWeight.isEmpty)
-                
-                Spacer()
+                .padding(16)
             }
-            .padding(20)
+            .background(Color.appBackground)
             .navigationTitle("Weight Entry")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -293,8 +379,31 @@ struct WeightEntryView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.primaryBlue)
+                    .fontWeight(.medium)
                 }
             }
+        }
+    }
+    
+    private func weightEntryField(title: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+            
+            TextField("Enter weight", text: text)
+                .keyboardType(.decimalPad)
+                .padding(16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.primaryBlue.opacity(0.3), lineWidth: 1)
+                        )
+                )
         }
         .onAppear {
             tempCurrentWeight = currentWeight

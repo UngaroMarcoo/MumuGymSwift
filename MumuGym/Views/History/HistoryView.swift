@@ -21,15 +21,25 @@ struct HistoryView: View {
     
     var body: some View {
         NavigationView {
-            Group {
-                if workouts.isEmpty {
-                    emptyStateView
-                } else {
-                    workoutsList
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                Group {
+                    if workouts.isEmpty {
+                        emptyStateView
+                    } else {
+                        workoutsList
+                    }
                 }
             }
             .navigationTitle("Workout History")
             .navigationBarTitleDisplayMode(.large)
+            .foregroundColor(.white)
         }
         .sheet(item: $selectedWorkout) { workout in
             WorkoutDetailView(workout: workout)
@@ -49,26 +59,39 @@ struct HistoryView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "clock.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.gray)
-            
-            Text("No Workouts Yet")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text("Start your first workout to see your history here")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+        VStack(spacing: 30) {
+            VStack(spacing: 20) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(Color.primaryBlue)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+                
+                Text("No Workouts Yet")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("Start your first workout to see your history here")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 30)
+            .padding(.horizontal, 25)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.95))
+                    .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+            )
             
             NavigationLink(destination: LiveWorkoutView()) {
                 Text("Start Workout")
                     .frame(width: 150, height: 50)
-                    .background(Color.blue)
+                    .background(Color.buttonPrimary)
                     .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .cornerRadius(25)
+                    .fontWeight(.semibold)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -81,13 +104,24 @@ struct HistoryView: View {
                 ForEach(groupedWorkouts, id: \.key) { dateGroup in
                     VStack(spacing: 12) {
                         HStack {
+                            Image(systemName: "calendar.circle.fill")
+                                .foregroundColor(Color.primaryPurple)
+                                .font(.title2)
+                            
                             Text(dateGroup.key)
                                 .font(.headline)
-                                .fontWeight(.semibold)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
                             
                             Spacer()
                         }
+                        .padding(.vertical, 16)
                         .padding(.horizontal, 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.95))
+                                .shadow(color: Color.black.opacity(0.10), radius: 6, x: 0, y: 3)
+                        )
                         
                         ForEach(dateGroup.value, id: \.objectID) { workout in
                             WorkoutHistoryCard(
@@ -199,9 +233,11 @@ struct WorkoutHistoryCard: View {
                 }
             }
             .padding(20)
-            .background(Color.white)
-            .cornerRadius(16)
-            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(0.95))
+                    .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+            )
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -224,7 +260,7 @@ struct WorkoutStat: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(.blue)
+                .foregroundColor(Color.primaryBlue)
             
             Text(value)
                 .font(.headline)
@@ -271,21 +307,33 @@ struct WorkoutDetailView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    headerSection
-                    exercisesSection
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        headerSection
+                        exercisesSection
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
             }
             .navigationTitle(workout.name ?? "Workout")
             .navigationBarTitleDisplayMode(.large)
+            .foregroundColor(.white)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
             }
         }
@@ -303,18 +351,26 @@ struct WorkoutDetailView: View {
                 InfoCard(title: "Total Sets", value: "\(totalSets)", icon: "repeat")
             }
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var exercisesSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "dumbbell.fill")
+                    .foregroundColor(Color.primaryPurple)
+                    .font(.title2)
+                
                 Text("Exercises")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
             }
@@ -325,6 +381,13 @@ struct WorkoutDetailView: View {
                 }
             }
         }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var totalSets: Int {
@@ -410,9 +473,11 @@ struct WorkoutExerciseDetailCard: View {
             }
         }
         .padding(16)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.9))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
     }
 }
 

@@ -30,20 +30,32 @@ struct PersonalRecordsView: View {
     
     var body: some View {
         NavigationView {
-            Group {
-                if personalRecords.isEmpty {
-                    emptyStateView
-                } else {
-                    recordsList
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                Group {
+                    if personalRecords.isEmpty {
+                        emptyStateView
+                    } else {
+                        recordsList
+                    }
                 }
             }
             .navigationTitle("Personal Records")
             .navigationBarTitleDisplayMode(.large)
+            .foregroundColor(.white)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { showingAddRecord = true }) {
                         Image(systemName: "plus")
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
             }
         }
@@ -68,19 +80,30 @@ struct PersonalRecordsView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "trophy.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.orange)
-            
-            Text("No Personal Records")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text("Track your best lifts and see your progress over time")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+        VStack(spacing: 30) {
+            VStack(spacing: 20) {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(.orange)
+                    .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
+                
+                Text("No Personal Records")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("Track your best lifts and see your progress over time")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 30)
+            .padding(.horizontal, 25)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.95))
+                    .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+            )
             
             Button("Add First Record") {
                 showingAddRecord = true
@@ -88,7 +111,7 @@ struct PersonalRecordsView: View {
             .frame(width: 180, height: 50)
             .background(Color.buttonPrimary)
             .foregroundColor(.white)
-            .cornerRadius(16)
+            .cornerRadius(25)
             .fontWeight(.semibold)
             .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
         }
@@ -102,17 +125,33 @@ struct PersonalRecordsView: View {
                 ForEach(groupedRecords, id: \.key) { exerciseGroup in
                     VStack(spacing: 12) {
                         HStack {
+                            Image(systemName: "dumbbell.fill")
+                                .foregroundColor(Color.primaryPurple)
+                                .font(.title2)
+                            
                             Text(exerciseGroup.key)
                                 .font(.headline)
-                                .fontWeight(.semibold)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
                             
                             Spacer()
                             
                             Text("\(exerciseGroup.value.count) record\(exerciseGroup.value.count == 1 ? "" : "s")")
                                 .font(.caption)
-                                .foregroundColor(.secondary)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Color.primaryBlue)
+                                .cornerRadius(10)
                         }
+                        .padding(.vertical, 20)
                         .padding(.horizontal, 20)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color.white.opacity(0.95))
+                                .shadow(color: Color.black.opacity(0.10), radius: 6, x: 0, y: 3)
+                        )
                         
                         PersonalRecordCard(
                             records: exerciseGroup.value,
@@ -220,9 +259,11 @@ struct PersonalRecordCard: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.white)
-                    .cornerRadius(16)
-                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.95))
+                            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    )
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -275,8 +316,11 @@ struct PersonalRecordCard: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.8))
+                    .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+            )
         }
     }
     
@@ -320,76 +364,46 @@ struct AddPersonalRecordView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("Exercise") {
-                    NavigationLink(destination: ExerciseSelectionView(
-                        exercises: exercises,
-                        selectedExercise: $selectedExercise
-                    )) {
-                        HStack {
-                            Text("Exercise")
-                            Spacer()
-                            if let exercise = selectedExercise {
-                                Text(exercise.name ?? "Unknown")
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text("Choose an exercise")
-                                    .foregroundColor(.secondary)
-                            }
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.secondary)
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        exerciseSection
+                        performanceSection
+                        dateSection
+                        if selectedExercise != nil, !weight.isEmpty, !reps.isEmpty,
+                           let weightValue = Double(weight), let repsValue = Int(reps) {
+                            estimatedOneRMSection(weight: weightValue, reps: repsValue)
                         }
                     }
-                }
-                
-                Section("Performance") {
-                    HStack {
-                        Text("Weight (kg)")
-                        Spacer()
-                        TextField("0.0", text: $weight)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                    }
-                    
-                    HStack {
-                        Text("Reps")
-                        Spacer()
-                        TextField("0", text: $reps)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
-                    }
-                }
-                
-                Section("Date") {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                }
-                
-                if selectedExercise != nil, !weight.isEmpty, !reps.isEmpty,
-                   let weightValue = Double(weight), let repsValue = Int(reps) {
-                    Section("Estimated 1RM") {
-                        HStack {
-                            Text("One Rep Max")
-                            Spacer()
-                            Text("\(calculateOneRM(weight: weightValue, reps: repsValue), default: "%.1f") kg")
-                                .fontWeight(.semibold)
-                                .foregroundColor(.blue)
-                        }
-                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
                 }
             }
             .navigationTitle("New Personal Record")
             .navigationBarTitleDisplayMode(.inline)
+            .foregroundColor(.white)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         saveRecord()
                     }
+                    .foregroundColor(isValidInput ? .white : .white.opacity(0.5))
+                    .fontWeight(.semibold)
                     .disabled(!isValidInput)
                 }
             }
@@ -398,6 +412,244 @@ struct AddPersonalRecordView: View {
             Button("OK") { }
         } message: {
             Text(alertMessage)
+        }
+    }
+    
+    private var exerciseSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "dumbbell.fill")
+                    .foregroundColor(Color.primaryBlue)
+                    .font(.title2)
+                
+                Text("Exercise")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            NavigationLink(destination: ExerciseSelectionView(
+                exercises: exercises,
+                selectedExercise: $selectedExercise
+            )) {
+                HStack {
+                    Text("Exercise")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    if let exercise = selectedExercise {
+                        Text(exercise.name ?? "Unknown")
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Choose an exercise")
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .padding(12)
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private var performanceSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "scalemass.fill")
+                    .foregroundColor(Color.primaryPurple)
+                    .font(.title2)
+                
+                Text("Performance")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            VStack(spacing: 12) {
+                HStack {
+                    Text("Weight (kg)")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    TextField("0.0", text: $weight)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .padding(8)
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(8)
+                        .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+                }
+                
+                HStack {
+                    Text("Reps")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    Spacer()
+                    
+                    TextField("0", text: $reps)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                        .padding(8)
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(8)
+                        .shadow(color: Color.black.opacity(0.1), radius: 1, x: 0, y: 1)
+                }
+            }
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private var dateSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "calendar.circle.fill")
+                    .foregroundColor(Color.primaryBlue)
+                    .font(.title2)
+                
+                Text("Date")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            DatePicker("Date", selection: $date, displayedComponents: .date)
+                .padding(12)
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(12)
+                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private func estimatedOneRMSection(weight: Double, reps: Int) -> some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "trophy.circle.fill")
+                    .foregroundColor(.orange)
+                    .font(.title2)
+                
+                Text("Estimated 1RM")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
+            HStack {
+                Text("One Rep Max")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Text("\(calculateOneRM(weight: weight, reps: reps), default: "%.1f") kg")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.primaryBlue)
+            }
+            .padding(16)
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+    }
+    
+    private var oldFormView: some View {
+        Form {
+        }
+    }
+    
+    private var oldForm: some View {
+        Form {
+            Section("Exercise") {
+                NavigationLink(destination: ExerciseSelectionView(
+                    exercises: exercises,
+                    selectedExercise: $selectedExercise
+                )) {
+                    HStack {
+                        Text("Exercise")
+                        Spacer()
+                        if let exercise = selectedExercise {
+                            Text(exercise.name ?? "Unknown")
+                                .foregroundColor(.secondary)
+                        } else {
+                            Text("Choose an exercise")
+                                .foregroundColor(.secondary)
+                        }
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            
+            Section("Performance") {
+                HStack {
+                    Text("Weight (kg)")
+                    Spacer()
+                    TextField("0.0", text: $weight)
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                }
+                
+                HStack {
+                    Text("Reps")
+                    Spacer()
+                    TextField("0", text: $reps)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+            
+            Section("Date") {
+                DatePicker("Date", selection: $date, displayedComponents: .date)
+            }
         }
     }
     
@@ -467,57 +719,103 @@ struct PersonalRecordDetailView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    headerSection
-                    detailsSection
-                    calculationsSection
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 25) {
+                        headerSection
+                        detailsSection
+                        calculationsSection
+                    }
+                    .padding(20)
                 }
-                .padding(20)
             }
             .navigationTitle(record.exerciseName ?? "Record")
             .navigationBarTitleDisplayMode(.large)
+            .foregroundColor(.white)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
             }
         }
     }
     
     private var headerSection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Image(systemName: "trophy.fill")
-                .font(.system(size: 60))
+                .font(.system(size: 50))
                 .foregroundColor(.orange)
+                .shadow(color: Color.orange.opacity(0.3), radius: 4, x: 0, y: 2)
             
             Text(record.exerciseName ?? "Unknown Exercise")
-                .font(.title)
+                .font(.title2)
                 .fontWeight(.bold)
+                .foregroundColor(.primary)
             
             Text(formattedDate)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
+        .padding(.vertical, 30)
+        .padding(.horizontal, 25)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var detailsSection: some View {
         VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "scalemass.fill")
+                    .foregroundColor(Color.primaryPurple)
+                    .font(.title2)
+                
+                Text("Performance Details")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+            }
+            
             HStack(spacing: 20) {
                 RecordDetailCard(title: "Weight", value: "\(record.weight, default: "%.1f") kg", icon: "scalemass")
                 RecordDetailCard(title: "Reps", value: "\(record.reps)", icon: "repeat")
             }
         }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
     
     private var calculationsSection: some View {
         VStack(spacing: 16) {
             HStack {
+                Image(systemName: "function")
+                    .foregroundColor(Color.primaryBlue)
+                    .font(.title2)
+                
                 Text("Calculations")
                     .font(.headline)
-                    .fontWeight(.semibold)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
                 
                 Spacer()
             }
@@ -533,9 +831,19 @@ struct PersonalRecordDetailView: View {
                 }
             }
             .padding(16)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white.opacity(0.9))
+                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+            )
         }
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
     }
 }
 
@@ -560,9 +868,11 @@ struct RecordDetailCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.9))
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
     }
 }
 
@@ -580,7 +890,7 @@ struct CalculationRow: View {
             Text(value)
                 .font(.subheadline)
                 .fontWeight(.medium)
-                .foregroundColor(.blue)
+                .foregroundColor(Color.primaryBlue)
         }
     }
 }

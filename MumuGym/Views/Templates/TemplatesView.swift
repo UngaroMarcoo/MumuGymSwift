@@ -45,6 +45,7 @@ struct TemplatesView: View {
                     templatesList
                 }
             }
+            .background(Color.appBackground)
             .navigationTitle("Workout Templates")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -53,6 +54,8 @@ struct TemplatesView: View {
                         Button(action: { showingTemplateChoice = true }) {
                             Image(systemName: "plus")
                         }
+                        .foregroundColor(.primaryBlue)
+                        .fontWeight(.medium)
                     }
                 }
             }
@@ -99,35 +102,57 @@ struct TemplatesView: View {
     }
     
     private var emptyTemplatesView: some View {
-        VStack(spacing: 30) {
-            Image(systemName: "doc.text.fill")
-                .font(.system(size: 80))
-                .foregroundColor(.blue)
+        VStack(spacing: 32) {
+            Spacer()
             
-            VStack(spacing: 12) {
+            // Header with gradient
+            VStack(spacing: 16) {
+                Image(systemName: "doc.text.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.white)
+                
                 Text("No Templates Yet")
                     .font(.title2)
                     .fontWeight(.bold)
+                    .foregroundColor(.white)
                 
                 Text("Create your first workout template to get started")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 32)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.primaryGradient)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 12, x: 0, y: 6)
+            )
             
-            Button("Create Template") {
-                showingTemplateChoice = true
+            // Action button
+            VStack {
+                Button("Create Template") {
+                    showingTemplateChoice = true
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(Color.successGradient)
+                .foregroundColor(.white)
+                .cornerRadius(12)
+                .fontWeight(.semibold)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
             }
-            .frame(width: 200, height: 50)
-            .background(Color.buttonPrimary)
-            .foregroundColor(.white)
-            .cornerRadius(16)
-            .fontWeight(.semibold)
-            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 8, x: 0, y: 4)
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+            )
+            
+            Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(40)
+        .padding(.horizontal, 20)
     }
     
     private var templatesList: some View {
@@ -258,8 +283,8 @@ struct TemplateCard: View {
         .frame(height: 120)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
         )
         .contentShape(Rectangle())
         .onTapGesture {

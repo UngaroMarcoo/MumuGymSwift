@@ -12,28 +12,39 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 30) {
-                    Spacer(minLength: 50)
+                VStack(spacing: 32) {
+                    Spacer(minLength: 60)
                     
-                    VStack(spacing: 10) {
+                    // App branding with gradient
+                    VStack(spacing: 16) {
                         Image(systemName: "dumbbell.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
+                            .font(.system(size: 50))
+                            .foregroundColor(.white)
                         
                         Text("MumuGym")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.white)
                         
                         Text("Your personal fitness companion")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.9))
                     }
-                    .padding(.bottom, 30)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 40)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.primaryGradient)
+                            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 12, x: 0, y: 6)
+                    )
                     
-                    VStack(spacing: 20) {
-                        CustomTextField(title: "Email", text: $email, keyboardType: .emailAddress)
-                        CustomSecureField(title: "Password", text: $password)
+                    // Login form
+                    VStack(spacing: 24) {
+                        VStack(spacing: 20) {
+                            CustomTextField(title: "Email", text: $email, keyboardType: .emailAddress)
+                            CustomSecureField(title: "Password", text: $password)
+                        }
                         
                         Button(action: handleLogin) {
                             HStack {
@@ -46,27 +57,39 @@ struct LoginView: View {
                                         .fontWeight(.semibold)
                                 }
                             }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 54)
+                            .background(Color.primaryGradient)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                            .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
                         }
-                        .primaryButtonStyle(isDisabled: isLoading || email.isEmpty || password.isEmpty)
                         .disabled(isLoading || email.isEmpty || password.isEmpty)
+                        .opacity(isLoading || email.isEmpty || password.isEmpty ? 0.6 : 1.0)
                         
                         HStack {
                             Text("Don't have an account?")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(.textSecondary)
                             
                             Button("Sign Up") {
                                 showingRegistration = true
                             }
-                            .foregroundColor(.blue)
-                            .fontWeight(.medium)
+                            .foregroundColor(.primaryBlue)
+                            .fontWeight(.semibold)
                         }
-                        .padding(.top, 10)
                     }
-                    .padding(.horizontal, 20)
+                    .padding(24)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.cardBackground)
+                            .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                    )
                     
-                    Spacer()
+                    Spacer(minLength: 40)
                 }
+                .padding(.horizontal, 20)
             }
+            .background(Color.appBackground)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingRegistration) {
@@ -108,15 +131,22 @@ struct CustomTextField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
-                .foregroundColor(.primary)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
             
             TextField(title, text: $text)
                 .keyboardType(keyboardType)
-                .textFieldStyle(.roundedBorder)
-                .frame(height: 50)
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .padding(16)
+                .frame(height: 54)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.primaryBlue.opacity(0.3), lineWidth: 1)
+                        )
+                )
                 .autocapitalization(.none)
         }
     }
@@ -130,8 +160,9 @@ struct CustomSecureField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
-                .font(.headline)
-                .foregroundColor(.primary)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
             
             HStack {
                 if isSecure {
@@ -142,13 +173,19 @@ struct CustomSecureField: View {
                 
                 Button(action: { isSecure.toggle() }) {
                     Image(systemName: isSecure ? "eye" : "eye.slash")
-                        .foregroundColor(.gray)
+                        .foregroundColor(.textSecondary)
                 }
             }
-            .padding(.horizontal, 12)
-            .frame(height: 50)
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(.horizontal, 16)
+            .frame(height: 54)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.surfaceBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primaryBlue.opacity(0.3), lineWidth: 1)
+                    )
+            )
         }
     }
 }

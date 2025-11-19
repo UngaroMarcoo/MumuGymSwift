@@ -25,14 +25,18 @@ struct LiveWorkoutView: View {
                     workoutSetupView
                 }
             }
+            .background(Color.appBackground)
             .navigationBarBackButtonHidden(workoutSession.isActive)
+            .navigationTitle(workoutSession.isActive ? "" : "Workout")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 if workoutSession.isActive {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("End") {
                             showingEndWorkoutAlert = true
                         }
-                        .foregroundColor(.red)
+                        .foregroundColor(.deleteButtonColor)
+                        .fontWeight(.semibold)
                     }
                 }
             }
@@ -58,45 +62,73 @@ struct LiveWorkoutView: View {
     }
     
     private var workoutSetupView: some View {
-        ScrollView {
-            VStack(spacing: 25) {
-                VStack(spacing: 16) {
-                    Image(systemName: "dumbbell.fill")
-                        .font(.system(size: 60))
-                        .foregroundColor(.blue)
-                    
-                    Text("Ready to Workout?")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Text("Start a new workout session or continue from a template")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.top, 40)
+        VStack(spacing: 32) {
+            Spacer()
+            
+            // Header with gradient
+            VStack(spacing: 16) {
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.white)
                 
-                VStack(spacing: 16) {
-                    Button("Start Empty Workout") {
-                        startEmptyWorkout()
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-                    
-                    NavigationLink(destination: TemplatesView()) {
-                        Text("Choose Template")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(12)
-                    }
-                }
-                .padding(.horizontal, 20)
+                Text("Ready to Workout?")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
                 
-                Spacer()
+                Text("Start a new workout session or continue from a template")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.9))
+                    .multilineTextAlignment(.center)
             }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 32)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.primaryGradient)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 12, x: 0, y: 6)
+            )
+            
+            // Action buttons
+            VStack(spacing: 16) {
+                Button("Start Empty Workout") {
+                    startEmptyWorkout()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(Color.successGradient)
+                .foregroundColor(.white)
+                .cornerRadius(12)
+                .fontWeight(.semibold)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                
+                NavigationLink(destination: TemplatesView()) {
+                    Text("Browse Templates")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.cardBackground)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.primaryBlue, lineWidth: 2)
+                                )
+                        )
+                        .foregroundColor(.primaryBlue)
+                        .fontWeight(.semibold)
+                }
+            }
+            .padding(20)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+            )
+            
+            Spacer()
         }
-        .navigationTitle("Workout")
+        .padding(.horizontal, 20)
     }
     
     private var activeWorkoutView: some View {
@@ -114,25 +146,25 @@ struct LiveWorkoutView: View {
     }
     
     private var workoutHeader: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             Text(workoutSession.workoutName)
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
             
             HStack(spacing: 20) {
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: "clock.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.primaryBlue)
                     Text("\(workoutSession.formattedDuration)")
                         .fontWeight(.medium)
                 }
                 .font(.subheadline)
                 .foregroundColor(.primary)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 6) {
                     Image(systemName: "dumbbell.fill")
-                        .foregroundColor(.orange)
+                        .foregroundColor(Color.primaryPurple)
                     Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
                         .fontWeight(.medium)
                 }
@@ -140,17 +172,13 @@ struct LiveWorkoutView: View {
                 .foregroundColor(.primary)
             }
         }
-        .padding(.vertical, 20)
+        .padding(.vertical, 24)
         .padding(.horizontal, 20)
         .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.white]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
         .padding(.horizontal, 20)
         .padding(.top, 10)
     }
@@ -171,21 +199,32 @@ struct LiveWorkoutView: View {
     }
     
     private var emptyWorkoutView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 30) {
             Spacer()
             
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.blue)
-            
-            Text("Add your first exercise")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Text("Tap the + button to add exercises to your workout")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: 20) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(Color.primaryBlue)
+                    .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
+                
+                Text("Add your first exercise")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Text("Tap the + button to add exercises to your workout")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 30)
+            .padding(.horizontal, 25)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.white.opacity(0.95))
+                    .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+            )
             
             Spacer()
         }
@@ -202,9 +241,11 @@ struct LiveWorkoutView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color.blue)
+                .background(Color.buttonPrimary)
                 .foregroundColor(.white)
-                .cornerRadius(12)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+                .shadow(color: Color.primaryBlue.opacity(0.3), radius: 6, x: 0, y: 3)
             }
             
             Button("Finish") {
@@ -212,14 +253,25 @@ struct LiveWorkoutView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(Color.green)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
             .foregroundColor(.white)
-            .cornerRadius(12)
+            .cornerRadius(25)
+            .fontWeight(.semibold)
+            .shadow(color: Color.green.opacity(0.3), radius: 6, x: 0, y: 3)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
-        .background(Color.white)
-        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
+        .background(
+            RoundedRectangle(cornerRadius: 0)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: -4)
+        )
     }
     
     private func setupWorkoutFromTemplate(_ template: WorkoutTemplate) {
@@ -311,12 +363,12 @@ struct CurrentExerciseView: View {
                     .padding(.vertical, 8)
                     .background(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.blue.opacity(0.2), Color.blue.opacity(0.1)]),
+                            gradient: Gradient(colors: [Color.primaryBlue.opacity(0.2), Color.primaryBlue.opacity(0.1)]),
                             startPoint: .leading,
                             endPoint: .trailing
                         )
                     )
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.primaryBlue)
                     .cornerRadius(20)
             }
             
@@ -327,11 +379,20 @@ struct CurrentExerciseView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.9))
+                            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                    )
             }
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+        .padding(.horizontal, 20)
     }
     
     private var setsSection: some View {
@@ -354,12 +415,22 @@ struct CurrentExerciseView: View {
                 exercise.addSet()
             }
             .font(.subheadline)
-            .foregroundColor(.blue)
+            .fontWeight(.semibold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 8)
+            .background(Color.primaryBlue)
+            .cornerRadius(16)
+            .shadow(color: Color.primaryBlue.opacity(0.3), radius: 4, x: 0, y: 2)
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 16)
-        .background(Color(.systemGray6))
-        .cornerRadius(16)
+        .padding(.vertical, 24)
+        .padding(.horizontal, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.95))
+                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+        )
+        .padding(.horizontal, 20)
     }
     
     private var restSection: some View {
@@ -367,9 +438,13 @@ struct CurrentExerciseView: View {
             if restTimer.isActive {
                 RestTimerView(timer: restTimer)
                     .padding(.vertical, 20)
-                    .padding(.horizontal, 16)
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(16)
+                    .padding(.horizontal, 20)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.white.opacity(0.95))
+                            .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+                    )
+                    .padding(.horizontal, 20)
             }
         }
     }
@@ -383,7 +458,9 @@ struct CurrentExerciseView: View {
             .frame(height: 50)
             .background(canGoPrevious ? Color.gray : Color.gray.opacity(0.3))
             .foregroundColor(.white)
-            .cornerRadius(12)
+            .cornerRadius(25)
+            .fontWeight(.semibold)
+            .shadow(color: canGoPrevious ? Color.gray.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             .disabled(!canGoPrevious)
             
             Button("Next") {
@@ -391,9 +468,11 @@ struct CurrentExerciseView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(canGoNext ? Color.blue : Color.blue.opacity(0.3))
+            .background(canGoNext ? Color.buttonPrimary : LinearGradient(gradient: Gradient(colors: [Color.primaryBlue.opacity(0.3), Color.primaryPurple.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
             .foregroundColor(.white)
-            .cornerRadius(12)
+            .cornerRadius(25)
+            .fontWeight(.semibold)
+            .shadow(color: canGoNext ? Color.primaryBlue.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             .disabled(!canGoNext)
         }
     }
@@ -415,8 +494,8 @@ struct SetRow: View {
                 .font(.headline)
                 .fontWeight(.bold)
                 .frame(width: 35, height: 35)
-                .background(set.completed ? Color.green.opacity(0.2) : Color.blue.opacity(0.1))
-                .foregroundColor(set.completed ? .green : .blue)
+                .background(set.completed ? Color.green.opacity(0.2) : Color.primaryBlue.opacity(0.1))
+                .foregroundColor(set.completed ? .green : Color.primaryBlue)
                 .cornerRadius(17.5)
             
             // Reps input
@@ -589,24 +668,37 @@ struct AddExerciseToWorkoutView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(exercises, id: \.objectID) { exercise in
-                    ExerciseCardWithImage(exercise: exercise) {
-                        onExerciseSelected(exercise)
-                        dismiss()
+            ZStack {
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.primaryBlue, Color.primaryPurple]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(exercises, id: \.objectID) { exercise in
+                            ExerciseCardWithImage(exercise: exercise) {
+                                onExerciseSelected(exercise)
+                                dismiss()
+                            }
+                            .padding(.horizontal, 20)
+                        }
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                    .padding(.vertical, 20)
                 }
             }
-            .listStyle(.plain)
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
+            .foregroundColor(.white)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
                 }
             }
         }

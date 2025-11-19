@@ -20,11 +20,7 @@ struct CreateTemplateView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.appGradientStart, Color.appGradientEnd]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Color.primaryGradient
                 .ignoresSafeArea()
                 
                 ScrollView {
