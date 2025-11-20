@@ -81,6 +81,7 @@ struct ProfileView: View {
                         .font(.system(size: 80))
                         .foregroundColor(.primaryOrange1)
                 }
+                .padding(.top, 8)
                 
                 VStack(spacing: 8) {
                     Text("\(authManager.currentUser?.firstName ?? "Unknown") \(authManager.currentUser?.lastName ?? "User")")
@@ -92,9 +93,10 @@ struct ProfileView: View {
                         .font(.subheadline)
                         .foregroundColor(.textSecondary)
                 }
+                .padding(.bottom, 8)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 40)
+            .padding(.vertical, 32)
             .padding(.horizontal, 20)
             .background(
                 RoundedRectangle(cornerRadius: 20)
