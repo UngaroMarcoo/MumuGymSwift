@@ -37,6 +37,7 @@
         <relationship name="workouts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Workout" inverseName="user" inverseEntity="Workout"/>
         <relationship name="personalRecords" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PersonalRecord" inverseName="user" inverseEntity="PersonalRecord"/>
         <relationship name="workoutTemplates" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="WorkoutTemplate" inverseName="user" inverseEntity="WorkoutTemplate"/>
+        <relationship name="weightLogs" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="WeightLog" inverseName="user" inverseEntity="WeightLog"/>
     </entity>
     <entity name="Workout" representedClassName="Workout" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="NO" attributeType="String"/>
@@ -74,5 +75,11 @@
         <relationship name="template" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WorkoutTemplate" inverseName="exercises" inverseEntity="WorkoutTemplate"/>
         <relationship name="exercise" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Exercise" inverseName="templateExercises" inverseEntity="Exercise"/>
         <relationship name="workoutExercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkoutExercise" inverseName="templateExercise" inverseEntity="WorkoutExercise"/>
+    </entity>
+    <entity name="WeightLog" representedClassName="WeightLog" syncable="YES" codeGenerationType="class">
+        <attribute name="weight" optional="NO" attributeType="Double" defaultValue="0.0"/>
+        <attribute name="date" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notes" optional="YES" attributeType="String"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="weightLogs" inverseEntity="User"/>
     </entity>
 </model>

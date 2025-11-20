@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var currentWeight = ""
     @State private var showingWeightEntry = false
     @State private var showingProfile = false
+    @State private var showingWeightTracking = false
     
     var body: some View {
         ZStack {
@@ -47,6 +48,9 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingProfile) {
             ProfileView()
+        }
+        .sheet(isPresented: $showingWeightTracking) {
+            WeightEntryView(currentWeight: $currentWeight, targetWeight: .constant(""))
         }
     }
     
@@ -113,27 +117,30 @@ struct HomeView: View {
                 )
             }
             
-            VStack(spacing: 8) {
-                Text(currentWeight.isEmpty ? "--" : "\(currentWeight) kg")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(Color.primaryOrange1)
-                
-                Text("Current Weight")
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.textSecondary)
+            Button(action: { showingWeightTracking = true }) {
+                VStack(spacing: 8) {
+                    Text(currentWeight.isEmpty ? "--" : "\(currentWeight) kg")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.primaryOrange1)
+                    
+                    Text("Tap to track weight")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.primaryOrange1.opacity(0.2), lineWidth: 1)
+                        )
+                )
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.surfaceBackground)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.primaryOrange1.opacity(0.2), lineWidth: 1)
-                    )
-            )
+            .buttonStyle(PlainButtonStyle())
         }
         .padding(20)
         .background(
