@@ -14,7 +14,7 @@ struct HomeView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Welcome section with logout button
+                    // Welcome section
                     HStack {
                         Text("Welcome Back")
                             .font(.largeTitle)
@@ -22,19 +22,6 @@ struct HomeView: View {
                             .foregroundColor(Color.cardBackground)
                         
                         Spacer()
-                        
-                        Button("Logout") {
-                            authManager.logout()
-                        }
-                        .foregroundColor(Color.red)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.cardBackground)
-                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-                        )
                     }
                     .padding(.horizontal, 10)
                     .padding(.top, 10)

@@ -7,6 +7,7 @@ struct ProfileView: View {
     
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false
+    @State private var showingLogoutConfirmation = false
     
     var body: some View {
         NavigationView {
@@ -28,6 +29,14 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntryView(currentWeight: .constant(""), targetWeight: .constant(""))
+        }
+        .alert("Logout Confirmation", isPresented: $showingLogoutConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Logout", role: .destructive) {
+                authManager.logout()
+            }
+        } message: {
+            Text("Are you sure you want to logout?")
         }
     }
     
@@ -180,7 +189,7 @@ struct ProfileView: View {
             }
             
             VStack(spacing: 12) {
-                Button(action: { authManager.logout() }) {
+                Button(action: { showingLogoutConfirmation = true }) {
                     HStack {
                         Image(systemName: "rectangle.portrait.and.arrow.right")
                             .font(.title3)
