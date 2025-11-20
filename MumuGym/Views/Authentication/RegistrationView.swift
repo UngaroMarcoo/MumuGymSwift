@@ -40,10 +40,8 @@ struct RegistrationView: View {
                     .padding(.top, 20)
                 }
             }
-            .navigationTitle("Create Account")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden(true)
-            .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
@@ -51,6 +49,13 @@ struct RegistrationView: View {
                     }
                     .foregroundColor(.white)
                     .fontWeight(.medium)
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Text("Create Account")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
                 }
             }
         }
