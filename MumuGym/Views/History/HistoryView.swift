@@ -29,17 +29,30 @@ struct HistoryView: View {
                 )
                 .ignoresSafeArea()
                 
-                Group {
-                    if workouts.isEmpty {
-                        emptyStateView
-                    } else {
-                        workoutsList
+                VStack(spacing: 0) {
+                    // Custom title section
+                    HStack {
+                        Text("Workout History")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.cardBackground)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 5)
+                    .padding(.bottom, 10)
+                    
+                    Group {
+                        if workouts.isEmpty {
+                            emptyStateView
+                        } else {
+                            workoutsList
+                        }
                     }
                 }
             }
-            .navigationTitle("Workout History")
-            .navigationBarTitleDisplayMode(.large)
-            .foregroundColor(.white)
+            .navigationBarHidden(true)
         }
         .sheet(item: $selectedWorkout) { workout in
             WorkoutDetailView(workout: workout)

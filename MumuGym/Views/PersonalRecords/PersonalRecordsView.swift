@@ -38,26 +38,36 @@ struct PersonalRecordsView: View {
                 )
                 .ignoresSafeArea()
                 
-                Group {
-                    if personalRecords.isEmpty {
-                        emptyStateView
-                    } else {
-                        recordsList
+                VStack(spacing: 0) {
+                    // Custom title section
+                    HStack {
+                        Text("Personal Records")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.cardBackground)
+                        
+                        Spacer()
+                        
+                        Button(action: { showingAddRecord = true }) {
+                            Image(systemName: "plus")
+                                .font(.title2)
+                                .foregroundColor(Color.cardBackground)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 5)
+                    .padding(.bottom, 10)
+                    
+                    Group {
+                        if personalRecords.isEmpty {
+                            emptyStateView
+                        } else {
+                            recordsList
+                        }
                     }
                 }
             }
-            .navigationTitle("Personal Records")
-            .navigationBarTitleDisplayMode(.large)
-            .foregroundColor(.white)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddRecord = true }) {
-                        Image(systemName: "plus")
-                    }
-                    .foregroundColor(.white)
-                    .fontWeight(.medium)
-                }
-            }
+            .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingAddRecord) {
             AddPersonalRecordView(exercises: Array(exercises))

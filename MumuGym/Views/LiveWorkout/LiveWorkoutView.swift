@@ -18,17 +18,33 @@ struct LiveWorkoutView: View {
     
     var body: some View {
         NavigationView {
-            Group {
-                if workoutSession.isActive {
-                    activeWorkoutView
-                } else {
-                    workoutSetupView
+            VStack(spacing: 0) {
+                if !workoutSession.isActive {
+                    // Custom title section for setup view
+                    HStack {
+                        Text("Workout")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.cardBackground)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 5)
+                    .padding(.bottom, 10)
+                }
+                
+                Group {
+                    if workoutSession.isActive {
+                        activeWorkoutView
+                    } else {
+                        workoutSetupView
+                    }
                 }
             }
             .background(Color.appBackground)
             .navigationBarBackButtonHidden(workoutSession.isActive)
-            .navigationTitle(workoutSession.isActive ? "" : "Workout")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarHidden(!workoutSession.isActive)
             .toolbar {
                 if workoutSession.isActive {
                     ToolbarItem(placement: .navigationBarTrailing) {

@@ -38,27 +38,38 @@ struct TemplatesView: View {
     
     var body: some View {
         NavigationView {
-            Group {
-                if templates.isEmpty {
-                    emptyTemplatesView
-                } else {
-                    templatesList
-                }
-            }
-            .background(Color.warningGradient)
-            .navigationTitle("Workout Templates")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+            VStack(spacing: 0) {
+                // Custom title section
+                HStack {
+                    Text("Workout Templates")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.cardBackground)
+                    
+                    Spacer()
+                    
                     if !templates.isEmpty {
                         Button(action: { showingTemplateChoice = true }) {
                             Image(systemName: "plus")
+                                .font(.title2)
+                                .foregroundColor(Color.cardBackground)
                         }
-                        .foregroundColor(.primaryBlue1)
-                        .fontWeight(.medium)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 5)
+                .padding(.bottom, 10)
+                
+                Group {
+                    if templates.isEmpty {
+                        emptyTemplatesView
+                    } else {
+                        templatesList
                     }
                 }
             }
+            .background(Color.warningGradient)
+            .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingCreateTemplate) {
             CreateTemplateView()
