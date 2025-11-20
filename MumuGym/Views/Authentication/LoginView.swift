@@ -13,7 +13,7 @@ struct LoginView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 32) {
-                    Spacer(minLength: 60)
+                    Spacer(minLength: 20)
                     
                     // App branding with clean design
                     VStack(spacing: 20) {
@@ -38,7 +38,7 @@ struct LoginView: View {
                         }
                     }
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 50)
+                    .padding(.vertical, 30)
                     
                     // Login form
                     VStack(spacing: 24) {
@@ -86,7 +86,7 @@ struct LoginView: View {
                             .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
                     )
                     
-                    Spacer(minLength: 40)
+                    Spacer(minLength: 20)
                 }
                 .padding(.horizontal, 20)
             }
