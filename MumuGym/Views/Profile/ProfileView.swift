@@ -43,6 +43,7 @@ struct ProfileView: View {
     private var profileHeaderSection: some View {
         VStack(spacing: 20) {
             // Profile title
+            
             HStack {
                 Text("Profile")
                     .font(.largeTitle)
@@ -74,6 +75,7 @@ struct ProfileView: View {
                         .fill(Color.cardBackground)
                         .frame(width: 100, height: 100)
                         .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
+
                     
                     Image(systemName: "person.crop.circle.fill")
                         .font(.system(size: 80))
@@ -91,14 +93,17 @@ struct ProfileView: View {
                         .foregroundColor(.textSecondary)
                 }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 40)
+            .padding(.horizontal, 20)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowMedium, radius: 10, x: 0, y: 5)
+            )
+            
         }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground)
-                .shadow(color: Color.shadowMedium, radius: 10, x: 0, y: 5)
-        )
+        
     }
     
     private var personalInfoSection: some View {
@@ -201,10 +206,6 @@ struct ProfileView: View {
                             .foregroundColor(.primaryRed)
                         
                         Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(.textSecondary)
                     }
                     .padding(.vertical, 16)
                     .padding(.horizontal, 16)
