@@ -66,24 +66,21 @@ struct RegistrationView: View {
             Image(systemName: "person.crop.circle.fill.badge.plus")
                 .font(.system(size: 50))
                 .foregroundColor(.white)
-                .shadow(color: Color.white.opacity(0.3), radius: 4, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 2)
             
             Text("Join MumuGym")
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.white)
+                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 2)
             
             Text("Start your fitness journey today")
                 .font(.subheadline)
                 .foregroundColor(.white.opacity(0.8))
+                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 2)
         }
         .padding(.vertical, 24)
         .padding(.horizontal, 25)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.1))
-                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-        )
     }
     
     private var personalInfoSection: some View {
@@ -121,7 +118,7 @@ struct RegistrationView: View {
                         }
                     }
                     .pickerStyle(.segmented)
-                    .background(Color.white.opacity(0.9))
+                    .background(Color.surfaceBackground)
                     .cornerRadius(8)
                 }
             }
@@ -130,7 +127,7 @@ struct RegistrationView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
+                .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
     }
@@ -170,7 +167,7 @@ struct RegistrationView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
+                .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
     }
@@ -195,16 +192,16 @@ struct RegistrationView: View {
                     Text("Email notifications")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.textPrimary)
                     
                     Text("Receive workout tips and updates")
                         .font(.caption)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.textSecondary)
                 }
             }
             .toggleStyle(SwitchToggleStyle(tint: Color.primaryOrange1))
             .padding(16)
-            .background(Color.white.opacity(0.9))
+            .background(Color.surfaceBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
         }
@@ -212,7 +209,7 @@ struct RegistrationView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
+                .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
     }
@@ -231,7 +228,7 @@ struct RegistrationView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(Color.buttonPrimary)
+            .background(Color.buttonSuccess)
             .foregroundColor(.white)
             .cornerRadius(25)
             .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)

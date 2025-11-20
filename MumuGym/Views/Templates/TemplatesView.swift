@@ -45,7 +45,7 @@ struct TemplatesView: View {
                     templatesList
                 }
             }
-            .background(Color.appBackground)
+            .background(Color.warningGradient)
             .navigationTitle("Workout Templates")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -105,33 +105,31 @@ struct TemplatesView: View {
         VStack(spacing: 32) {
             Spacer()
             
-            // Header with gradient
-            VStack(spacing: 16) {
-                Image(systemName: "doc.text.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.white)
-                
-                Text("No Templates Yet")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("Create your first workout template to get started")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 32)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.warningGradient)
-                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
-            )
             
             // Action button
             VStack {
+                // Header with gradient
+                VStack(spacing: 16) {
+                    Image(systemName: "doc.text.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.primaryBlue1)
+                        .padding(.bottom, 16)
+                    
+                    Text("No Templates Yet")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Create your first workout template to get started")
+                        .font(.subheadline)
+                        .foregroundColor(.textPrimary.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 24)
+                .padding(.bottom, 32)
+                .padding(.top, 14)
+                .frame(maxWidth: .infinity)
+                
                 Button("Create Template") {
                     showingTemplateChoice = true
                 }
@@ -388,7 +386,7 @@ struct TemplateOptionCard: View {
                     .foregroundColor(.secondary)
             }
             .padding(20)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         }
@@ -541,7 +539,7 @@ struct PredefinedTemplateCard: View {
                 }
             }
             .padding(16)
-            .background(Color.white)
+            .background(Color.surfaceBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         }

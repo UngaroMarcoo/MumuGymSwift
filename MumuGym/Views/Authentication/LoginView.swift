@@ -15,29 +15,30 @@ struct LoginView: View {
                 VStack(spacing: 32) {
                     Spacer(minLength: 60)
                     
-                    // App branding with gradient
-                    VStack(spacing: 16) {
+                    // App branding with clean design
+                    VStack(spacing: 20) {
+                        // Clean icon
                         Image(systemName: "dumbbell.fill")
                             .font(.system(size: 50))
                             .foregroundColor(.white)
+                            .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 3)
                         
-                        Text("MumuGym")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Your personal fitness companion")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.9))
+                        VStack(spacing: 8) {
+                            Text("MumuGym")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 2)
+                            
+                            Text("Your personal fitness companion")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.95))
+                                .fontWeight(.medium)
+                                .shadow(color: Color.black.opacity(0.2), radius: 1, x: 0, y: 1)
+                        }
                     }
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 40)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.warningGradient)
-                            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
-                    )
+                    .padding(.vertical, 50)
                     
                     // Login form
                     VStack(spacing: 24) {
@@ -69,7 +70,7 @@ struct LoginView: View {
                         
                         HStack {
                             Text("Don't have an account?")
-                                .foregroundColor(.textSecondary)
+                                .foregroundColor(.textGrayStatic)
                             
                             Button("Sign Up") {
                                 showingRegistration = true
@@ -89,7 +90,7 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, 20)
             }
-            .background(Color.appBackground)
+            .background(Color.warningGradient)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingRegistration) {

@@ -30,11 +30,12 @@ extension Color {
     static let primaryOrange2 = Color(red: 0.95, green: 0.55, blue: 0.10) // #F28C1A
     static let primaryGreen1 = Color(red: 0.10, green: 0.70, blue: 0.30) // #19B34D
     static let primaryGreen2 = Color(red: 0.15, green: 0.85, blue: 0.40) // #26D966
+    static let primaryRed = Color(red: 0.90, green: 0.20, blue: 0.20)   
     static let accentTeal = Color(red: 0.1, green: 0.7, blue: 0.8)       // #1AB3CC
     
     // Background colors
     static let appBackground = Color(.systemGroupedBackground)           // Light gray background
-    static let cardBackground = Color.white
+    static let cardBackground = Color(.systemGroupedBackground)
     static let surfaceBackground = Color(.secondarySystemGroupedBackground)
     
     // Gradient definitions
@@ -57,12 +58,16 @@ extension Color {
     )
     
     // Text colors
+    static let textWhiteStatic = Color(red: 1.0, green: 1.0, blue: 1.0) // #FFFFFF
+    static let textBlackStatic = Color(red: 0.0, green: 0.0, blue: 0.0) // #000000
+    static let textGrayStatic = Color(red: 0.60, green: 0.60, blue: 0.60) // #999999
     static let textPrimary = Color(.label)
     static let textSecondary = Color(.secondaryLabel)
     static let textTertiary = Color(.tertiaryLabel)
     
     // Button colors  
     static let buttonPrimary = primaryGradient
+    static let buttonSuccess = successGradient
     static let buttonSecondary = LinearGradient(
         gradient: Gradient(colors: [Color(.systemGray5), Color(.systemGray4)]),
         startPoint: .leading,

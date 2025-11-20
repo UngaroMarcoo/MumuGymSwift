@@ -22,7 +22,7 @@ struct HomeView: View {
                 .padding(.top, 8)
                 .padding(.bottom, 20)
             }
-            .background(Color.appBackground)
+            .background(Color.warningGradient)
             .navigationTitle("Welcome Back")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -30,7 +30,7 @@ struct HomeView: View {
                     Button("Logout") {
                         authManager.logout()
                     }
-                    .foregroundColor(.primaryBlue1)
+                    .foregroundColor(.white)
                     .fontWeight(.medium)
                 }
             }

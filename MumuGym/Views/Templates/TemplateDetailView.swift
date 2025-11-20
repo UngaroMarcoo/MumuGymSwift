@@ -20,7 +20,7 @@ struct TemplateDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.appBackground
+                Color.warningGradient
                     .ignoresSafeArea()
                 
                 ScrollView {

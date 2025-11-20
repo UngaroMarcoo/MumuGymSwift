@@ -96,6 +96,16 @@ struct PersonalRecordsView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                
+                Button("Add First Record") {
+                    showingAddRecord = true
+                }
+                .frame(width: 180, height: 50)
+                .background(Color.buttonPrimary)
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+                .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
             }
             .padding(.vertical, 30)
             .padding(.horizontal, 25)
@@ -105,15 +115,7 @@ struct PersonalRecordsView: View {
                     .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
             )
             
-            Button("Add First Record") {
-                showingAddRecord = true
-            }
-            .frame(width: 180, height: 50)
-            .background(Color.buttonPrimary)
-            .foregroundColor(.white)
-            .cornerRadius(25)
-            .fontWeight(.semibold)
-            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(40)
