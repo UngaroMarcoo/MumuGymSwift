@@ -8,6 +8,7 @@ struct HomeView: View {
     
     @State private var currentWeight = ""
     @State private var showingWeightEntry = false
+    @State private var showingProfile = false
     
     var body: some View {
         NavigationView {
@@ -56,6 +57,9 @@ struct HomeView: View {
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntryView(currentWeight: $currentWeight, targetWeight: .constant(""))
         }
+        .sheet(isPresented: $showingProfile) {
+            ProfileView()
+        }
     }
     
     private var headerSection: some View {
@@ -76,7 +80,7 @@ struct HomeView: View {
                     
                     Spacer()
                     
-                    Button(action: { selectedTab = 5 }) {
+                    Button(action: { showingProfile = true }) {
                         Image(systemName: "person.crop.circle.fill")
                             .font(.system(size: 34))
                             .foregroundColor(.primaryOrange1)

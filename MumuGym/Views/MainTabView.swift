@@ -42,12 +42,6 @@ struct MainTabView: View {
                 }
                 .tag(4)
             
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                    Text("Profile")
-                }
-                .tag(5)
         }
         .accentColor(Color.black)
     }
