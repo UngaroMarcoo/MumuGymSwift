@@ -10,12 +10,14 @@ struct LoginView: View {
     @State private var isLoading = false
     
     var body: some View {
-        NavigationView {
-            GeometryReader { geometry in
-                VStack(spacing: 32) {
-                    Spacer()
-                
-                    // App branding with clean design
+        ZStack {
+            Color.warningGradient
+                .ignoresSafeArea()
+            
+            VStack(spacing: 32) {
+                Spacer()
+            
+                // App branding with clean design
                     VStack(spacing: 20) {
                         // Clean icon
                         Image(systemName: "dumbbell.fill")
@@ -87,12 +89,8 @@ struct LoginView: View {
                     )
                     
                     Spacer()
-                }
-                .frame(minHeight: geometry.size.height)
-                .padding(.horizontal, 20)
-                .background(Color.warningGradient)
             }
-            .navigationBarHidden(true)
+            .padding(.horizontal, 20)
         }
         .sheet(isPresented: $showingRegistration) {
             RegistrationView()
