@@ -11,11 +11,12 @@ struct LoginView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 32) {
-                    Spacer(minLength: 20)
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 32) {
+                        Spacer()
                     
-                    // App branding with clean design
+                        // App branding with clean design
                     VStack(spacing: 20) {
                         // Clean icon
                         Image(systemName: "dumbbell.fill")
@@ -86,11 +87,13 @@ struct LoginView: View {
                             .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
                     )
                     
-                    Spacer(minLength: 20)
+                    Spacer()
+                    }
+                    .frame(minHeight: geometry.size.height)
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
+                .background(Color.warningGradient)
             }
-            .background(Color.warningGradient)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingRegistration) {
