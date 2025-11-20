@@ -24,7 +24,7 @@ struct HomeView: View {
                         Spacer()
                     }
                     .padding(.horizontal, 10)
-                    .padding(.top, 10)
+                    .padding(.top, 5)
                     
                     headerSection
                     weightSection
@@ -32,7 +32,7 @@ struct HomeView: View {
                     quickActionsSection
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.top, 5)
                 .padding(.bottom, 20)
             }
             .background(Color.warningGradient)
