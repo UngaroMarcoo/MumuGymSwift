@@ -1,8 +1,11 @@
 {
   "colors" : [
     {
-      "filename" : "Artboard 1.png",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "color" : {
+        "platform" : "universal",
+        "reference" : "systemOrangeColor"
+      }
     }
   ],
   "info" : {

@@ -4,15 +4,40 @@ import CoreData
 struct HomeView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
+    @Binding var selectedTab: Int
     
     @State private var currentWeight = ""
-    @State private var targetWeight = ""
     @State private var showingWeightEntry = false
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 20) {
+                    // Welcome section with logout button
+                    HStack {
+                        Text("Welcome Back")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(Color.cardBackground)
+                        
+                        Spacer()
+                        
+                        Button("Logout") {
+                            authManager.logout()
+                        }
+                        .foregroundColor(Color.red)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.cardBackground)
+                                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        )
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.top, 10)
+                    
                     headerSection
                     weightSection
                     quickStatsSection
@@ -23,23 +48,13 @@ struct HomeView: View {
                 .padding(.bottom, 20)
             }
             .background(Color.warningGradient)
-            .navigationTitle("Welcome Back")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Logout") {
-                        authManager.logout()
-                    }
-                    .foregroundColor(.white)
-                    .fontWeight(.medium)
-                }
-            }
+            .navigationBarHidden(true)
         }
         .onAppear {
             loadUserWeights()
         }
         .sheet(isPresented: $showingWeightEntry) {
-            WeightEntryView(currentWeight: $currentWeight, targetWeight: $targetWeight)
+            WeightEntryView(currentWeight: $currentWeight, targetWeight: .constant(""))
         }
     }
     
@@ -52,19 +67,19 @@ struct HomeView: View {
                         Text("Hello, \(authManager.currentUser?.firstName ?? "User")!")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.white)
+                            .foregroundColor(.textPrimary)
                         
                         Text("Ready for today's workout?")
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(.textSecondary)
                     }
                     
                     Spacer()
                     
-                    Button(action: { showingWeightEntry = true }) {
+                    Button(action: { selectedTab = 5 }) {
                         Image(systemName: "person.crop.circle.fill")
-                            .font(.title2)
-                            .foregroundColor(.white)
+                            .font(.system(size: 34))
+                            .foregroundColor(.primaryOrange1)
                     }
                 }
             }
@@ -72,8 +87,8 @@ struct HomeView: View {
             .padding(.vertical, 24)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.primaryGradient)
-                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
             )
         }
     }
@@ -85,7 +100,7 @@ struct HomeView: View {
                     .foregroundColor(Color.primaryOrange1)
                     .font(.title3)
                 
-                Text("Weight Tracking")
+                Text("Current Weight")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.textPrimary)
@@ -106,25 +121,27 @@ struct HomeView: View {
                 )
             }
             
-            HStack(spacing: 12) {
-                weightCard(
-                    title: "Current Weight",
-                    value: currentWeight.isEmpty ? "--" : "\(currentWeight) kg",
-                    color: Color.primaryOrange1
-                )
+            VStack(spacing: 8) {
+                Text(currentWeight.isEmpty ? "--" : "\(currentWeight) kg")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.primaryOrange1)
                 
-                weightCard(
-                    title: "Target Weight",
-                    value: targetWeight.isEmpty ? "--" : "\(targetWeight) kg",
-                    color: Color.primaryOrange2
-                )
+                Text("Current Weight")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.textSecondary)
             }
-            
-            if !currentWeight.isEmpty && !targetWeight.isEmpty,
-               let current = Double(currentWeight),
-               let target = Double(targetWeight) {
-                weightProgressView(current: current, target: target)
-            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 24)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.surfaceBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.primaryOrange1.opacity(0.2), lineWidth: 1)
+                    )
+            )
         }
         .padding(20)
         .background(
@@ -134,49 +151,6 @@ struct HomeView: View {
         )
     }
     
-    private func weightCard(title: String, value: String, color: Color) -> some View {
-        VStack(spacing: 8) {
-            Text(title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(.textSecondary)
-            
-            Text(value)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(color)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.surfaceBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(color.opacity(0.2), lineWidth: 1)
-                )
-        )
-    }
-    
-    private func weightProgressView(current: Double, target: Double) -> some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("Progress to Goal")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Spacer()
-                
-                Text("\(abs(current - target), default: "%.1f") kg to go")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            ProgressView(value: min(current, target), total: max(current, target))
-                .progressViewStyle(LinearProgressViewStyle(tint: current >= target ? .green : .orange))
-        }
-        .padding(.top, 8)
-    }
     
     private var quickStatsSection: some View {
         VStack(spacing: 16) {
@@ -251,15 +225,15 @@ struct HomeView: View {
             }
             
             VStack(spacing: 10) {
-                NavigationLink(destination: LiveWorkoutView()) {
+                Button(action: { selectedTab = 2 }) {
                     actionButton(title: "Start Quick Workout", icon: "play.fill", gradient: Color.successGradient)
                 }
                 
-                NavigationLink(destination: TemplatesView()) {
+                Button(action: { selectedTab = 1 }) {
                     actionButton(title: "Browse Templates", icon: "doc.text.fill", gradient: Color.primaryGradient)
                 }
                 
-                NavigationLink(destination: PersonalRecordsView()) {
+                Button(action: { selectedTab = 4 }) {
                     actionButton(title: "Log Personal Record", icon: "trophy.fill", gradient: Color.warningGradient)
                 }
             }
@@ -302,10 +276,6 @@ struct HomeView: View {
         
         if user.currentWeight > 0 {
             currentWeight = String(format: "%.1f", user.currentWeight)
-        }
-        
-        if user.targetWeight > 0 {
-            targetWeight = String(format: "%.1f", user.targetWeight)
         }
     }
 }
@@ -430,7 +400,7 @@ struct WeightEntryView: View {
 }
 
 #Preview {
-    HomeView()
+    HomeView(selectedTab: .constant(0))
         .environmentObject(AuthenticationManager.shared)
         .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }

@@ -7,6 +7,7 @@
         <attribute name="instructions" optional="YES" attributeType="String"/>
         <attribute name="imageUrl" optional="YES" attributeType="String"/>
         <relationship name="workoutExercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkoutExercise" inverseName="exercise" inverseEntity="WorkoutExercise"/>
+        <relationship name="templateExercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkoutTemplateExercise" inverseName="exercise" inverseEntity="WorkoutTemplateExercise"/>
     </entity>
     <entity name="PersonalRecord" representedClassName="PersonalRecord" syncable="YES" codeGenerationType="class">
         <attribute name="exerciseName" optional="NO" attributeType="String"/>
@@ -71,7 +72,7 @@
         <attribute name="weight" optional="YES" attributeType="Double" defaultValue="0.0"/>
         <attribute name="restTime" optional="NO" attributeType="Integer 32" defaultValue="60"/>
         <relationship name="template" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WorkoutTemplate" inverseName="exercises" inverseEntity="WorkoutTemplate"/>
-        <relationship name="exercise" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Exercise"/>
+        <relationship name="exercise" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Exercise" inverseName="templateExercises" inverseEntity="Exercise"/>
         <relationship name="workoutExercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WorkoutExercise" inverseName="templateExercise" inverseEntity="WorkoutExercise"/>
     </entity>
 </model>
