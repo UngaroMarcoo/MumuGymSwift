@@ -8,6 +8,7 @@ struct ProfileView: View {
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false
     @State private var showingLogoutConfirmation = false
+    @State private var showingWeightAnalytics = false
     
     var body: some View {
         NavigationView {
@@ -29,6 +30,12 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntryView(currentWeight: .constant(""), targetWeight: .constant(""))
+        }
+        .sheet(isPresented: $showingWeightAnalytics) {
+            WeightAnalyticsView()
+        }
+        .sheet(isPresented: $showingEditProfile) {
+            EditProfileView()
         }
         .alert("Logout Confirmation", isPresented: $showingLogoutConfirmation) {
             Button("Cancel", role: .cancel) { }
@@ -112,7 +119,7 @@ struct ProfileView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "person.fill")
-                    .foregroundColor(Color.primaryOrange1)
+                    .foregroundColor(Color.accentTeal)
                     .font(.title2)
                 
                 Text("Personal Information")
@@ -141,35 +148,48 @@ struct ProfileView: View {
     private var weightInfoSection: some View {
         VStack(spacing: 16) {
             HStack {
-                Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.primaryOrange1)
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .foregroundColor(Color.primaryPurple1)
                     .font(.title2)
                 
-                Text("Weight Information")
+                Text("Weight Analytics")
                     .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.textPrimary)
                 
                 Spacer()
-                
-                Button("Update") {
-                    showingWeightEntry = true
-                }
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.primaryOrange1)
-                )
             }
             
-            VStack(spacing: 12) {
-                profileInfoRow(label: "Current Weight", value: authManager.currentUser?.currentWeight ?? 0 > 0 ? "\(String(format: "%.1f", authManager.currentUser?.currentWeight ?? 0)) kg" : "Not set")
-                profileInfoRow(label: "Target Weight", value: authManager.currentUser?.targetWeight ?? 0 > 0 ? "\(String(format: "%.1f", authManager.currentUser?.targetWeight ?? 0)) kg" : "Not set")
+            Button(action: { showingWeightAnalytics = true }) {
+                HStack {
+                    Image(systemName: "chart.bar.doc.horizontal")
+                        .font(.title3)
+                        .foregroundColor(.white)
+                    
+                    Text("View Weight Analytics")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.vertical, 16)
+                .padding(.horizontal, 20)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(LinearGradient(
+                            gradient: Gradient(colors: [Color.primaryPurple1, Color.primaryPurple2]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        ))
+                        .shadow(color: Color.accentTeal.opacity(0.3), radius: 6, x: 0, y: 2)
+                )
             }
+            .buttonStyle(PlainButtonStyle())
         }
         .padding(.vertical, 24)
         .padding(.horizontal, 20)
@@ -230,23 +250,39 @@ struct ProfileView: View {
     
     private func profileInfoRow(label: String, value: String) -> some View {
         HStack {
-            Text(label)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.textSecondary)
+            HStack(spacing: 8) {
+                Image(systemName: "info.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(Color.accentTeal)
+                
+                Text(label)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.textSecondary)
+            }
             
             Spacer()
             
             Text(value)
                 .font(.subheadline)
-                .fontWeight(.semibold)
+                .fontWeight(.bold)
                 .foregroundColor(.textPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.accentTeal.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.accentTeal.opacity(0.3), lineWidth: 1)
+                        )
+                )
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.surfaceBackground)
+                .fill(Color.surfaceBackground.opacity(0.5))
         )
     }
 }

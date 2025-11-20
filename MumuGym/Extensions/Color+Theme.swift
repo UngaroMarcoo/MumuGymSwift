@@ -30,8 +30,11 @@ extension Color {
     static let primaryOrange2 = Color(red: 0.95, green: 0.55, blue: 0.10) // #F28C1A
     static let primaryGreen1 = Color(red: 0.10, green: 0.70, blue: 0.30) // #19B34D
     static let primaryGreen2 = Color(red: 0.15, green: 0.85, blue: 0.40) // #26D966
-    static let primaryRed = Color(red: 0.90, green: 0.20, blue: 0.20)   
+    static let primaryRed = Color(red: 0.90, green: 0.20, blue: 0.20)
+    static let primaryPurple1 = Color(red: 0.553, green: 0.224, blue: 0.839) // #8D39D6
+    static let primaryPurple2 = Color(red: 0.694, green: 0.286, blue: 0.898) // #B149E5
     static let accentTeal = Color(red: 0.1, green: 0.7, blue: 0.8)       // #1AB3CC
+    
     
     // Background colors
     static let appBackground = Color(.systemGroupedBackground)           // Light gray background
@@ -53,6 +56,12 @@ extension Color {
     
     static let warningGradient = LinearGradient(
         gradient: Gradient(colors: [primaryOrange1, primaryOrange2]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let purpleGradient = LinearGradient(
+        gradient: Gradient(colors: [primaryPurple1, primaryPurple2]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )

@@ -287,61 +287,181 @@ struct WeightEntryView: View {
     @Binding var currentWeight: String
     @Binding var targetWeight: String
     
-    @State private var tempCurrentWeight = ""
-    @State private var tempTargetWeight = ""
+    @State private var selectedDate = Date()
+    @State private var weightValue: Double = 70.0
+    @State private var isInitialized = false
+    @State private var isHoldingMinus = false
+    @State private var isHoldingPlus = false
+    @State private var holdTimer: Timer?
+    @State private var showingEditAlert = false
+    @State private var showingDeleteAlert = false
+    @State private var editingWeightLog: WeightLog?
+    @State private var editWeight: Double = 70.0
+    
+    @FetchRequest var weightLogs: FetchedResults<WeightLog>
+    
+    init(currentWeight: Binding<String>, targetWeight: Binding<String>) {
+        _currentWeight = currentWeight
+        _targetWeight = targetWeight
+        _weightLogs = FetchRequest(
+            entity: WeightLog.entity(),
+            sortDescriptors: [NSSortDescriptor(keyPath: \WeightLog.date, ascending: false)]
+        )
+    }
+    
+    private var weightLogsGroupedByDay: [String: [WeightLog]] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: weightLogs) { log in
+            guard let date = log.date else { return "" }
+            return calendar.dateInterval(of: .day, for: date)?.start.timeIntervalSince1970.description ?? ""
+        }
+        return grouped
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 24) {
-                    // Header with gradient
-                    VStack(spacing: 12) {
-                        Image(systemName: "scalemass.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white)
-                        
-                        Text("Update Your Weights")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 24)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.primaryGradient)
-                            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)
-                    )
-                    
-                    // Weight entry form
-                    VStack(spacing: 20) {
-                        weightEntryField(title: "Current Weight (kg)", text: $tempCurrentWeight)
-                        weightEntryField(title: "Target Weight (kg)", text: $tempTargetWeight)
-                        
-                        Button("Save Changes") {
-                            saveWeights()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.successGradient)
+                // Header with gradient
+                VStack(spacing: 12) {
+                    Image(systemName: "scalemass.fill")
+                        .font(.system(size: 40))
                         .foregroundColor(.white)
-                        .cornerRadius(12)
-                        .fontWeight(.semibold)
-                        .disabled(tempCurrentWeight.isEmpty && tempTargetWeight.isEmpty)
-                        .opacity(tempCurrentWeight.isEmpty && tempTargetWeight.isEmpty ? 0.6 : 1.0)
+                    
+                    Text("Log Daily Weight")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 24)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.primaryGradient)
+                        .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
+                )
+                
+                // Date selector
+                VStack(spacing: 16) {
+                    HStack {
+                        Image(systemName: "calendar")
+                            .foregroundColor(Color.primaryOrange1)
+                            .font(.title2)
+                        
+                        Text("Date")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.textPrimary)
+                        
+                        Spacer()
                     }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.cardBackground)
-                            .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
-                    )
+                    
+                    DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+                        .datePickerStyle(.compact)
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.surfaceBackground)
+                        .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                )
+                
+                // Weight selector with +/- buttons
+                VStack(spacing: 16) {
+                    HStack {
+                        Image(systemName: "scalemass.fill")
+                            .foregroundColor(Color.primaryOrange1)
+                            .font(.title2)
+                        
+                        Text("Weight")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.textPrimary)
+                        
+                        Spacer()
+                    }
+                    
+                    // Weight control with +/- buttons
+                    HStack(spacing: 20) {
+                        // Minus button
+                        Button(action: { quickDecrease() }) {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.system(size: 50))
+                                .foregroundColor(Color.primaryOrange1)
+                        }
+                        .disabled(weightValue <= 30.0)
+                        .opacity(weightValue <= 30.0 ? 0.3 : 1.0)
+                        .onLongPressGesture(minimumDuration: 0.5, maximumDistance: 50) {
+                        } onPressingChanged: { pressing in
+                            if pressing {
+                                startHoldDecrease()
+                            } else {
+                                stopHolding()
+                            }
+                        }
+                        
+                        // Weight display
+                        VStack(spacing: 4) {
+                            Text("\(String(format: "%.1f", weightValue))")
+                                .font(.system(size: 48, weight: .bold, design: .rounded))
+                                .foregroundColor(.textPrimary)
+                            
+                            Text("kg")
+                                .font(.title2)
+                                .fontWeight(.medium)
+                                .foregroundColor(.textSecondary)
+                        }
+                        .frame(minWidth: 120)
+                        
+                        // Plus button
+                        Button(action: { quickIncrease() }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 50))
+                                .foregroundColor(Color.primaryOrange1)
+                        }
+                        .disabled(weightValue >= 200.0)
+                        .opacity(weightValue >= 200.0 ? 0.3 : 1.0)
+                        .onLongPressGesture(minimumDuration: 0.5, maximumDistance: 50) {
+                        } onPressingChanged: { pressing in
+                            if pressing {
+                                startHoldIncrease()
+                            } else {
+                                stopHolding()
+                            }
+                        }
+                    }
+                    .padding(.vertical, 20)
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.surfaceBackground)
+                        .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                )
+                
+                // Save button
+                Button("Save Weight") {
+                    saveWeight()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.successGradient)
+                .foregroundColor(.white)
+                .cornerRadius(12)
+                .fontWeight(.semibold)
+                .padding(.horizontal, 20)
+                
+                // Weight history section
+                weightHistorySection
+                    .onAppear {
+                        cleanInvalidWeightLogs()
+                    }
                 }
                 .padding(16)
             }
             .background(Color.appBackground)
-            .navigationTitle("Weight Entry")
+            .navigationTitle("Log Weight")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -353,48 +473,432 @@ struct WeightEntryView: View {
                 }
             }
         }
-    }
-    
-    private func weightEntryField(title: String, text: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.textPrimary)
-            
-            TextField("Enter weight", text: text)
-                .keyboardType(.decimalPad)
-                .padding(16)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.surfaceBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryOrange1.opacity(0.3), lineWidth: 1)
-                        )
-                )
-        }
         .onAppear {
-            tempCurrentWeight = currentWeight
-            tempTargetWeight = targetWeight
+            initializeWeight()
+        }
+        .onDisappear {
+            stopHolding()
+        }
+        .alert("Edit Weight", isPresented: $showingEditAlert) {
+            TextField("Weight (30-200 kg)", value: $editWeight, format: .number)
+            Button("Cancel", role: .cancel) {
+                editingWeightLog = nil
+            }
+            Button("Save") {
+                saveEditedWeight()
+            }
+            .disabled(editWeight < 30.0 || editWeight > 200.0)
+        } message: {
+            Text("Enter new weight for \(editingWeightLog?.date?.formatted(date: .abbreviated, time: .omitted) ?? "") (Range: 30-200 kg)")
+        }
+        .alert("Delete Weight Log", isPresented: $showingDeleteAlert) {
+            Button("Cancel", role: .cancel) {
+                editingWeightLog = nil
+            }
+            Button("Delete", role: .destructive) {
+                deleteWeightLog()
+            }
+        } message: {
+            Text("Are you sure you want to delete this weight entry?")
         }
     }
     
-    private func saveWeights() {
+    private func initializeWeight() {
+        if !isInitialized {
+            // Smart default: yesterday's weight > last entered > target weight > 70.0
+            if authManager.currentUser != nil {
+                if let current = getUserCurrentWeight(), current > 0 {
+                    // Ensure current weight is within valid range
+                    if current >= 30.0 && current <= 200.0 {
+                        weightValue = current
+                    } else {
+                        // Fix invalid current weight
+                        fixInvalidCurrentWeight()
+                        weightValue = 70.0
+                    }
+                } else if let target = getUserTargetWeight(), target > 0 {
+                    // Ensure target weight is within valid range
+                    if target >= 30.0 && target <= 200.0 {
+                        weightValue = target
+                    } else {
+                        weightValue = 70.0
+                    }
+                } else {
+                    weightValue = 70.0
+                }
+            }
+            isInitialized = true
+        }
+    }
+    
+    private func fixInvalidCurrentWeight() {
         guard let user = authManager.currentUser else { return }
         
-        if !tempCurrentWeight.isEmpty, let weight = Double(tempCurrentWeight) {
-            user.currentWeight = weight
-            currentWeight = tempCurrentWeight
+        // Reset invalid current weight to a reasonable default
+        if user.currentWeight < 30.0 || user.currentWeight > 200.0 {
+            user.currentWeight = 70.0
+            try? viewContext.save()
+        }
+    }
+    
+    private func getUserCurrentWeight() -> Double? {
+        guard let current = authManager.currentUser?.currentWeight, current > 0 else {
+            return nil
+        }
+        return current
+    }
+    
+    private func getUserTargetWeight() -> Double? {
+        guard let target = authManager.currentUser?.targetWeight, target > 0 else {
+            return nil
+        }
+        return target
+    }
+    
+    private func quickIncrease() {
+        adjustWeight(0.1)
+    }
+    
+    private func quickDecrease() {
+        adjustWeight(-0.1)
+    }
+    
+    private func startHoldIncrease() {
+        isHoldingPlus = true
+        holdTimer?.invalidate()
+        
+        var increment = 0.1
+        var accelerationCount = 0
+        
+        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            adjustWeight(increment)
+            accelerationCount += 1
+            
+            // Exponential acceleration
+            if accelerationCount % 10 == 0 {
+                increment = min(increment * 1.5, 2.0)
+            }
+        }
+    }
+    
+    private func startHoldDecrease() {
+        isHoldingMinus = true
+        holdTimer?.invalidate()
+        
+        var increment = 0.1
+        var accelerationCount = 0
+        
+        holdTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            adjustWeight(-increment)
+            accelerationCount += 1
+            
+            // Exponential acceleration
+            if accelerationCount % 10 == 0 {
+                increment = min(increment * 1.5, 2.0)
+            }
+        }
+    }
+    
+    private func stopHolding() {
+        isHoldingPlus = false
+        isHoldingMinus = false
+        holdTimer?.invalidate()
+        holdTimer = nil
+    }
+    
+    private func adjustWeight(_ amount: Double) {
+        let newValue = weightValue + amount
+        if newValue >= 30.0 && newValue <= 200.0 {
+            weightValue = newValue
+        }
+    }
+    
+    private func saveWeight() {
+        guard let user = authManager.currentUser else { return }
+        
+        // Validate weight is within acceptable range
+        guard weightValue >= 30.0 && weightValue <= 200.0 else {
+            // Reset to a valid value if somehow an invalid value got through
+            weightValue = max(30.0, min(200.0, weightValue))
+            return
         }
         
-        if !tempTargetWeight.isEmpty, let weight = Double(tempTargetWeight) {
-            user.targetWeight = weight
-            targetWeight = tempTargetWeight
+        // Update user's current weight only if it's today's entry
+        let calendar = Calendar.current
+        if calendar.isDate(selectedDate, inSameDayAs: Date()) {
+            user.currentWeight = weightValue
+            currentWeight = String(format: "%.1f", weightValue)
         }
+        
+        // Save to WeightLog entity
+        let weightLog = WeightLog(context: viewContext)
+        weightLog.weight = weightValue
+        weightLog.date = selectedDate
+        weightLog.user = user
         
         try? viewContext.save()
         dismiss()
+    }
+    
+    private var weightHistorySection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "chart.line.uptrend.xyaxis")
+                    .foregroundColor(Color.accentTeal)
+                    .font(.title2)
+                
+                Text("Weight History")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                if !weightLogs.isEmpty {
+                    Text("\(weightLogs.count) entries")
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.surfaceBackground)
+                        .cornerRadius(8)
+                }
+            }
+            
+            if weightLogs.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "chart.line.downtrend.xyaxis")
+                        .font(.system(size: 40))
+                        .foregroundColor(.textSecondary)
+                    
+                    Text("No weight entries yet")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                    
+                    Text("Start logging your weight to track progress!")
+                        .font(.caption)
+                        .foregroundColor(.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.vertical, 20)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground.opacity(0.5))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.textSecondary.opacity(0.2), lineWidth: 1)
+                        )
+                )
+            } else {
+                LazyVStack(spacing: 8) {
+                    ForEach(Array(weightLogs.enumerated()), id: \.element.objectID) { index, log in
+                        WeightLogCard(
+                            weightLog: log,
+                            isLatest: index == 0,
+                            previousWeight: index < weightLogs.count - 1 ? weightLogs[index + 1].weight : nil,
+                            hasMultipleEntriesOnSameDay: hasMultipleEntriesOnSameDay(for: log),
+                            onEdit: {
+                                editingWeightLog = log
+                                editWeight = log.weight
+                                showingEditAlert = true
+                            },
+                            onDelete: {
+                                editingWeightLog = log
+                                showingDeleteAlert = true
+                            }
+                        )
+                    }
+                }
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
+    }
+    
+    private func saveEditedWeight() {
+        guard let log = editingWeightLog else { return }
+        
+        // Validate weight limits
+        guard editWeight >= 30.0 && editWeight <= 200.0 else {
+            editingWeightLog = nil
+            return
+        }
+        
+        log.weight = editWeight
+        try? viewContext.save()
+        editingWeightLog = nil
+        
+        // Update current weight if editing today's entry
+        let calendar = Calendar.current
+        if calendar.isDate(log.date ?? Date(), inSameDayAs: Date()) {
+            authManager.currentUser?.currentWeight = editWeight
+            currentWeight = String(format: "%.1f", editWeight)
+            try? viewContext.save()
+        }
+    }
+    
+    private func deleteWeightLog() {
+        guard let log = editingWeightLog else { return }
+        viewContext.delete(log)
+        try? viewContext.save()
+        editingWeightLog = nil
+    }
+    
+    private func hasMultipleEntriesOnSameDay(for log: WeightLog) -> Bool {
+        guard let logDate = log.date else { return false }
+        let calendar = Calendar.current
+        
+        let sameDayLogs = weightLogs.filter { otherLog in
+            guard let otherDate = otherLog.date else { return false }
+            return calendar.isDate(logDate, inSameDayAs: otherDate)
+        }
+        
+        return sameDayLogs.count > 1
+    }
+    
+    private func cleanInvalidWeightLogs() {
+        let invalidLogs = weightLogs.filter { log in
+            log.weight < 30.0 || log.weight > 200.0
+        }
+        
+        for log in invalidLogs {
+            viewContext.delete(log)
+        }
+        
+        if !invalidLogs.isEmpty {
+            try? viewContext.save()
+        }
+    }
+}
+
+struct WeightLogCard: View {
+    let weightLog: WeightLog
+    let isLatest: Bool
+    let previousWeight: Double?
+    let hasMultipleEntriesOnSameDay: Bool
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    private var formattedDate: String {
+        guard let date = weightLog.date else { return "Unknown" }
+        let formatter = DateFormatter()
+        
+        let calendar = Calendar.current
+        var dateString: String
+        
+        if calendar.isDate(date, inSameDayAs: Date()) {
+            dateString = "Today"
+        } else if calendar.isDate(date, inSameDayAs: Date().addingTimeInterval(-24*60*60)) {
+            dateString = "Yesterday"
+        } else {
+            formatter.dateStyle = .medium
+            dateString = formatter.string(from: date)
+        }
+        
+        // Add time if there are multiple entries on the same day
+        if hasMultipleEntriesOnSameDay {
+            let timeFormatter = DateFormatter()
+            timeFormatter.timeStyle = .short
+            dateString += " at \(timeFormatter.string(from: date))"
+        }
+        
+        return dateString
+    }
+    
+    private var weightChange: (amount: Double, isPositive: Bool)? {
+        guard let previous = previousWeight else { return nil }
+        let change = weightLog.weight - previous
+        return (abs(change), change >= 0)
+    }
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    HStack(spacing: 4) {
+                        Text(formattedDate)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.textPrimary)
+                        
+                        if hasMultipleEntriesOnSameDay {
+                            Image(systemName: "clock.fill")
+                                .font(.caption2)
+                                .foregroundColor(Color.accentTeal)
+                        }
+                    }
+                    
+                    if isLatest {
+                        Text("LATEST")
+                            .font(.caption2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.primaryOrange1)
+                            .cornerRadius(4)
+                    }
+                    
+                    Spacer()
+                }
+                
+                HStack(spacing: 8) {
+                    Text("\(String(format: "%.1f", weightLog.weight)) kg")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.primaryOrange1)
+                    
+                    if let change = weightChange {
+                        HStack(spacing: 2) {
+                            Image(systemName: change.isPositive ? "arrow.up" : "arrow.down")
+                                .font(.caption)
+                                .foregroundColor(change.isPositive ? .red : .green)
+                            
+                            Text("\(String(format: "%.1f", change.amount)) kg")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(change.isPositive ? .red : .green)
+                        }
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background((change.isPositive ? Color.red : Color.green).opacity(0.1))
+                        .cornerRadius(6)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 8) {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .foregroundColor(Color.primaryOrange1)
+                        .padding(8)
+                        .background(Circle().fill(Color.primaryOrange1.opacity(0.1)))
+                }
+                
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                        .padding(8)
+                        .background(Circle().fill(Color.red.opacity(0.1)))
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.surfaceBackground)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isLatest ? Color.primaryOrange1.opacity(0.3) : Color.clear, lineWidth: 1)
+                )
+        )
     }
 }
 
