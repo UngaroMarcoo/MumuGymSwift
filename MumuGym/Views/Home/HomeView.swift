@@ -11,7 +11,10 @@ struct HomeView: View {
     @State private var showingProfile = false
     
     var body: some View {
-        NavigationView {
+        ZStack {
+            Color.warningGradient
+                .ignoresSafeArea()
+            
             ScrollView {
                 VStack(spacing: 20) {
                     // Welcome section
@@ -35,8 +38,6 @@ struct HomeView: View {
                 .padding(.top, 5)
                 .padding(.bottom, 20)
             }
-            .background(Color.warningGradient)
-            .navigationBarHidden(true)
         }
         .onAppear {
             loadUserWeights()
