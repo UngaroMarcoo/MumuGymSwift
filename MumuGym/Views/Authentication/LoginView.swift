@@ -92,7 +92,7 @@ struct LoginView: View {
             }
             .padding(.horizontal, 20)
         }
-        .sheet(isPresented: $showingRegistration) {
+        .fullScreenCover(isPresented: $showingRegistration) {
             RegistrationView()
         }
         .alert("Error", isPresented: $showingAlert) {
