@@ -7,6 +7,7 @@ struct CreateTemplateView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     
     @State private var templateName = ""
+    @State private var selectedGoal = "Massa"
     @State private var selectedExercises: [TemplateExerciseData] = []
     @State private var showingExercisePicker = false
     @State private var showingAlert = false
@@ -81,17 +82,28 @@ struct CreateTemplateView: View {
                 Spacer()
             }
             
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Template Name")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Template Name")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    TextField("Enter template name", text: $templateName)
+                        .padding(12)
+                        .background(Color.surfaceBackground)
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                }
                 
-                TextField("Enter template name", text: $templateName)
-                    .padding(12)
-                    .background(Color.surfaceBackground)
-                    .cornerRadius(12)
-                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Obiettivo Allenamento")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    
+                    goalSelector
+                }
             }
         }
         .padding(.vertical, 24)
@@ -192,6 +204,29 @@ struct CreateTemplateView: View {
         !templateName.isEmpty && !selectedExercises.isEmpty
     }
     
+    private var goalSelector: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(workoutGoals, id: \.self) { goal in
+                    Button(goal) {
+                        selectedGoal = goal
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(selectedGoal == goal ? Color.primaryOrange1 : Color.surfaceBackground)
+                    .foregroundColor(selectedGoal == goal ? .white : .primary)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .cornerRadius(20)
+                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+    }
+    
+    private let workoutGoals = ["Massa", "Definizione", "Forza", "Resistenza", "Powerlifting", "Funzionale", "Riabilitazione", "Generale"]
+    
     private func addExercise(_ exercise: Exercise) {
         let exerciseData = TemplateExerciseData(
             exercise: exercise,
@@ -208,6 +243,7 @@ struct CreateTemplateView: View {
         
         let template = WorkoutTemplate(context: viewContext)
         template.name = templateName
+        template.goal = selectedGoal
         template.user = user
         template.isDefault = false
         template.createdDate = Date()

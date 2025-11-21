@@ -60,6 +60,7 @@
     </entity>
     <entity name="WorkoutTemplate" representedClassName="WorkoutTemplate" syncable="YES" codeGenerationType="class">
         <attribute name="name" optional="NO" attributeType="String"/>
+        <attribute name="goal" optional="NO" attributeType="String" defaultValue="Massa"/>
         <attribute name="isDefault" optional="NO" attributeType="Boolean" defaultValue="NO" usesScalarValueType="YES"/>
         <attribute name="createdDate" optional="NO" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="workoutTemplates" inverseEntity="User"/>

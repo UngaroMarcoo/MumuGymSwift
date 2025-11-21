@@ -4,6 +4,7 @@ import CoreData
 struct PredefinedTemplate {
     let name: String
     let description: String
+    let goal: String
     let exercises: [PredefinedExercise]
 }
 
@@ -194,6 +195,7 @@ struct TemplatesView: View {
         
         let template = WorkoutTemplate(context: context)
         template.name = templateData.name
+        template.goal = templateData.goal
         template.isDefault = false
         template.createdDate = Date()
         template.user = authManager.currentUser
@@ -254,9 +256,20 @@ struct TemplateCard: View {
                     .lineLimit(2)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(exerciseCount) exercises")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                    HStack {
+                        Text("\(exerciseCount) exercises")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Text("•")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        Text(template.goal ?? "Generale")
+                            .font(.subheadline)
+                            .foregroundColor(.primaryOrange1)
+                            .fontWeight(.medium)
+                    }
                     
                     Text("Est. 45-60 min")
                         .font(.caption)
@@ -414,6 +427,7 @@ struct PredefinedTemplatesView: View {
         PredefinedTemplate(
             name: "Push Day",
             description: "Petto, spalle e tricipiti",
+            goal: "Massa",
             exercises: [
                 PredefinedExercise(name: "Panca Piana", sets: 4, reps: 8, weight: 60.0, restTime: 180),
                 PredefinedExercise(name: "Lento Avanti", sets: 3, reps: 10, weight: 40.0, restTime: 120),
@@ -424,6 +438,7 @@ struct PredefinedTemplatesView: View {
         PredefinedTemplate(
             name: "Pull Day",
             description: "Schiena e bicipiti",
+            goal: "Massa",
             exercises: [
                 PredefinedExercise(name: "Trazioni a Presa prona", sets: 4, reps: 8, weight: 0.0, restTime: 180),
                 PredefinedExercise(name: "Rematore a Busto flesso", sets: 4, reps: 10, weight: 50.0, restTime: 120),
@@ -434,6 +449,7 @@ struct PredefinedTemplatesView: View {
         PredefinedTemplate(
             name: "Leg Day",
             description: "Gambe e glutei",
+            goal: "Forza",
             exercises: [
                 PredefinedExercise(name: "Squat", sets: 5, reps: 8, weight: 80.0, restTime: 240),
                 PredefinedExercise(name: "Stacco da Terra", sets: 4, reps: 6, weight: 100.0, restTime: 300),
@@ -444,6 +460,7 @@ struct PredefinedTemplatesView: View {
         PredefinedTemplate(
             name: "Upper Body",
             description: "Parte superiore completa",
+            goal: "Generale",
             exercises: [
                 PredefinedExercise(name: "Panca Piana", sets: 3, reps: 10, weight: 50.0, restTime: 150),
                 PredefinedExercise(name: "Trazioni alla Lat Machine", sets: 3, reps: 12, weight: 40.0, restTime: 120),
@@ -454,6 +471,7 @@ struct PredefinedTemplatesView: View {
         PredefinedTemplate(
             name: "Full Body",
             description: "Allenamento completo",
+            goal: "Funzionale",
             exercises: [
                 PredefinedExercise(name: "Squat", sets: 3, reps: 12, weight: 60.0, restTime: 180),
                 PredefinedExercise(name: "Panca Piana", sets: 3, reps: 10, weight: 50.0, restTime: 150),
