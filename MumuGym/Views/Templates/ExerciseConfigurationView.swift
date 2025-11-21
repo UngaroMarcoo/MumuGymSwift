@@ -61,7 +61,7 @@ struct ExerciseConfigurationView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.textPrimary)
                     .fontWeight(.medium)
                 }
                 
@@ -78,8 +78,8 @@ struct ExerciseConfigurationView: View {
                         onSave(exerciseData)
                         dismiss()
                     }
-                    .foregroundColor(.white)
-                    .fontWeight(.semibold)
+                    .foregroundColor(.primaryBlue1)
+                    .fontWeight(.medium)
                 }
             }
         }
@@ -167,10 +167,10 @@ struct ExerciseConfigurationView: View {
     }
     
     private var configurationSection: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             HStack {
                 Image(systemName: "slider.horizontal.3")
-                    .foregroundColor(.primaryOrange1)
+                    .foregroundColor(.primaryBlue1)
                     .font(.title2)
                 
                 Text("Exercise Parameters")
@@ -180,13 +180,11 @@ struct ExerciseConfigurationView: View {
                 
                 Spacer()
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
             
-            // 2x2 Grid for parameters
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: 12),
-                GridItem(.flexible(), spacing: 12)
-            ], spacing: 16) {
-                
+            // Vertical list of parameter cards
+            VStack(spacing: 12) {
                 parameterCard(
                     title: "Sets",
                     value: sets,
@@ -209,9 +207,9 @@ struct ExerciseConfigurationView: View {
                 
                 restTimeCard()
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
-        .padding(.vertical, 20)
-        .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .fill(Color.cardBackground)
@@ -415,20 +413,28 @@ struct ExerciseConfigurationView: View {
                 }
                 
                 // Quick preset buttons
-                HStack(spacing: 8) {
-                    ForEach([30, 60, 90, 120], id: \.self) { preset in
-                        Button("\(preset)s") {
-                            restTime = preset
-                            isSuperSet = false
+                VStack(spacing: 8) {
+                    Text("Quick Presets")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack(spacing: 8) {
+                        ForEach([30, 60, 90, 120], id: \.self) { preset in
+                            Button("\(preset)s") {
+                                restTime = preset
+                                isSuperSet = false
+                            }
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(restTime == preset && !isSuperSet ? .white : .purple)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(restTime == preset && !isSuperSet ? Color.purple : Color.purple.opacity(0.1))
+                            )
                         }
-                        .font(.caption2)
-                        .foregroundColor(restTime == preset && !isSuperSet ? .white : .purple)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(restTime == preset && !isSuperSet ? Color.purple : Color.purple.opacity(0.1))
-                        )
                     }
                 }
             } else {
@@ -476,7 +482,7 @@ struct ExerciseConfigurationView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "note.text")
-                    .foregroundColor(.teal)
+                    .foregroundColor(.primaryBlue1)
                     .font(.title2)
                 
                 Text("Personal Notes")
