@@ -325,7 +325,7 @@ struct ExercisePreviewCard: View {
                     parameterChip(icon: "arrow.clockwise", value: "\(exerciseData.reps)")
                     
                     if exerciseData.weight > 0 {
-                        parameterChip(icon: "scalemass", value: "\(exerciseData.weight, specifier: "%.1f")kg")
+                        parameterChip(icon: "scalemass", value: String(format: "%.1f", exerciseData.weight) + "kg")
                     }
                     
                     parameterChip(icon: "clock", value: "\(exerciseData.restTime)s")

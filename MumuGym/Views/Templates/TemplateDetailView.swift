@@ -445,7 +445,7 @@ struct EditTemplateView: View {
         .sheet(isPresented: $showingExercisePicker) {
             ExercisePickerView(
                 exercises: Array(availableExercises),
-                onExerciseSelected: addExercise
+                onExerciseAdded: addExerciseData
             )
         }
         .alert("Error", isPresented: $showingAlert) {
@@ -609,6 +609,10 @@ struct EditTemplateView: View {
             restTime: 60,
             notes: ""
         )
+        selectedExercises.append(exerciseData)
+    }
+    
+    private func addExerciseData(_ exerciseData: TemplateExerciseData) {
         selectedExercises.append(exerciseData)
     }
     
