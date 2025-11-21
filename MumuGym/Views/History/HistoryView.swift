@@ -76,39 +76,40 @@ struct HistoryView: View {
             VStack(spacing: 20) {
                 Image(systemName: "clock.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(Color.primaryOrange1)
-                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .foregroundColor(Color.primaryWater2)
+                    .shadow(color: Color.primaryWater1.opacity(0.3), radius: 4, x: 0, y: 2)
                 
                 Text("No Workouts Yet")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.textPrimary)
                 
                 Text("Start your first workout to see your history here")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.textSecondary)
                     .multilineTextAlignment(.center)
+                
+                NavigationLink(destination: LiveWorkoutView()) {
+                    Text("Start Workout")
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(Color.waterGradient)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .fontWeight(.semibold)
+                        .shadow(color: Color.primaryWater2.opacity(0.3), radius: 8, x: 0, y: 4)
+                }
             }
             .padding(.vertical, 30)
             .padding(.horizontal, 25)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.95))
+                    .fill(Color.cardBackground)
                     .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
             )
-            
-            NavigationLink(destination: LiveWorkoutView()) {
-                Text("Start Workout")
-                    .frame(width: 150, height: 50)
-                    .background(Color.buttonPrimary)
-                    .foregroundColor(.white)
-                    .cornerRadius(25)
-                    .fontWeight(.semibold)
-                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 8, x: 0, y: 4)
-            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(40)
+        .padding(20)
     }
     
     private var workoutsList: some View {

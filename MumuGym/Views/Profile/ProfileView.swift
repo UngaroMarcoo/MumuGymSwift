@@ -9,6 +9,7 @@ struct ProfileView: View {
     @State private var showingEditProfile = false
     @State private var showingLogoutConfirmation = false
     @State private var showingWeightAnalytics = false
+    @State private var refreshID = UUID()
     
     var body: some View {
         NavigationView {
@@ -22,6 +23,7 @@ struct ProfileView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
                 .padding(.bottom, 20)
+                .id(refreshID) // This forces the view to refresh when refreshID changes
             }
             .background(Color.warningGradient)
             .navigationTitle("Profile")
@@ -34,7 +36,10 @@ struct ProfileView: View {
         .sheet(isPresented: $showingWeightAnalytics) {
             WeightAnalyticsView()
         }
-        .sheet(isPresented: $showingEditProfile) {
+        .sheet(isPresented: $showingEditProfile, onDismiss: {
+            // Refresh the view when the edit profile sheet is dismissed
+            refreshID = UUID()
+        }) {
             EditProfileView()
         }
         .alert("Logout Confirmation", isPresented: $showingLogoutConfirmation) {

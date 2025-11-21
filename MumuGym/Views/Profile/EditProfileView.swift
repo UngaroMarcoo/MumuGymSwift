@@ -47,12 +47,17 @@ struct EditProfileView: View {
                     Button("Save") {
                         saveProfile()
                     }
-                    .foregroundColor(.primaryPurple1)
+                    .foregroundColor(.primaryOrange1)
                     .fontWeight(.semibold)
                 }
             }
         }
         .onAppear {
+            loadCurrentData()
+        }
+        .task {
+            // Force reload data after a small delay to ensure user is loaded
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
             loadCurrentData()
         }
         .alert("Profile Update", isPresented: $showingAlert) {
@@ -76,7 +81,7 @@ struct EditProfileView: View {
 
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 60))
-                    .foregroundColor(.primaryPurple1)
+                    .foregroundColor(.primaryOrange1)
             }
             
             Text("Edit Your Profile")
@@ -97,7 +102,7 @@ struct EditProfileView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "person.fill")
-                    .foregroundColor(Color.primaryPurple1)
+                    .foregroundColor(Color.accentTeal)
                     .font(.title2)
                 
                 Text("Personal Information")
@@ -190,7 +195,7 @@ struct EditProfileView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.accentTeal)
+                    .foregroundColor(Color.primaryPurple2)
                     .font(.title2)
                 
                 Text("Weight Information")
@@ -238,7 +243,7 @@ struct EditProfileView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "envelope.fill")
-                    .foregroundColor(Color.primaryPurple2)
+                    .foregroundColor(Color.primaryOrange1)
                     .font(.title2)
                 
                 Text("Email Preferences")
@@ -281,13 +286,32 @@ struct EditProfileView: View {
     private func loadCurrentData() {
         guard let user = authManager.currentUser else { return }
         
+        // Load all existing data, including zeros and empty values
         firstName = user.firstName ?? ""
         lastName = user.lastName ?? ""
-        age = user.age > 0 ? String(user.age) : ""
+        
+        // Show age even if it's 0 (could be valid if not set yet)
+        if user.age > 0 {
+            age = String(user.age)
+        } else {
+            age = "" // Keep empty if not set
+        }
+        
         gender = user.gender ?? ""
         emailSubscription = user.emailSubscription
-        currentWeight = user.currentWeight > 0 ? String(format: "%.1f", user.currentWeight) : ""
-        targetWeight = user.targetWeight > 0 ? String(format: "%.1f", user.targetWeight) : ""
+        
+        // Show weight values even if they are 0
+        if user.currentWeight > 0 {
+            currentWeight = String(format: "%.1f", user.currentWeight)
+        } else {
+            currentWeight = "" // Keep empty if not set
+        }
+        
+        if user.targetWeight > 0 {
+            targetWeight = String(format: "%.1f", user.targetWeight)
+        } else {
+            targetWeight = "" // Keep empty if not set
+        }
     }
     
     private func saveProfile() {

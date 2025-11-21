@@ -100,20 +100,21 @@ struct PersonalRecordsView: View {
                 Text("No Personal Records")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.textPrimary)
                 
                 Text("Track your best lifts and see your progress over time")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.textSecondary)
                     .multilineTextAlignment(.center)
                 
                 Button("Add First Record") {
                     showingAddRecord = true
                 }
-                .frame(width: 180, height: 50)
-                .background(Color.buttonPrimary)
+                .frame(maxWidth: .infinity)
+                .frame(height: 54)
+                .background(Color.warningGradient)
                 .foregroundColor(.white)
-                .cornerRadius(25)
+                .cornerRadius(12)
                 .fontWeight(.semibold)
                 .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
             }
@@ -121,14 +122,14 @@ struct PersonalRecordsView: View {
             .padding(.horizontal, 25)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.95))
+                    .fill(Color.cardBackground)
                     .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
             )
             
             
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(40)
+        .padding(20)
     }
     
     private var recordsList: some View {

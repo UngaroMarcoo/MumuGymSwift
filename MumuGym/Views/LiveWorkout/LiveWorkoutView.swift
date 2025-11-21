@@ -42,7 +42,7 @@ struct LiveWorkoutView: View {
                     }
                 }
             }
-            .background(Color.appBackground)
+            .background(Color.warningGradient)
             .navigationBarBackButtonHidden(workoutSession.isActive)
             .navigationBarHidden(!workoutSession.isActive)
             .toolbar {
@@ -81,33 +81,29 @@ struct LiveWorkoutView: View {
         VStack(spacing: 32) {
             Spacer()
             
-            // Header with gradient
-            VStack(spacing: 16) {
-                Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 40))
-                    .foregroundColor(.white)
-                
-                Text("Ready to Workout?")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("Start a new workout session or continue from a template")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 32)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.warningGradient)
-                    .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 12, x: 0, y: 6)
-            )
-            
             // Action buttons
             VStack(spacing: 16) {
+                
+                // Header with gradient
+                VStack(spacing: 16) {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(Color.primaryGreen1)
+                    
+                    Text("Ready to Workout?")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Start a new workout session or continue from a template")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 32)
+                .frame(maxWidth: .infinity)
+                
                 Button("Start Empty Workout") {
                     startEmptyWorkout()
                 }
@@ -125,13 +121,9 @@ struct LiveWorkoutView: View {
                         .frame(height: 54)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.cardBackground)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.primaryOrange1, lineWidth: 2)
-                                )
+                                .fill(Color.primaryGradient)
                         )
-                        .foregroundColor(.primaryBlue1)
+                        .foregroundColor(.white)
                         .fontWeight(.semibold)
                 }
             }

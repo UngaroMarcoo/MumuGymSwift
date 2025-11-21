@@ -146,7 +146,7 @@ struct TemplatesView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(Color.successGradient)
+                .background(Color.primaryGradient)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .fontWeight(.semibold)

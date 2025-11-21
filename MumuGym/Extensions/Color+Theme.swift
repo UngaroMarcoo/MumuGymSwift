@@ -33,6 +33,8 @@ extension Color {
     static let primaryRed = Color(red: 0.90, green: 0.20, blue: 0.20)
     static let primaryPurple1 = Color(red: 0.553, green: 0.224, blue: 0.839) // #8D39D6
     static let primaryPurple2 = Color(red: 0.694, green: 0.286, blue: 0.898) // #B149E5
+    static let primaryWater1 = Color(red: 0.58, green: 0.84, blue: 0.70)  // #95D5B2
+    static let primaryWater2 = Color(red: 0.32, green: 0.72, blue: 0.53) // #52B788
     static let accentTeal = Color(red: 0.1, green: 0.7, blue: 0.8)       // #1AB3CC
     
     
@@ -62,6 +64,12 @@ extension Color {
     
     static let purpleGradient = LinearGradient(
         gradient: Gradient(colors: [primaryPurple1, primaryPurple2]),
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+    
+    static let waterGradient = LinearGradient(
+        gradient: Gradient(colors: [primaryWater1, primaryWater2]),
         startPoint: .topLeading,
         endPoint: .bottomTrailing
     )

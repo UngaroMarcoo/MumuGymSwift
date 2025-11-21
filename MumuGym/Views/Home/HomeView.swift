@@ -93,7 +93,7 @@ struct HomeView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "scalemass.fill")
-                    .foregroundColor(Color.primaryOrange1)
+                    .foregroundColor(Color.primaryPurple2)
                     .font(.title3)
                 
                 Text("Current Weight")
@@ -103,18 +103,6 @@ struct HomeView: View {
                 
                 Spacer()
                 
-                Button("Update") {
-                    showingWeightEntry = true
-                }
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.primaryOrange1)
-                )
             }
             
             Button(action: { showingWeightTracking = true }) {
@@ -122,7 +110,7 @@ struct HomeView: View {
                     Text(currentWeight.isEmpty ? "--" : "\(currentWeight) kg")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .foregroundColor(Color.primaryOrange1)
+                        .foregroundColor(Color.primaryPurple2)
                     
                     Text("Tap to track weight")
                         .font(.subheadline)
@@ -136,7 +124,7 @@ struct HomeView: View {
                         .fill(Color.surfaceBackground)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.primaryOrange1.opacity(0.2), lineWidth: 1)
+                                .stroke(Color.primaryPurple2.opacity(0.3), lineWidth: 1)
                         )
                 )
             }
@@ -338,7 +326,7 @@ struct WeightEntryView: View {
                 .frame(maxWidth: .infinity)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(Color.primaryGradient)
+                        .fill(Color.purpleGradient)
                         .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
                 )
                 
@@ -346,7 +334,7 @@ struct WeightEntryView: View {
                 VStack(spacing: 16) {
                     HStack {
                         Image(systemName: "calendar")
-                            .foregroundColor(Color.primaryOrange1)
+                            .foregroundColor(Color.primaryPurple2)
                             .font(.title2)
                         
                         Text("Date")
@@ -371,7 +359,7 @@ struct WeightEntryView: View {
                 VStack(spacing: 16) {
                     HStack {
                         Image(systemName: "scalemass.fill")
-                            .foregroundColor(Color.primaryOrange1)
+                            .foregroundColor(Color.primaryPurple2)
                             .font(.title2)
                         
                         Text("Weight")
@@ -388,7 +376,7 @@ struct WeightEntryView: View {
                         Button(action: { quickDecrease() }) {
                             Image(systemName: "minus.circle.fill")
                                 .font(.system(size: 50))
-                                .foregroundColor(Color.primaryOrange1)
+                                .foregroundColor(Color.primaryPurple2)
                         }
                         .disabled(weightValue <= 30.0)
                         .opacity(weightValue <= 30.0 ? 0.3 : 1.0)
@@ -418,7 +406,7 @@ struct WeightEntryView: View {
                         Button(action: { quickIncrease() }) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.system(size: 50))
-                                .foregroundColor(Color.primaryOrange1)
+                                .foregroundColor(Color.primaryPurple2)
                         }
                         .disabled(weightValue >= 200.0)
                         .opacity(weightValue >= 200.0 ? 0.3 : 1.0)
@@ -446,7 +434,7 @@ struct WeightEntryView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(Color.successGradient)
+                .background(Color.purpleGradient)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .fontWeight(.semibold)
@@ -637,14 +625,17 @@ struct WeightEntryView: View {
         weightLog.user = user
         
         try? viewContext.save()
-        dismiss()
+        
+        // Reset the date to today and weight to a smart default for next entry
+        selectedDate = Date()
+        initializeWeight()
     }
     
     private var weightHistorySection: some View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(Color.accentTeal)
+                    .foregroundColor(Color.primaryPurple2)
                     .font(.title2)
                 
                 Text("Weight History")
@@ -698,6 +689,7 @@ struct WeightEntryView: View {
                             isLatest: index == 0,
                             previousWeight: index < weightLogs.count - 1 ? weightLogs[index + 1].weight : nil,
                             hasMultipleEntriesOnSameDay: hasMultipleEntriesOnSameDay(for: log),
+                            targetWeight: authManager.currentUser?.targetWeight ?? 70.0,
                             onEdit: {
                                 editingWeightLog = log
                                 editWeight = log.weight
@@ -781,6 +773,7 @@ struct WeightLogCard: View {
     let isLatest: Bool
     let previousWeight: Double?
     let hasMultipleEntriesOnSameDay: Bool
+    let targetWeight: Double
     let onEdit: () -> Void
     let onDelete: () -> Void
     
@@ -810,10 +803,35 @@ struct WeightLogCard: View {
         return dateString
     }
     
-    private var weightChange: (amount: Double, isPositive: Bool)? {
+    private var weightChange: (amount: Double, isGoodProgress: Bool, isIncrease: Bool, isNeutral: Bool, noChange: Bool)? {
         guard let previous = previousWeight else { return nil }
         let change = weightLog.weight - previous
-        return (abs(change), change >= 0)
+        let isIncrease = change > 0
+        
+        // Check if there's no change (same weight as previous)
+        if abs(change) < 0.01 { // Consider changes less than 0.01kg as "no change"
+            return (0.0, false, false, false, true)
+        }
+        
+        // Determine if this is good progress based on weight goal
+        let currentWeight = weightLog.weight
+        
+        var isGoodProgress = false
+        var isNeutral = false
+        
+        // Simple logic: compare target with current weight
+        if abs(currentWeight - targetWeight) < 0.5 {
+            // Very close to target (within 0.5kg), consider neutral
+            isNeutral = true
+        } else if targetWeight > currentWeight {
+            // Need to gain weight to reach target, so increases are good
+            isGoodProgress = isIncrease
+        } else {
+            // Need to lose weight to reach target, so decreases are good
+            isGoodProgress = !isIncrease
+        }
+        
+        return (abs(change), isGoodProgress, isIncrease, isNeutral, false)
     }
     
     var body: some View {
@@ -829,7 +847,7 @@ struct WeightLogCard: View {
                         if hasMultipleEntriesOnSameDay {
                             Image(systemName: "clock.fill")
                                 .font(.caption2)
-                                .foregroundColor(Color.accentTeal)
+                                .foregroundColor(Color.primaryPurple2)
                         }
                     }
                     
@@ -840,7 +858,7 @@ struct WeightLogCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.primaryOrange1)
+                            .background(Color.primaryPurple2)
                             .cornerRadius(4)
                     }
                     
@@ -851,23 +869,49 @@ struct WeightLogCard: View {
                     Text("\(String(format: "%.1f", weightLog.weight)) kg")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundColor(Color.primaryOrange1)
+                        .foregroundColor(Color.primaryPurple2)
                     
                     if let change = weightChange {
-                        HStack(spacing: 2) {
-                            Image(systemName: change.isPositive ? "arrow.up" : "arrow.down")
-                                .font(.caption)
-                                .foregroundColor(change.isPositive ? .red : .green)
+                        if change.noChange {
+                            // Show a dash for no change
+                            HStack(spacing: 2) {
+                                Image(systemName: "minus")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                
+                                Text("0.0 kg")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.gray)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(6)
+                        } else {
+                            let arrowColor: Color = {
+                                if change.isNeutral {
+                                    return .gray
+                                } else {
+                                    return change.isGoodProgress ? .green : .red
+                                }
+                            }()
                             
-                            Text("\(String(format: "%.1f", change.amount)) kg")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(change.isPositive ? .red : .green)
+                            HStack(spacing: 2) {
+                                Image(systemName: change.isIncrease ? "arrow.up" : "arrow.down")
+                                    .font(.caption)
+                                    .foregroundColor(arrowColor)
+                                
+                                Text("\(String(format: "%.1f", change.amount)) kg")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(arrowColor)
+                            }
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(arrowColor.opacity(0.1))
+                            .cornerRadius(6)
                         }
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background((change.isPositive ? Color.red : Color.green).opacity(0.1))
-                        .cornerRadius(6)
                     }
                 }
             }
@@ -877,9 +921,9 @@ struct WeightLogCard: View {
             HStack(spacing: 8) {
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
-                        .foregroundColor(Color.primaryOrange1)
+                        .foregroundColor(Color.textSecondary)
                         .padding(8)
-                        .background(Circle().fill(Color.primaryOrange1.opacity(0.1)))
+                        .background(Circle().fill(Color.textSecondary.opacity(0.1)))
                 }
                 
                 Button(action: onDelete) {
@@ -896,7 +940,7 @@ struct WeightLogCard: View {
                 .fill(Color.surfaceBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(isLatest ? Color.primaryOrange1.opacity(0.3) : Color.clear, lineWidth: 1)
+                        .stroke(isLatest ? Color.primaryPurple2.opacity(0.3) : Color.clear, lineWidth: 1)
                 )
         )
     }
