@@ -88,7 +88,7 @@ struct WeightAnalyticsView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.textPrimary)
+                    .foregroundColor(.primaryOrange1)
                     .fontWeight(.medium)
                 }
                 

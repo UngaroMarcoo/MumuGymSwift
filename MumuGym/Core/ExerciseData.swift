@@ -11,6 +11,7 @@ struct ExerciseDataModel {
 }
 
 class ExerciseData {
+    
     static let exercisesFromCSV = [
         ExerciseDataModel(id: 1, name: "Sit-up", category: "core", icon: "https://static.strengthlevel.com/images/exercises/sit-ups/icons/sit-ups-icon-64.png", description: "Sit-up classici", imageUrl: "https://static.strengthlevel.com/images/exercises/sit-ups/icons/sit-ups-icon-64.png"),
         ExerciseDataModel(id: 2, name: "Crunch ai Cavi", category: "core", icon: "https://static.strengthlevel.com/images/exercises/cable-crunch/icons/cable-crunch-icon-64.png", description: "Crunch con resistenza ai cavi", imageUrl: "https://static.strengthlevel.com/images/exercises/cable-crunch/icons/cable-crunch-icon-64.png"),

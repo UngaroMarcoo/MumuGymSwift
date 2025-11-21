@@ -781,12 +781,6 @@ struct WeightEntryView: View {
                 
                 Spacer()
                 
-                Button("Edit") {
-                    showingTargetWeightEdit = true
-                }
-                .foregroundColor(.accentTeal)
-                .font(.subheadline)
-                .fontWeight(.medium)
             }
             
             Button(action: { showingTargetWeightEdit = true }) {
