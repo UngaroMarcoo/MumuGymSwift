@@ -696,31 +696,29 @@ struct ExercisePickerView: View {
                 }
             }
         }
-        .sheet(isPresented: $showingConfiguration) {
+        .sheet(item: Binding<Exercise?>(
+            get: { showingConfiguration ? selectedExercise : nil },
+            set: { _ in showingConfiguration = false }
+        )) { exercise in
             NavigationView {
                 VStack {
                     Text("Test View")
                         .font(.title)
                         .padding()
                     
-                    Text("Exercise: \(selectedExercise?.name ?? "Unknown")")
+                    Text("Exercise: \(exercise.name ?? "Unknown")")
                         .padding()
-                        .onAppear {
-                            print("DEBUG: Sheet opened with exercise: \(selectedExercise?.name ?? "nil")")
-                        }
                     
                     Button("Add Exercise") {
-                        if let exercise = selectedExercise {
-                            let exerciseData = TemplateExerciseData(
-                                exercise: exercise,
-                                sets: 3,
-                                reps: 10,
-                                weight: 0.0,
-                                restTime: 60,
-                                notes: ""
-                            )
-                            onExerciseAdded(exerciseData)
-                        }
+                        let exerciseData = TemplateExerciseData(
+                            exercise: exercise,
+                            sets: 3,
+                            reps: 10,
+                            weight: 0.0,
+                            restTime: 60,
+                            notes: ""
+                        )
+                        onExerciseAdded(exerciseData)
                         showingConfiguration = false
                     }
                     .padding()
