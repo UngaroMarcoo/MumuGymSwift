@@ -12,6 +12,7 @@ struct ExerciseConfigurationView: View {
     @State private var reps: Int
     @State private var weight: Double
     @State private var restTime: Int
+    @State private var isSuperSet: Bool = false
     @State private var notes: String
     
     init(exercise: Exercise, existingData: TemplateExerciseData? = nil, onSave: @escaping (TemplateExerciseData) -> Void) {
@@ -25,6 +26,7 @@ struct ExerciseConfigurationView: View {
             _reps = State(initialValue: existing.reps)
             _weight = State(initialValue: existing.weight)
             _restTime = State(initialValue: existing.restTime)
+            _isSuperSet = State(initialValue: existing.restTime == 0)
             _notes = State(initialValue: existing.notes)
         } else {
             _sets = State(initialValue: 3)
@@ -38,7 +40,7 @@ struct ExerciseConfigurationView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.warningGradient
+                Color.surfaceBackground
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -46,9 +48,6 @@ struct ExerciseConfigurationView: View {
                         exerciseInfoSection
                         configurationSection
                         notesSection
-                        
-                        // Save button at bottom
-                        saveButton
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 10)
@@ -64,6 +63,23 @@ struct ExerciseConfigurationView: View {
                     }
                     .foregroundColor(.white)
                     .fontWeight(.medium)
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(existingData != nil ? "Update" : "Add") {
+                        let exerciseData = TemplateExerciseData(
+                            exercise: exercise,
+                            sets: sets,
+                            reps: reps,
+                            weight: weight,
+                            restTime: isSuperSet ? 0 : restTime,
+                            notes: notes
+                        )
+                        onSave(exerciseData)
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .fontWeight(.semibold)
                 }
             }
         }
@@ -296,9 +312,6 @@ struct ExerciseConfigurationView: View {
                         .fontWeight(.bold)
                         .frame(minWidth: 40)
                     
-                    Rectangle()
-                        .fill(Color.orange.opacity(0.3))
-                        .frame(height: 1)
                 }
                 
                 Button(action: {
@@ -327,7 +340,7 @@ struct ExerciseConfigurationView: View {
                     .font(.caption)
                     .foregroundColor(.purple)
                 
-                Text("Rest (sec)")
+                Text("Rest")
                     .font(.subheadline)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -335,57 +348,119 @@ struct ExerciseConfigurationView: View {
                 Spacer()
             }
             
-            HStack(spacing: 12) {
-                Button(action: {
-                    if restTime >= 15 {
-                        restTime -= 15
-                    } else if restTime > 0 {
-                        restTime = 0
-                    }
-                }) {
-                    Image(systemName: "minus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(restTime > 0 ? .purple : .secondary.opacity(0.5))
+            // SuperSet toggle first
+            HStack {
+                Button("SS") {
+                    isSuperSet = true
+                    restTime = 0
                 }
-                .disabled(restTime <= 0)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(isSuperSet ? .white : .purple)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(isSuperSet ? Color.purple : Color.purple.opacity(0.1))
+                )
                 
-                VStack(spacing: 4) {
-                    TextField("60", value: $restTime, format: .number)
-                        .multilineTextAlignment(.center)
-                        .keyboardType(.numberPad)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(minWidth: 40)
-                    
-                    Rectangle()
-                        .fill(Color.purple.opacity(0.3))
-                        .frame(height: 1)
-                }
+                Text("Super Set")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
                 
-                Button(action: {
-                    restTime += 15
-                }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.purple)
-                }
+                Spacer()
             }
             
-            // Quick preset buttons
-            HStack(spacing: 8) {
-                ForEach([30, 60, 90, 120], id: \.self) { preset in
-                    Button("\(preset)s") {
-                        restTime = preset
+            if !isSuperSet {
+                HStack(spacing: 12) {
+                    Button(action: {
+                        if restTime >= 15 {
+                            restTime -= 15
+                        } else if restTime > 0 {
+                            restTime = 0
+                        }
+                    }) {
+                        Image(systemName: "minus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(restTime > 0 ? .purple : .secondary.opacity(0.5))
+                    }
+                    .disabled(restTime <= 0)
+                    
+                    VStack(spacing: 4) {
+                        TextField("60", value: $restTime, format: .number)
+                            .multilineTextAlignment(.center)
+                            .keyboardType(.numberPad)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .frame(minWidth: 40)
+                            .onChange(of: restTime) { _, newValue in
+                                if newValue > 0 {
+                                    isSuperSet = false
+                                }
+                            }
+                        
+                        Text("sec")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Button(action: {
+                        restTime += 15
+                        isSuperSet = false
+                    }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.purple)
+                    }
+                }
+                
+                // Quick preset buttons
+                HStack(spacing: 8) {
+                    ForEach([30, 60, 90, 120], id: \.self) { preset in
+                        Button("\(preset)s") {
+                            restTime = preset
+                            isSuperSet = false
+                        }
+                        .font(.caption2)
+                        .foregroundColor(restTime == preset && !isSuperSet ? .white : .purple)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(restTime == preset && !isSuperSet ? Color.purple : Color.purple.opacity(0.1))
+                        )
+                    }
+                }
+            } else {
+                VStack(spacing: 8) {
+                    HStack {
+                        Image(systemName: "bolt.fill")
+                            .font(.title2)
+                            .foregroundColor(.purple)
+                        
+                        Text("No Rest")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                    }
+                    
+                    Text("Go directly to next exercise")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Button("Use Rest Time Instead") {
+                        isSuperSet = false
+                        restTime = 60
                     }
                     .font(.caption2)
-                    .foregroundColor(restTime == preset ? .white : .purple)
+                    .foregroundColor(.purple)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(
-                        Capsule()
-                            .fill(restTime == preset ? Color.purple : Color.purple.opacity(0.1))
-                    )
+                    .background(Color.purple.opacity(0.1))
+                    .cornerRadius(8)
                 }
+                .padding(.vertical, 8)
             }
         }
         .padding(16)
@@ -434,36 +509,6 @@ struct ExerciseConfigurationView: View {
         )
     }
     
-    private var saveButton: some View {
-        Button(action: {
-            let exerciseData = TemplateExerciseData(
-                exercise: exercise,
-                sets: sets,
-                reps: reps,
-                weight: weight,
-                restTime: restTime,
-                notes: notes
-            )
-            onSave(exerciseData)
-            dismiss()
-        }) {
-            HStack(spacing: 12) {
-                Image(systemName: existingData != nil ? "arrow.clockwise" : "plus")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
-                Text(existingData != nil ? "Update Exercise" : "Add to Template")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-            }
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.primaryOrange1)
-            .cornerRadius(12)
-        }
-        .padding(.horizontal, 20)
-    }
 }
 
 #Preview {
