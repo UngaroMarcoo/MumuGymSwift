@@ -233,7 +233,8 @@ struct CreateTemplateView: View {
             sets: 3,
             reps: 10,
             weight: 0,
-            restTime: 60
+            restTime: 60,
+            notes: ""
         )
         selectedExercises.append(exerciseData)
     }
@@ -255,6 +256,7 @@ struct CreateTemplateView: View {
             templateExercise.reps = Int16(exerciseData.reps)
             templateExercise.weight = exerciseData.weight
             templateExercise.restTime = Int32(exerciseData.restTime)
+            templateExercise.notes = exerciseData.notes
             templateExercise.exercise = exerciseData.exercise
             templateExercise.template = template
         }
@@ -275,19 +277,24 @@ struct TemplateExerciseData {
     var reps: Int
     var weight: Double
     var restTime: Int
+    var notes: String
 }
 
 struct TemplateExerciseRow: View {
     @Binding var exerciseData: TemplateExerciseData
     let onDelete: () -> Void
     
+    @State private var showingNotesField = false
+    
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
+            // Header with exercise info and delete button
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(exerciseData.exercise.name ?? "Unknown")
                         .font(.headline)
-                        .fontWeight(.medium)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
                     
                     Text(exerciseData.exercise.targetMuscle ?? "")
                         .font(.caption)
@@ -296,59 +303,208 @@ struct TemplateExerciseRow: View {
                 
                 Spacer()
                 
-                Button(action: onDelete) {
-                    Image(systemName: "trash.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(Color.deleteButtonColor)
+                HStack(spacing: 8) {
+                    // Notes button
+                    Button(action: { showingNotesField.toggle() }) {
+                        Image(systemName: showingNotesField ? "note.text.badge.plus" : "note.text")
+                            .font(.title3)
+                            .foregroundColor(exerciseData.notes.isEmpty ? .secondary : .primaryOrange1)
+                    }
+                    
+                    // Delete button
+                    Button(action: onDelete) {
+                        Image(systemName: "trash.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(Color.deleteButtonColor)
+                    }
                 }
             }
             
-            HStack(spacing: 15) {
-                VStack {
-                    Text("Sets")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            // Parameters section with improved stepper design
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    // Sets
+                    parameterCard(
+                        title: "Sets",
+                        value: exerciseData.sets,
+                        range: 1...10,
+                        binding: $exerciseData.sets
+                    )
                     
-                    Stepper("\(exerciseData.sets)", value: $exerciseData.sets, in: 1...10)
-                        .labelsHidden()
+                    // Reps
+                    parameterCard(
+                        title: "Reps",
+                        value: exerciseData.reps,
+                        range: 1...100,
+                        binding: $exerciseData.reps
+                    )
                 }
                 
-                VStack {
-                    Text("Reps")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                HStack(spacing: 12) {
+                    // Weight
+                    weightCard()
                     
-                    Stepper("\(exerciseData.reps)", value: $exerciseData.reps, in: 1...50)
-                        .labelsHidden()
+                    // Rest time
+                    restTimeCard()
                 }
-                
-                VStack {
-                    Text("Weight (kg)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            }
+            
+            // Notes field (expandable)
+            if showingNotesField {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Note esercizio")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.primary)
                     
-                    TextField("0", value: $exerciseData.weight, format: .number)
-                        .textFieldStyle(.roundedBorder)
-                        .keyboardType(.decimalPad)
-                }
-                
-                VStack {
-                    Text("Rest (sec)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    TextField("60", value: $exerciseData.restTime, format: .number)
-                        .textFieldStyle(.roundedBorder)
-                        .keyboardType(.numberPad)
+                    TextField("Aggiungi note per questo esercizio...", text: $exerciseData.notes, axis: .vertical)
+                        .lineLimit(2...4)
+                        .padding(12)
+                        .background(Color.surfaceBackground)
+                        .cornerRadius(12)
+                        .font(.subheadline)
                 }
             }
         }
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white.opacity(0.9))
-                .shadow(color: Color.black.opacity(0.1), radius: 6, x: 0, y: 3)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium.opacity(0.15), radius: 8, x: 0, y: 4)
         )
+        .animation(.easeInOut(duration: 0.3), value: showingNotesField)
+    }
+    
+    @ViewBuilder
+    private func parameterCard(title: String, value: Int, range: ClosedRange<Int>, binding: Binding<Int>) -> some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            HStack(spacing: 8) {
+                Button(action: {
+                    if binding.wrappedValue > range.lowerBound {
+                        binding.wrappedValue -= 1
+                    }
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(binding.wrappedValue > range.lowerBound ? .primaryOrange1 : .secondary.opacity(0.5))
+                }
+                .disabled(binding.wrappedValue <= range.lowerBound)
+                
+                Text("\(binding.wrappedValue)")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .frame(minWidth: 30)
+                
+                Button(action: {
+                    if binding.wrappedValue < range.upperBound {
+                        binding.wrappedValue += 1
+                    }
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(binding.wrappedValue < range.upperBound ? .primaryOrange1 : .secondary.opacity(0.5))
+                }
+                .disabled(binding.wrappedValue >= range.upperBound)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.surfaceBackground)
+        .cornerRadius(12)
+    }
+    
+    @ViewBuilder
+    private func weightCard() -> some View {
+        VStack(spacing: 8) {
+            Text("Peso (kg)")
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            HStack(spacing: 8) {
+                Button(action: {
+                    if exerciseData.weight >= 2.5 {
+                        exerciseData.weight -= 2.5
+                    } else if exerciseData.weight > 0 {
+                        exerciseData.weight = 0
+                    }
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(exerciseData.weight > 0 ? .primaryOrange1 : .secondary.opacity(0.5))
+                }
+                .disabled(exerciseData.weight <= 0)
+                
+                TextField("0", value: $exerciseData.weight, format: .number)
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.decimalPad)
+                    .frame(minWidth: 40)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Button(action: {
+                    exerciseData.weight += 2.5
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.primaryOrange1)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.surfaceBackground)
+        .cornerRadius(12)
+    }
+    
+    @ViewBuilder
+    private func restTimeCard() -> some View {
+        VStack(spacing: 8) {
+            Text("Riposo (sec)")
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+            
+            HStack(spacing: 8) {
+                Button(action: {
+                    if exerciseData.restTime >= 15 {
+                        exerciseData.restTime -= 15
+                    } else if exerciseData.restTime > 0 {
+                        exerciseData.restTime = 0
+                    }
+                }) {
+                    Image(systemName: "minus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(exerciseData.restTime > 0 ? .primaryOrange1 : .secondary.opacity(0.5))
+                }
+                .disabled(exerciseData.restTime <= 0)
+                
+                TextField("60", value: $exerciseData.restTime, format: .number)
+                    .multilineTextAlignment(.center)
+                    .keyboardType(.numberPad)
+                    .frame(minWidth: 40)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Button(action: {
+                    exerciseData.restTime += 15
+                }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(.primaryOrange1)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(Color.surfaceBackground)
+        .cornerRadius(12)
     }
 }
 

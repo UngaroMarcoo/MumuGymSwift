@@ -270,6 +270,25 @@ struct ModernTemplateExerciseDetailCard: View {
                     .background(Color.surfaceBackground)
                     .cornerRadius(8)
             }
+            
+            // Show template-specific notes if available
+            if let notes = templateExercise.notes, !notes.isEmpty {
+                HStack {
+                    Image(systemName: "note.text")
+                        .font(.caption)
+                        .foregroundColor(.primaryOrange1)
+                    
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundColor(.textPrimary)
+                        .fontWeight(.medium)
+                    
+                    Spacer()
+                }
+                .padding(12)
+                .background(Color.primaryOrange1.opacity(0.1))
+                .cornerRadius(8)
+            }
         }
         .padding(16)
         .background(Color.cardBackground)
@@ -575,7 +594,8 @@ struct EditTemplateView: View {
                 sets: Int(templateEx.sets),
                 reps: Int(templateEx.reps),
                 weight: templateEx.weight,
-                restTime: Int(templateEx.restTime)
+                restTime: Int(templateEx.restTime),
+                notes: templateEx.notes ?? ""
             )
         }
     }
@@ -586,7 +606,8 @@ struct EditTemplateView: View {
             sets: 3,
             reps: 10,
             weight: 0,
-            restTime: 60
+            restTime: 60,
+            notes: ""
         )
         selectedExercises.append(exerciseData)
     }
@@ -610,6 +631,7 @@ struct EditTemplateView: View {
             templateExercise.reps = Int16(exerciseData.reps)
             templateExercise.weight = exerciseData.weight
             templateExercise.restTime = Int32(exerciseData.restTime)
+            templateExercise.notes = exerciseData.notes
             templateExercise.exercise = exerciseData.exercise
             templateExercise.template = template
         }
