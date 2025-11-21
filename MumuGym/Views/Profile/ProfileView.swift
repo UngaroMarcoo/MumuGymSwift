@@ -10,8 +10,6 @@ struct ProfileView: View {
     @State private var showingLogoutConfirmation = false
     @State private var showingWeightAnalytics = false
     @State private var refreshID = UUID()
-    @State private var exerciseCount = 0
-    @State private var showingReseedConfirmation = false
     
     var body: some View {
         NavigationView {
@@ -20,7 +18,6 @@ struct ProfileView: View {
                     profileHeaderSection
                     personalInfoSection
                     weightInfoSection
-                    debugSection
                     appSettingsSection
                 }
                 .padding(.horizontal, 20)
@@ -32,9 +29,6 @@ struct ProfileView: View {
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarHidden(true)
-        }
-        .onAppear {
-            loadExerciseCount()
         }
         .sheet(isPresented: $showingWeightEntry) {
             WeightEntryView(currentWeight: .constant(""), targetWeight: .constant(""))
@@ -55,15 +49,6 @@ struct ProfileView: View {
             }
         } message: {
             Text("Are you sure you want to logout?")
-        }
-        .alert("Reseed Exercises", isPresented: $showingReseedConfirmation) {
-            Button("Cancel", role: .cancel) { }
-            Button("Reseed", role: .destructive) {
-                ExerciseData.seedExercises(context: viewContext, forceReseed: true)
-                loadExerciseCount()
-            }
-        } message: {
-            Text("This will delete all existing exercises and reload them from the data file. Are you sure?")
         }
     }
     
@@ -220,56 +205,6 @@ struct ProfileView: View {
         )
     }
     
-    private var debugSection: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "wrench.and.screwdriver.fill")
-                    .foregroundColor(Color.blue)
-                    .font(.title2)
-                
-                Text("Debug Info")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-            }
-            
-            VStack(spacing: 12) {
-                profileInfoRow(label: "Exercises in DB", value: "\(exerciseCount)")
-                
-                Button(action: { showingReseedConfirmation = true }) {
-                    HStack {
-                        Image(systemName: "arrow.clockwise")
-                            .font(.title3)
-                            .foregroundColor(.blue)
-                        
-                        Text("Reseed Exercises")
-                            .font(.headline)
-                            .fontWeight(.medium)
-                            .foregroundColor(.blue)
-                        
-                        Spacer()
-                    }
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.surfaceBackground)
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground)
-                .shadow(color: Color.shadowMedium, radius: 10, x: 0, y: 5)
-        )
-    }
-    
     private var appSettingsSection: some View {
         VStack(spacing: 16) {
             HStack {
@@ -354,15 +289,6 @@ struct ProfileView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.surfaceBackground.opacity(0.5))
         )
-    }
-    
-    private func loadExerciseCount() {
-        let request: NSFetchRequest<Exercise> = Exercise.fetchRequest()
-        do {
-            exerciseCount = try viewContext.count(for: request)
-        } catch {
-            exerciseCount = 0
-        }
     }
 }
 
