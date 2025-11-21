@@ -285,6 +285,8 @@ struct WeightEntryView: View {
     @State private var showingDeleteAlert = false
     @State private var editingWeightLog: WeightLog?
     @State private var editWeight: Double = 70.0
+    @State private var targetWeightValue: Double = 70.0
+    @State private var showingTargetWeightEdit = false
     
     @FetchRequest var weightLogs: FetchedResults<WeightLog>
     
@@ -440,6 +442,9 @@ struct WeightEntryView: View {
                 .fontWeight(.semibold)
                 .padding(.horizontal, 20)
                 
+                // Target weight section
+                targetWeightSection
+                
                 // Weight history section
                 weightHistorySection
                     .onAppear {
@@ -463,6 +468,7 @@ struct WeightEntryView: View {
         }
         .onAppear {
             initializeWeight()
+            initializeTargetWeight()
         }
         .onDisappear {
             stopHolding()
@@ -516,6 +522,14 @@ struct WeightEntryView: View {
                 }
             }
             isInitialized = true
+        }
+    }
+    
+    private func initializeTargetWeight() {
+        if let target = authManager.currentUser?.targetWeight, target > 0 {
+            targetWeightValue = target
+        } else {
+            targetWeightValue = 70.0 // Default target weight
         }
     }
     
@@ -751,6 +765,83 @@ struct WeightEntryView: View {
         }
         
         return sameDayLogs.count > 1
+    }
+    
+    private var targetWeightSection: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "target")
+                    .foregroundColor(Color.accentTeal)
+                    .font(.title2)
+                
+                Text("Target Weight")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                Button("Edit") {
+                    showingTargetWeightEdit = true
+                }
+                .foregroundColor(.accentTeal)
+                .font(.subheadline)
+                .fontWeight(.medium)
+            }
+            
+            Button(action: { showingTargetWeightEdit = true }) {
+                VStack(spacing: 8) {
+                    Text("\(String(format: "%.1f", targetWeightValue)) kg")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color.accentTeal)
+                    
+                    Text("Tap to update target")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textSecondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.accentTeal.opacity(0.3), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
+        .alert("Update Target Weight", isPresented: $showingTargetWeightEdit) {
+            TextField("Target Weight (30-200 kg)", value: $targetWeightValue, format: .number)
+            Button("Cancel", role: .cancel) { }
+            Button("Save") {
+                updateTargetWeight()
+            }
+            .disabled(targetWeightValue < 30.0 || targetWeightValue > 200.0)
+        } message: {
+            Text("Enter your target weight (Range: 30-200 kg)")
+        }
+    }
+    
+    private func updateTargetWeight() {
+        guard let user = authManager.currentUser else { return }
+        guard targetWeightValue >= 30.0 && targetWeightValue <= 200.0 else {
+            targetWeightValue = max(30.0, min(200.0, targetWeightValue))
+            return
+        }
+        
+        user.targetWeight = targetWeightValue
+        targetWeight = String(format: "%.1f", targetWeightValue)
+        try? viewContext.save()
     }
     
     private func cleanInvalidWeightLogs() {
