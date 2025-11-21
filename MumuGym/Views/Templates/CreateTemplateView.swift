@@ -691,7 +691,6 @@ struct ExercisePickerView: View {
             ForEach(filteredExercises, id: \.objectID) { exercise in
                 ExercisePickerRow(exercise: exercise) {
                     selectedExercise = exercise
-                    print("DEBUG: Selected exercise: \(exercise.name ?? "nil")")
                     showingConfiguration = true
                 }
             }
@@ -700,37 +699,9 @@ struct ExercisePickerView: View {
             get: { showingConfiguration ? selectedExercise : nil },
             set: { _ in showingConfiguration = false }
         )) { exercise in
-            NavigationView {
-                VStack {
-                    Text("Test View")
-                        .font(.title)
-                        .padding()
-                    
-                    Text("Exercise: \(exercise.name ?? "Unknown")")
-                        .padding()
-                    
-                    Button("Add Exercise") {
-                        let exerciseData = TemplateExerciseData(
-                            exercise: exercise,
-                            sets: 3,
-                            reps: 10,
-                            weight: 0.0,
-                            restTime: 60,
-                            notes: ""
-                        )
-                        onExerciseAdded(exerciseData)
-                        showingConfiguration = false
-                    }
-                    .padding()
-                }
-                .navigationTitle("Test Configuration")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
-                            showingConfiguration = false
-                        }
-                    }
-                }
+            ExerciseConfigurationView(exercise: exercise) { exerciseData in
+                onExerciseAdded(exerciseData)
+                showingConfiguration = false
             }
         }
     }
