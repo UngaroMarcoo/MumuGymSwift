@@ -10,6 +10,8 @@ struct CreateTemplateView: View {
     @State private var selectedGoal = "Massa"
     @State private var selectedExercises: [TemplateExerciseData] = []
     @State private var showingExercisePicker = false
+    @State private var showingExerciseConfiguration = false
+    @State private var editingIndex: Int?
     @State private var showingAlert = false
     @State private var alertMessage = ""
     
@@ -57,8 +59,18 @@ struct CreateTemplateView: View {
         .sheet(isPresented: $showingExercisePicker) {
             ExercisePickerView(
                 exercises: Array(availableExercises),
-                onExerciseSelected: addExercise
+                onExerciseAdded: addExercise
             )
+        }
+        .sheet(isPresented: $showingExerciseConfiguration) {
+            if let editingIndex = editingIndex {
+                ExerciseConfigurationView(
+                    exercise: selectedExercises[editingIndex].exercise,
+                    existingData: selectedExercises[editingIndex]
+                ) { exerciseData in
+                    selectedExercises[editingIndex] = exerciseData
+                }
+            }
         }
         .alert("Error", isPresented: $showingAlert) {
             Button("OK") { }
@@ -190,13 +202,18 @@ struct CreateTemplateView: View {
     private var exercisesList: some View {
         LazyVStack(spacing: 12) {
             ForEach(selectedExercises.indices, id: \.self) { index in
-                TemplateExerciseRow(
-                    exerciseData: $selectedExercises[index],
+                ExercisePreviewCard(
+                    exerciseData: selectedExercises[index],
+                    onEdit: {
+                        editingIndex = index
+                        showingExerciseConfiguration = true
+                    },
                     onDelete: {
                         selectedExercises.remove(at: index)
                     }
                 )
             }
+            .onMove(perform: moveExercises)
         }
     }
     
@@ -227,16 +244,12 @@ struct CreateTemplateView: View {
     
     private let workoutGoals = ["Massa", "Definizione", "Forza", "Resistenza", "Powerlifting", "Funzionale", "Riabilitazione", "Generale"]
     
-    private func addExercise(_ exercise: Exercise) {
-        let exerciseData = TemplateExerciseData(
-            exercise: exercise,
-            sets: 3,
-            reps: 10,
-            weight: 0,
-            restTime: 60,
-            notes: ""
-        )
+    private func addExercise(_ exerciseData: TemplateExerciseData) {
         selectedExercises.append(exerciseData)
+    }
+    
+    private func moveExercises(from source: IndexSet, to destination: Int) {
+        selectedExercises.move(fromOffsets: source, toOffset: destination)
     }
     
     private func saveTemplate() {
@@ -278,6 +291,109 @@ struct TemplateExerciseData {
     var weight: Double
     var restTime: Int
     var notes: String
+}
+
+struct ExercisePreviewCard: View {
+    let exerciseData: TemplateExerciseData
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Exercise image
+            ExerciseImageView(
+                imageUrl: exerciseData.exercise.imageUrl,
+                exerciseName: exerciseData.exercise.name ?? "Unknown",
+                size: CGSize(width: 60, height: 60)
+            )
+            
+            // Exercise info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(exerciseData.exercise.name ?? "Unknown")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                
+                Text(exerciseData.exercise.targetMuscle ?? "")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                // Quick summary
+                HStack(spacing: 8) {
+                    parameterChip(icon: "repeat", value: "\(exerciseData.sets)")
+                    parameterChip(icon: "arrow.clockwise", value: "\(exerciseData.reps)")
+                    
+                    if exerciseData.weight > 0 {
+                        parameterChip(icon: "scalemass", value: "\(exerciseData.weight, specifier: "%.1f")kg")
+                    }
+                    
+                    parameterChip(icon: "clock", value: "\(exerciseData.restTime)s")
+                }
+                
+                if !exerciseData.notes.isEmpty {
+                    HStack {
+                        Image(systemName: "note.text")
+                            .font(.caption2)
+                            .foregroundColor(.primaryOrange1)
+                        
+                        Text(exerciseData.notes)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            // Action buttons
+            VStack(spacing: 6) {
+                // Drag handle
+                Image(systemName: "line.3.horizontal")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                
+                Button(action: onEdit) {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.blue)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Button(action: onDelete) {
+                    Image(systemName: "trash.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.red)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
+    }
+    
+    @ViewBuilder
+    private func parameterChip(icon: String, value: String) -> some View {
+        HStack(spacing: 2) {
+            Image(systemName: icon)
+                .font(.caption2)
+                .foregroundColor(.primaryOrange1)
+            
+            Text(value)
+                .font(.caption2)
+                .fontWeight(.medium)
+                .foregroundColor(.primary)
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(Color.primaryOrange1.opacity(0.1))
+        .cornerRadius(6)
+    }
 }
 
 struct TemplateExerciseRow: View {
@@ -512,10 +628,12 @@ struct ExercisePickerView: View {
     @Environment(\.dismiss) private var dismiss
     
     let exercises: [Exercise]
-    let onExerciseSelected: (Exercise) -> Void
+    let onExerciseAdded: (TemplateExerciseData) -> Void
     
     @State private var searchText = ""
     @State private var selectedMuscleGroup = "All"
+    @State private var showingConfiguration = false
+    @State private var selectedExercise: Exercise?
     
     private let muscleGroups = ["All", "Petto", "Schiena", "Gambe", "Braccia", "Spalle", "Core", "Full Body", "Cardio"]
     
@@ -572,8 +690,16 @@ struct ExercisePickerView: View {
         List {
             ForEach(filteredExercises, id: \.objectID) { exercise in
                 ExercisePickerRow(exercise: exercise) {
-                    onExerciseSelected(exercise)
-                    dismiss()
+                    selectedExercise = exercise
+                    showingConfiguration = true
+                }
+            }
+        }
+        .sheet(isPresented: $showingConfiguration) {
+            if let exercise = selectedExercise {
+                ExerciseConfigurationView(exercise: exercise) { exerciseData in
+                    onExerciseAdded(exerciseData)
+                    dismiss() // Close the picker after adding
                 }
             }
         }
