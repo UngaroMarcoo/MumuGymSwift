@@ -813,22 +813,24 @@ struct WeightLogCard: View {
             return (0.0, false, false, false, true)
         }
         
-        // Determine if this is good progress based on weight goal
+        // Determine if this change brings us closer to the target weight
         let currentWeight = weightLog.weight
+        let previousDistanceFromTarget = abs(previous - targetWeight)
+        let currentDistanceFromTarget = abs(currentWeight - targetWeight)
         
         var isGoodProgress = false
         var isNeutral = false
         
-        // Simple logic: compare target with current weight
-        if abs(currentWeight - targetWeight) < 0.5 {
-            // Very close to target (within 0.5kg), consider neutral
-            isNeutral = true
-        } else if targetWeight > currentWeight {
-            // Need to gain weight to reach target, so increases are good
-            isGoodProgress = isIncrease
+        // Check if we're getting closer to or farther from target
+        if currentDistanceFromTarget < previousDistanceFromTarget {
+            // Getting closer to target = good progress
+            isGoodProgress = true
+        } else if currentDistanceFromTarget > previousDistanceFromTarget {
+            // Getting farther from target = bad progress
+            isGoodProgress = false
         } else {
-            // Need to lose weight to reach target, so decreases are good
-            isGoodProgress = !isIncrease
+            // Same distance from target = neutral (shouldn't happen with weight change)
+            isNeutral = true
         }
         
         return (abs(change), isGoodProgress, isIncrease, isNeutral, false)
