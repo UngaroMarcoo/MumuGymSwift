@@ -691,6 +691,7 @@ struct ExercisePickerView: View {
             ForEach(filteredExercises, id: \.objectID) { exercise in
                 ExercisePickerRow(exercise: exercise) {
                     selectedExercise = exercise
+                    print("DEBUG: Selected exercise: \(exercise.name ?? "nil")")
                     showingConfiguration = true
                 }
             }
@@ -704,6 +705,9 @@ struct ExercisePickerView: View {
                     
                     Text("Exercise: \(selectedExercise?.name ?? "Unknown")")
                         .padding()
+                        .onAppear {
+                            print("DEBUG: Sheet opened with exercise: \(selectedExercise?.name ?? "nil")")
+                        }
                     
                     Button("Add Exercise") {
                         if let exercise = selectedExercise {
