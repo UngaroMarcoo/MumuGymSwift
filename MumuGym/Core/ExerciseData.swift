@@ -115,12 +115,25 @@ class ExerciseData {
         ExerciseDataModel(id: 100, name: "Glute Ham Raise", category: "legs", icon: "https://static.strengthlevel.com/images/exercises/glute-ham-raise/icons/glute-ham-raise-icon-64.png", description: "Glute ham raise", imageUrl: "https://static.strengthlevel.com/images/exercises/glute-ham-raise/icons/glute-ham-raise-icon-64.png")
     ]
     
-    static func seedExercises(context: NSManagedObjectContext) {
+    static func seedExercises(context: NSManagedObjectContext, forceReseed: Bool = false) {
         let request: NSFetchRequest<Exercise> = Exercise.fetchRequest()
         
         do {
             let existingCount = try context.count(for: request)
-            if existingCount == 0 {
+            
+            if forceReseed && existingCount > 0 {
+                // Delete all existing exercises
+                let existingExercises = try context.fetch(request)
+                for exercise in existingExercises {
+                    context.delete(exercise)
+                }
+                try context.save()
+                print("🗑️ Deleted \(existingCount) existing exercises")
+            }
+            
+            let finalCount = try context.count(for: request)
+            
+            if finalCount == 0 {
                 for exerciseData in exercisesFromCSV {
                     let exercise = Exercise(context: context)
                     exercise.name = exerciseData.name
@@ -132,7 +145,7 @@ class ExerciseData {
                 try context.save()
                 print("✅ Seeded \(exercisesFromCSV.count) exercises successfully!")
             } else {
-                print("📋 Exercises already exist in database (\(existingCount) found)")
+                print("📋 Exercises already exist in database (\(finalCount) found)")
             }
         } catch {
             print("❌ Failed to seed exercises: \(error)")
