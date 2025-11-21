@@ -696,10 +696,38 @@ struct ExercisePickerView: View {
             }
         }
         .sheet(isPresented: $showingConfiguration) {
-            if let exercise = selectedExercise {
-                ExerciseConfigurationView(exercise: exercise) { exerciseData in
-                    onExerciseAdded(exerciseData)
-                    dismiss() // Close the picker after adding
+            NavigationView {
+                VStack {
+                    Text("Test View")
+                        .font(.title)
+                        .padding()
+                    
+                    Text("Exercise: \(selectedExercise?.name ?? "Unknown")")
+                        .padding()
+                    
+                    Button("Add Exercise") {
+                        if let exercise = selectedExercise {
+                            let exerciseData = TemplateExerciseData(
+                                exercise: exercise,
+                                sets: 3,
+                                reps: 10,
+                                weight: 0.0,
+                                restTime: 60,
+                                notes: ""
+                            )
+                            onExerciseAdded(exerciseData)
+                        }
+                        showingConfiguration = false
+                    }
+                    .padding()
+                }
+                .navigationTitle("Test Configuration")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            showingConfiguration = false
+                        }
+                    }
                 }
             }
         }
