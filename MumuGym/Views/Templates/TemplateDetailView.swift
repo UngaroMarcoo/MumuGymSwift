@@ -11,6 +11,7 @@ struct TemplateDetailView: View {
     @State private var showingDeleteAlert = false
     @State private var showingEditTemplate = false
     @State private var isStartingWorkout = false
+    @State private var refreshID = UUID()
     
     private var templateExercises: [WorkoutTemplateExercise] {
         let exercisesSet = template.exercises as? Set<WorkoutTemplateExercise> ?? []
@@ -71,6 +72,13 @@ struct TemplateDetailView: View {
         .sheet(isPresented: $showingEditTemplate) {
             TemplateEditView(template: template)
         }
+        .onChange(of: showingEditTemplate) { _, isPresented in
+            if !isPresented {
+                // Refresh the view when sheet is dismissed
+                refreshID = UUID()
+            }
+        }
+        .id(refreshID)
     }
     
     private var headerSection: some View {
