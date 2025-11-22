@@ -284,7 +284,8 @@ struct CreateTemplateView: View {
     }
 }
 
-struct TemplateExerciseData {
+struct TemplateExerciseData: Identifiable {
+    let id = UUID()
     let exercise: Exercise
     var sets: Int
     var reps: Int
