@@ -250,7 +250,7 @@ struct TemplateExerciseDataRowView: View {
             ExerciseImageView(
                 imageUrl: exerciseData.exercise.imageUrl,
                 exerciseName: exerciseData.exercise.name ?? "Unknown",
-                size: CGSize(width: 50, height: 50)
+                size: CGSize(width: 35, height: 35)
             )
             
             VStack(alignment: .leading, spacing: 6) {
