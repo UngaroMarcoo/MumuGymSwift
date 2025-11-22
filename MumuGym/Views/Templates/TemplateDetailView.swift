@@ -234,7 +234,13 @@ struct ModernTemplateExerciseDetailCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
+            HStack(spacing: 12) {
+                ExerciseImageView(
+                    imageUrl: templateExercise.exercise?.imageUrl,
+                    exerciseName: templateExercise.exercise?.name ?? "Unknown",
+                    size: CGSize(width: 50, height: 50)
+                )
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text(templateExercise.exercise?.name ?? "Unknown")
                         .font(.headline)

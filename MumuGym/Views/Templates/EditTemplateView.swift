@@ -247,6 +247,12 @@ struct TemplateExerciseDataRowView: View {
     
     var body: some View {
         HStack(spacing: 16) {
+            ExerciseImageView(
+                imageUrl: exerciseData.exercise.imageUrl,
+                exerciseName: exerciseData.exercise.name ?? "Unknown",
+                size: CGSize(width: 50, height: 50)
+            )
+            
             VStack(alignment: .leading, spacing: 6) {
                 Text(exerciseData.exercise.name ?? "Unknown")
                     .font(.headline)
