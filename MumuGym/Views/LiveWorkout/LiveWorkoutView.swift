@@ -11,6 +11,7 @@ struct LiveWorkoutView: View {
     @State private var showingEndWorkoutAlert = false
     @State private var showingAddExercise = false
     @State private var currentExerciseIndex = 0
+    @State private var showingExerciseList = false
     
     init(template: WorkoutTemplate? = nil) {
         self.template = template
@@ -25,7 +26,7 @@ struct LiveWorkoutView: View {
                         Text("Workout")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .foregroundColor(Color.cardBackground)
+                            .foregroundColor(Color.white)
                         
                         Spacer()
                     }
@@ -70,6 +71,53 @@ struct LiveWorkoutView: View {
                 addExerciseToWorkout(exercise)
             }
         }
+        .sheet(isPresented: $showingExerciseList) {
+            NavigationView {
+                List {
+                    ForEach(workoutSession.exercises.indices, id: \.self) { index in
+                        Button(action: {
+                            currentExerciseIndex = index
+                            showingExerciseList = false
+                        }) {
+                            HStack {
+                                Text("\(index + 1)")
+                                    .fontWeight(.bold)
+                                    .frame(width: 30, height: 30)
+                                    .background(currentExerciseIndex == index ? Color.blue : Color.gray.opacity(0.3))
+                                    .foregroundColor(currentExerciseIndex == index ? .white : .primary)
+                                    .cornerRadius(15)
+                                
+                                Text(workoutSession.exercises[index].name)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                if currentExerciseIndex == index {
+                                    Text("Current")
+                                        .font(.caption)
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
+                    }
+                    .onMove { from, to in
+                        workoutSession.exercises.move(fromOffsets: from, toOffset: to)
+                    }
+                }
+                .navigationTitle("Exercise Order")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        EditButton()
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            showingExerciseList = false
+                        }
+                    }
+                }
+            }
+        }
         .onAppear {
             if let template = template {
                 setupWorkoutFromTemplate(template)
@@ -93,11 +141,11 @@ struct LiveWorkoutView: View {
                     Text("Ready to Workout?")
                         .font(.title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.textPrimary)
+                        .foregroundColor(.primary)
                     
                     Text("Start a new workout session or continue from a template")
                         .font(.subheadline)
-                        .foregroundColor(.textSecondary)
+                        .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 24)
@@ -109,11 +157,11 @@ struct LiveWorkoutView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(Color.successGradient)
+                .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .fontWeight(.semibold)
-                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
                 
                 NavigationLink(destination: TemplatesView()) {
                     Text("Browse Templates")
@@ -121,7 +169,7 @@ struct LiveWorkoutView: View {
                         .frame(height: 54)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.primaryGradient)
+                                .fill(Color.blue)
                         )
                         .foregroundColor(.white)
                         .fontWeight(.semibold)
@@ -130,8 +178,8 @@ struct LiveWorkoutView: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.cardBackground)
-                    .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
             )
             
             Spacer()
@@ -170,14 +218,21 @@ struct LiveWorkoutView: View {
                 .font(.subheadline)
                 .foregroundColor(.primary)
                 
-                HStack(spacing: 6) {
-                    Image(systemName: "dumbbell.fill")
-                        .foregroundColor(Color.primaryOrange2)
-                    Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
-                        .fontWeight(.medium)
+                Button(action: { showingExerciseList = true }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "list.bullet")
+                            .foregroundColor(Color.primaryOrange2)
+                        Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
+                            .fontWeight(.medium)
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.white.opacity(0.5))
+                    .cornerRadius(12)
                 }
-                .font(.subheadline)
-                .foregroundColor(.primary)
+                .disabled(workoutSession.exercises.isEmpty)
             }
         }
         .padding(.vertical, 24)
@@ -495,78 +550,171 @@ struct SetRow: View {
     let setNumber: Int
     let onComplete: () -> Void
     
+    @State private var showingRepsPicker = false
+    @State private var showingWeightPicker = false
+    @FocusState private var isRepsFieldFocused: Bool
+    @FocusState private var isWeightFieldFocused: Bool
+    
     var body: some View {
-        HStack(spacing: 12) {
-            // Set number
-            Text("\(setNumber)")
-                .font(.headline)
-                .fontWeight(.bold)
-                .frame(width: 35, height: 35)
-                .background(set.completed ? Color.green.opacity(0.2) : Color.primaryOrange1.opacity(0.1))
-                .foregroundColor(set.completed ? .green : Color.primaryOrange1)
-                .cornerRadius(17.5)
-            
-            // Reps input
-            VStack(spacing: 4) {
-                Text("Reps")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                TextField("0", value: $set.reps, format: .number)
-                    .textFieldStyle(.roundedBorder)
-                    .keyboardType(.numberPad)
-                    .frame(width: 55)
-                    .multilineTextAlignment(.center)
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                // Set number with improved styling
+                Text("\(setNumber)")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .frame(width: 40, height: 40)
+                    .background(
+                        Circle()
+                            .fill(set.completed ? Color.green : Color.blue.opacity(0.1))
+                            .overlay(
+                                Circle()
+                                    .stroke(set.completed ? Color.clear : Color.blue.opacity(0.3), lineWidth: 2)
+                            )
+                    )
+                    .foregroundColor(set.completed ? .white : Color.blue)
+                    .shadow(color: set.completed ? Color.green.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
+                
+                Spacer()
+                
+                // Status indicator
+                HStack(spacing: 8) {
+                    if set.completed {
+                        Label("Completed", systemImage: "checkmark.circle.fill")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.successGreen)
+                    } else if set.reps > 0 || set.weight > 0 {
+                        Label("In Progress", systemImage: "clock.fill")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.warningOrange)
+                    } else {
+                        Label("Not Started", systemImage: "circle")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.secondary)
+                    }
+                }
             }
             
-            // Weight input
-            VStack(spacing: 4) {
-                Text("Weight (kg)")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.primary)
-                TextField("0.0", value: $set.weight, format: .number)
-                    .textFieldStyle(.roundedBorder)
-                    .keyboardType(.decimalPad)
-                    .frame(width: 80)
-                    .multilineTextAlignment(.center)
+            // Input fields with better UX
+            HStack(spacing: 16) {
+                // Reps input with tap-to-edit
+                VStack(spacing: 8) {
+                    Text("REPS")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: { showingRepsPicker = true }) {
+                        Text(set.reps > 0 ? "\(set.reps)" : "—")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(set.reps > 0 ? .textPrimary : .textSecondary)
+                            .frame(minWidth: 60)
+                    }
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.gray.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(set.reps > 0 ? Color.blue.opacity(0.3) : Color.textSecondary.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                }
+                
+                // Weight input with tap-to-edit
+                VStack(spacing: 8) {
+                    Text("WEIGHT (KG)")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: { showingWeightPicker = true }) {
+                        Text(set.weight > 0 ? String(format: "%.1f", set.weight) : "—")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(set.weight > 0 ? .textPrimary : .textSecondary)
+                            .frame(minWidth: 80)
+                    }
+                    .padding(.vertical, 12)
+                    .padding(.horizontal, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.gray.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(set.weight > 0 ? Color.blue.opacity(0.3) : Color.textSecondary.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                }
             }
             
-            Spacer()
-            
-            // Completion button
+            // Action button
             Button(action: toggleCompletion) {
-                HStack(spacing: 6) {
+                HStack(spacing: 8) {
                     Image(systemName: set.completed ? "checkmark.circle.fill" : "circle")
                         .font(.title3)
-                    Text(set.completed ? "Done" : "Mark")
-                        .font(.caption)
-                        .fontWeight(.medium)
+                    
+                    Text(set.completed ? "Completed" : "Complete Set")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                 }
-                .foregroundColor(set.completed ? .white : .gray)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(set.completed ? Color.green : Color.gray.opacity(0.2))
-                .cornerRadius(16)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(set.completed ? Color.green : (canComplete ? Color.blue : Color.textSecondary.opacity(0.3)))
+                )
+                .foregroundColor(.white)
+                .shadow(color: set.completed ? Color.green.opacity(0.3) : (canComplete ? Color.blue.opacity(0.3) : Color.clear), radius: 4, x: 0, y: 2)
             }
+            .disabled(set.completed)
         }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 16)
+        .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .fill(Color.white)
-                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(set.completed ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)
+                )
+                .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
         )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(set.completed ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)
-        )
+        .sheet(isPresented: $showingRepsPicker) {
+            NumberPickerView(
+                title: "Reps for Set \(setNumber)",
+                value: $set.reps,
+                range: 1...100,
+                increment: 1
+            )
+        }
+        .sheet(isPresented: $showingWeightPicker) {
+            NumberPickerView(
+                title: "Weight for Set \(setNumber)",
+                value: Binding(
+                    get: { Int(set.weight * 2) }, // Convert to 0.5kg increments
+                    set: { set.weight = Double($0) / 2.0 }
+                ),
+                range: 0...400, // 0kg to 200kg in 0.5kg increments  
+                increment: 1,
+                formatter: { value in String(format: "%.1f kg", Double(value) / 2.0) }
+            )
+        }
+    }
+    
+    private var canComplete: Bool {
+        return set.reps > 0
     }
     
     private func toggleCompletion() {
-        set.completed.toggle()
-        if set.completed && set.reps > 0 {
+        if !set.completed && canComplete {
+            set.completed = true
             onComplete()
+        } else if set.completed {
+            set.completed = false
         }
     }
 }
@@ -708,6 +856,361 @@ struct AddExerciseToWorkoutView: View {
                     .foregroundColor(.white)
                     .fontWeight(.medium)
                 }
+            }
+        }
+    }
+}
+
+struct ExerciseReorderView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var exercises: [LiveExercise]
+    @Binding var currentIndex: Int
+    
+    @State private var draggedItem: LiveExercise?
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header
+                VStack(spacing: 16) {
+                    HStack {
+                        Image(systemName: "list.bullet")
+                            .font(.title2)
+                            .foregroundColor(Color.primaryOrange1)
+                        
+                        Text("Exercise Order")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                    }
+                    
+                    Text("Tap an exercise to jump to it, or drag to reorder")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+                .background(Color.white)
+                
+                // Exercise List
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(exercises.indices, id: \.self) { index in
+                            ExerciseReorderRow(
+                                exercise: exercises[index],
+                                index: index,
+                                currentIndex: currentIndex,
+                                onTap: {
+                                    currentIndex = index
+                                    dismiss()
+                                }
+                            )
+                            .onDrag {
+                                draggedItem = exercises[index]
+                                return NSItemProvider(object: String(index) as NSString)
+                            }
+                            .onDrop(of: [.text], delegate: ExerciseDropDelegate(
+                                destinationItem: exercises[index],
+                                exercises: $exercises,
+                                draggedItem: $draggedItem,
+                                currentIndex: $currentIndex
+                            ))
+                        }
+                    }
+                    .padding(.vertical, 20)
+                    .padding(.horizontal, 20)
+                }
+                .background(Color.gray.opacity(0.1))
+            }
+            .navigationTitle("Workout Plan")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.primaryBlue1)
+                    .fontWeight(.medium)
+                }
+            }
+        }
+    }
+}
+
+struct ExerciseReorderRow: View {
+    let exercise: LiveExercise
+    let index: Int
+    let currentIndex: Int
+    let onTap: () -> Void
+    
+    private var isCurrentExercise: Bool {
+        index == currentIndex
+    }
+    
+    private var completedSets: Int {
+        exercise.sets.filter { $0.completed }.count
+    }
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                // Exercise number and status indicator
+                VStack(spacing: 4) {
+                    Text("\(index + 1)")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(isCurrentExercise ? .white : .textPrimary)
+                        .frame(width: 32, height: 32)
+                        .background(
+                            Circle()
+                                .fill(isCurrentExercise ? Color.blue : Color.gray.opacity(0.1))
+                                .overlay(
+                                    Circle()
+                                        .stroke(isCurrentExercise ? Color.clear : Color.textSecondary.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                    
+                    if isCurrentExercise {
+                        Text("Current")
+                            .font(.caption2)
+                            .foregroundColor(.primaryBlue1)
+                            .fontWeight(.medium)
+                    } else if exercise.isCompleted {
+                        Text("Done")
+                            .font(.caption2)
+                            .foregroundColor(.successGreen)
+                            .fontWeight(.medium)
+                    }
+                }
+                
+                // Exercise info
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(exercise.name)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.leading)
+                    
+                    if let targetMuscle = exercise.targetMuscle {
+                        Text(targetMuscle)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    HStack(spacing: 12) {
+                        Label("\(completedSets)/\(exercise.sets.count) sets", 
+                              systemImage: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(exercise.isCompleted ? .successGreen : .textSecondary)
+                        
+                        Label(exercise.restTime.formattedRestTime, 
+                              systemImage: "clock.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                // Drag indicator
+                VStack(spacing: 2) {
+                    ForEach(0..<3) { _ in
+                        Capsule()
+                            .fill(Color.textSecondary.opacity(0.4))
+                            .frame(width: 3, height: 3)
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isCurrentExercise ? Color.blue.opacity(0.1) : Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isCurrentExercise ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 2)
+                )
+                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+        )
+    }
+}
+
+struct ExerciseDropDelegate: DropDelegate {
+    let destinationItem: LiveExercise
+    @Binding var exercises: [LiveExercise]
+    @Binding var draggedItem: LiveExercise?
+    @Binding var currentIndex: Int
+    
+    func dropUpdated(info: DropInfo) -> DropProposal? {
+        return DropProposal(operation: .move)
+    }
+    
+    func performDrop(info: DropInfo) -> Bool {
+        draggedItem = nil
+        return true
+    }
+    
+    func dropEntered(info: DropInfo) {
+        guard let draggedItem = self.draggedItem else { return }
+        
+        if draggedItem != destinationItem {
+            let fromIndex = exercises.firstIndex(of: draggedItem)!
+            let toIndex = exercises.firstIndex(of: destinationItem)!
+            
+            // Update current index if needed
+            if currentIndex == fromIndex {
+                currentIndex = toIndex
+            } else if currentIndex > fromIndex && currentIndex <= toIndex {
+                currentIndex -= 1
+            } else if currentIndex < fromIndex && currentIndex >= toIndex {
+                currentIndex += 1
+            }
+            
+            withAnimation(.default) {
+                exercises.move(from: IndexSet([fromIndex]), to: toIndex > fromIndex ? toIndex + 1 : toIndex)
+            }
+        }
+    }
+}
+
+struct NumberPickerView: View {
+    @Environment(\.dismiss) private var dismiss
+    let title: String
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    let increment: Int
+    var formatter: ((Int) -> String)?
+    
+    @State private var selectedValue: Int
+    
+    init(title: String, value: Binding<Int>, range: ClosedRange<Int>, increment: Int = 1, formatter: ((Int) -> String)? = nil) {
+        self.title = title
+        self._value = value
+        self.range = range
+        self.increment = increment
+        self.formatter = formatter
+        self._selectedValue = State(initialValue: value.wrappedValue)
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 16) {
+                    Text(title)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .multilineTextAlignment(.center)
+                    
+                    Text("Tap + or - to adjust, or swipe the picker")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.top, 20)
+                
+                // Current value display
+                VStack(spacing: 12) {
+                    Text(formatter?(selectedValue) ?? "\(selectedValue)")
+                        .font(.system(size: 64, weight: .bold, design: .rounded))
+                        .foregroundColor(.primaryBlue1)
+                        .contentTransition(.numericText())
+                        .animation(.bouncy, value: selectedValue)
+                    
+                    // Quick adjustment buttons
+                    HStack(spacing: 20) {
+                        Button(action: decreaseValue) {
+                            Image(systemName: "minus.circle.fill")
+                                .font(.title)
+                                .foregroundColor(selectedValue > range.lowerBound ? .primaryBlue1 : .textSecondary.opacity(0.5))
+                        }
+                        .disabled(selectedValue <= range.lowerBound)
+                        .scaleEffect(selectedValue > range.lowerBound ? 1.1 : 1.0)
+                        .animation(.bouncy, value: selectedValue > range.lowerBound)
+                        
+                        Button(action: increaseValue) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title)
+                                .foregroundColor(selectedValue < range.upperBound ? .primaryBlue1 : .textSecondary.opacity(0.5))
+                        }
+                        .disabled(selectedValue >= range.upperBound)
+                        .scaleEffect(selectedValue < range.upperBound ? 1.1 : 1.0)
+                        .animation(.bouncy, value: selectedValue < range.upperBound)
+                    }
+                }
+                .padding(.vertical, 32)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.blue.opacity(0.05))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.blue.opacity(0.1), lineWidth: 2)
+                        )
+                )
+                
+                // Picker wheel
+                Picker(title, selection: $selectedValue) {
+                    ForEach(Array(stride(from: range.lowerBound, through: range.upperBound, by: increment)), id: \.self) { number in
+                        Text(formatter?(number) ?? "\(number)")
+                            .tag(number)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
+                .frame(height: 120)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(16)
+                
+                Spacer()
+                
+                // Action buttons
+                HStack(spacing: 16) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.textSecondary.opacity(0.2))
+                    .foregroundColor(.textPrimary)
+                    .cornerRadius(12)
+                    .fontWeight(.medium)
+                    
+                    Button("Done") {
+                        value = selectedValue
+                        dismiss()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                    .fontWeight(.semibold)
+                    .shadow(color: Color.blue.opacity(0.3), radius: 4, x: 0, y: 2)
+                }
+                .padding(.bottom, 20)
+            }
+            .padding(.horizontal, 20)
+            .background(Color.gray.opacity(0.1))
+            .navigationBarHidden(true)
+        }
+    }
+    
+    private func increaseValue() {
+        if selectedValue < range.upperBound {
+            withAnimation(.bouncy) {
+                selectedValue += increment
+            }
+        }
+    }
+    
+    private func decreaseValue() {
+        if selectedValue > range.lowerBound {
+            withAnimation(.bouncy) {
+                selectedValue -= increment
             }
         }
     }
