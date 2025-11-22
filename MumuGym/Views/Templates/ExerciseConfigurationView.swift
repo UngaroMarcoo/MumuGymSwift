@@ -302,15 +302,11 @@ struct ExerciseConfigurationView: View {
                 }
                 .disabled(weight <= 0)
                 
-                VStack(spacing: 4) {
-                    TextField("0", value: $weight, format: .number)
-                        .multilineTextAlignment(.center)
-                        .keyboardType(.decimalPad)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .frame(minWidth: 40)
-                    
-                }
+                Text(String(format: "%.1f", weight))
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .frame(minWidth: 40)
                 
                 Button(action: {
                     weight += 2.5
@@ -384,23 +380,11 @@ struct ExerciseConfigurationView: View {
                     }
                     .disabled(restTime <= 0)
                     
-                    VStack(spacing: 4) {
-                        TextField("60", value: $restTime, format: .number)
-                            .multilineTextAlignment(.center)
-                            .keyboardType(.numberPad)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .frame(minWidth: 40)
-                            .onChange(of: restTime) { _, newValue in
-                                if newValue > 0 {
-                                    isSuperSet = false
-                                }
-                            }
-                        
-                        Text("sec")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
+                    Text(restTime.formattedRestTime)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                        .frame(minWidth: 40)
                     
                     Button(action: {
                         restTime += 15

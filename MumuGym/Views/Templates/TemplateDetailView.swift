@@ -20,7 +20,7 @@ struct TemplateDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.warningGradient
+                Color.surfaceBackground
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -69,7 +69,7 @@ struct TemplateDetailView: View {
             Text("Are you sure you want to delete this template? This action cannot be undone.")
         }
         .sheet(isPresented: $showingEditTemplate) {
-            EditTemplateView(template: template)
+            TemplateEditView(template: template)
         }
     }
     
@@ -80,7 +80,7 @@ struct TemplateDetailView: View {
                 HStack {
                     Image(systemName: "doc.text.fill")
                         .font(.title2)
-                        .foregroundStyle(Color.warningGradient)
+                        .foregroundStyle(Color.primaryGradient)
                     
                     Text("Template Details")
                         .font(.headline)
@@ -92,7 +92,7 @@ struct TemplateDetailView: View {
                     if template.isDefault {
                         Image(systemName: "star.fill")
                             .font(.title3)
-                            .foregroundStyle(Color.warningGradient)
+                            .foregroundStyle(Color.primaryGradient)
                     }
                 }
                 
@@ -133,7 +133,7 @@ struct TemplateDetailView: View {
             HStack {
                 Image(systemName: "dumbbell.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.warningGradient)
+                    .foregroundStyle(Color.primaryGradient)
                 
                 Text("Exercises")
                     .font(.headline)
@@ -188,7 +188,7 @@ struct TemplateDetailView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 55)
-            .background(Color.editButtonGradient)
+            .background(Color.primaryGradient)
             .foregroundColor(.white)
             .cornerRadius(16)
             .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
@@ -258,25 +258,16 @@ struct ModernTemplateExerciseDetailCard: View {
                     ModernExerciseDetailItem(label: "Weight", value: "\(templateExercise.weight, default: "%.1f") kg", icon: "scalemass")
                 }
                 
-                ModernExerciseDetailItem(label: "Rest", value: "\(templateExercise.restTime)s", icon: "clock")
+                ModernExerciseDetailItem(label: "Rest", value: Int(templateExercise.restTime).formattedRestTime, icon: "clock")
             }
             
-            if let instructions = templateExercise.exercise?.instructions, !instructions.isEmpty {
-                Text(instructions)
-                    .font(.caption)
-                    .foregroundColor(.textSecondary)
-                    .padding(.top, 8)
-                    .padding(12)
-                    .background(Color.surfaceBackground)
-                    .cornerRadius(8)
-            }
             
             // Show template-specific notes if available
             if let notes = templateExercise.notes, !notes.isEmpty {
                 HStack {
                     Image(systemName: "note.text")
                         .font(.caption)
-                        .foregroundColor(.primaryOrange1)
+                        .foregroundColor(.primaryBlue1)
                     
                     Text(notes)
                         .font(.caption)
@@ -286,7 +277,7 @@ struct ModernTemplateExerciseDetailCard: View {
                     Spacer()
                 }
                 .padding(12)
-                .background(Color.primaryOrange1.opacity(0.1))
+                .background(Color.primaryBlue1.opacity(0.1))
                 .cornerRadius(8)
             }
         }
@@ -302,11 +293,26 @@ struct ModernExerciseDetailItem: View {
     let value: String
     let icon: String
     
+    private var iconColor: Color {
+        switch icon {
+        case "repeat":
+            return .blue
+        case "arrow.clockwise":
+            return .green
+        case "scalemass":
+            return .orange
+        case "clock":
+            return .purple
+        default:
+            return .blue
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.caption)
-                .foregroundStyle(Color.warningGradient)
+                .foregroundColor(iconColor)
             
             Text(value)
                 .font(.subheadline)
@@ -321,6 +327,10 @@ struct ModernExerciseDetailItem: View {
         .padding(.vertical, 8)
         .background(Color.surfaceBackground)
         .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(iconColor.opacity(0.2), lineWidth: 1)
+        )
     }
 }
 
@@ -333,7 +343,7 @@ struct ModernInfoCard: View {
         VStack(spacing: 8) {
             Image(systemName: icon)
                 .font(.title2)
-                .foregroundStyle(Color.warningGradient)
+                .foregroundStyle(Color.primaryGradient)
             
             Text(value)
                 .font(.headline)
@@ -389,266 +399,6 @@ struct InfoCard: View {
     }
 }
 
-struct EditTemplateView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.managedObjectContext) private var viewContext
-    @EnvironmentObject private var authManager: AuthenticationManager
-    
-    let template: WorkoutTemplate
-    
-    @State private var templateName = ""
-    @State private var selectedExercises: [TemplateExerciseData] = []
-    @State private var showingExercisePicker = false
-    @State private var showingAlert = false
-    @State private var alertMessage = ""
-    
-    @FetchRequest(
-        entity: Exercise.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Exercise.name, ascending: true)]
-    ) private var availableExercises: FetchedResults<Exercise>
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color.appBackground
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 25) {
-                        templateInfoSection
-                        exercisesSection
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                }
-            }
-            .navigationTitle("Edit Template")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") {
-                        saveChanges()
-                    }
-                    .disabled(!isValidTemplate)
-                }
-            }
-        }
-        .onAppear {
-            loadTemplateData()
-        }
-        .sheet(isPresented: $showingExercisePicker) {
-            ExercisePickerView(
-                exercises: Array(availableExercises),
-                onExerciseAdded: addExerciseData
-            )
-        }
-        .alert("Error", isPresented: $showingAlert) {
-            Button("OK") { }
-        } message: {
-            Text(alertMessage)
-        }
-    }
-    
-    private var templateInfoSection: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "doc.text.fill")
-                    .font(.title2)
-                    .foregroundStyle(Color.warningGradient)
-                
-                Text("Template Details")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-            }
-            
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Template Name")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.textPrimary)
-                
-                TextField("Enter template name", text: $templateName)
-                    .padding(12)
-                    .background(Color.surfaceBackground)
-                    .cornerRadius(12)
-                    .shadow(color: Color.shadowLight, radius: 2, x: 0, y: 1)
-            }
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground)
-                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
-        )
-    }
-    
-    private var exercisesSection: some View {
-        VStack(spacing: 16) {
-            HStack {
-                Image(systemName: "dumbbell.fill")
-                    .font(.title2)
-                    .foregroundStyle(Color.warningGradient)
-                
-                Text("Exercises")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.textPrimary)
-                
-                Spacer()
-                
-                Button("Add Exercise") {
-                    showingExercisePicker = true
-                }
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.buttonPrimary)
-                .cornerRadius(20)
-                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
-            }
-            
-            if selectedExercises.isEmpty {
-                emptyExercisesView
-            } else {
-                exercisesList
-            }
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground)
-                .shadow(color: Color.shadowStrong, radius: 10, x: 0, y: 5)
-        )
-    }
-    
-    private var emptyExercisesView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "dumbbell.fill")
-                .font(.system(size: 50))
-                .foregroundStyle(Color.warningGradient.opacity(0.6))
-            
-            Text("No exercises added")
-                .font(.title3)
-                .fontWeight(.semibold)
-                .foregroundColor(.textPrimary)
-            
-            Text("Add exercises to create your workout template")
-                .font(.subheadline)
-                .foregroundColor(.textSecondary)
-                .multilineTextAlignment(.center)
-            
-            Button("Add First Exercise") {
-                showingExercisePicker = true
-            }
-            .frame(width: 180, height: 44)
-            .background(Color.buttonPrimary)
-            .foregroundColor(.white)
-            .cornerRadius(22)
-            .fontWeight(.semibold)
-            .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 40)
-    }
-    
-    private var exercisesList: some View {
-        LazyVStack(spacing: 12) {
-            ForEach(selectedExercises.indices, id: \.self) { index in
-                TemplateExerciseRow(
-                    exerciseData: $selectedExercises[index],
-                    onDelete: {
-                        selectedExercises.remove(at: index)
-                    }
-                )
-            }
-        }
-    }
-    
-    private var isValidTemplate: Bool {
-        !templateName.isEmpty && !selectedExercises.isEmpty
-    }
-    
-    private func loadTemplateData() {
-        templateName = template.name ?? ""
-        
-        let templateExercises = (template.exercises as? Set<WorkoutTemplateExercise> ?? [])
-            .sorted { $0.order < $1.order }
-        
-        selectedExercises = templateExercises.compactMap { templateEx in
-            guard let exercise = templateEx.exercise else { return nil }
-            return TemplateExerciseData(
-                exercise: exercise,
-                sets: Int(templateEx.sets),
-                reps: Int(templateEx.reps),
-                weight: templateEx.weight,
-                restTime: Int(templateEx.restTime),
-                notes: templateEx.notes ?? ""
-            )
-        }
-    }
-    
-    private func addExercise(_ exercise: Exercise) {
-        let exerciseData = TemplateExerciseData(
-            exercise: exercise,
-            sets: 3,
-            reps: 10,
-            weight: 0,
-            restTime: 60,
-            notes: ""
-        )
-        selectedExercises.append(exerciseData)
-    }
-    
-    private func addExerciseData(_ exerciseData: TemplateExerciseData) {
-        selectedExercises.append(exerciseData)
-    }
-    
-    private func saveChanges() {
-        // Update template properties
-        template.name = templateName
-        
-        // Clear existing exercises
-        if let existingExercises = template.exercises as? Set<WorkoutTemplateExercise> {
-            for exercise in existingExercises {
-                viewContext.delete(exercise)
-            }
-        }
-        
-        // Add updated exercises
-        for (index, exerciseData) in selectedExercises.enumerated() {
-            let templateExercise = WorkoutTemplateExercise(context: viewContext)
-            templateExercise.order = Int16(index)
-            templateExercise.sets = Int16(exerciseData.sets)
-            templateExercise.reps = Int16(exerciseData.reps)
-            templateExercise.weight = exerciseData.weight
-            templateExercise.restTime = Int32(exerciseData.restTime)
-            templateExercise.notes = exerciseData.notes
-            templateExercise.exercise = exerciseData.exercise
-            templateExercise.template = template
-        }
-        
-        do {
-            try viewContext.save()
-            dismiss()
-        } catch {
-            alertMessage = "Failed to save changes: \(error.localizedDescription)"
-            showingAlert = true
-        }
-    }
-}
 
 #Preview {
     let context = PersistenceController.preview.container.viewContext

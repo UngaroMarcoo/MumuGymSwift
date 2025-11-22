@@ -164,6 +164,10 @@ class RestTimer: ObservableObject {
     private var timer: Timer?
     private var totalTime = 0
     
+    var formattedTime: String {
+        return remainingTime.formattedRestTime
+    }
+    
     func start(duration: Int) {
         totalTime = duration
         remainingTime = duration

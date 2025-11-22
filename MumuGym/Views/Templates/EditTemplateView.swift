@@ -40,6 +40,7 @@ struct TemplateEditView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .foregroundColor(.primaryRed)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -47,6 +48,7 @@ struct TemplateEditView: View {
                         saveTemplate()
                     }
                     .disabled(templateName.isEmpty)
+                    .foregroundColor(Color.primaryBlue1)
                 }
             }
         }
@@ -80,7 +82,7 @@ struct TemplateEditView: View {
             HStack {
                 Image(systemName: "doc.text.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.warningGradient)
+                    .foregroundStyle(Color.primaryGradient)
                 
                 Text("Template Name")
                     .font(.headline)
@@ -110,7 +112,7 @@ struct TemplateEditView: View {
             HStack {
                 Image(systemName: "dumbbell.fill")
                     .font(.title2)
-                    .foregroundStyle(Color.warningGradient)
+                    .foregroundStyle(Color.primaryGradient)
                 
                 Text("Exercises")
                     .font(.headline)
@@ -136,7 +138,7 @@ struct TemplateEditView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 50))
-                        .foregroundStyle(Color.warningGradient.opacity(0.6))
+                        .foregroundStyle(Color.primaryGradient.opacity(0.6))
                     
                     Text("No exercises added yet")
                         .font(.title3)

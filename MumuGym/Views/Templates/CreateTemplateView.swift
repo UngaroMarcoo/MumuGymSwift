@@ -23,7 +23,7 @@ struct CreateTemplateView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.warningGradient
+                Color.surfaceBackground
                 .ignoresSafeArea()
                 
                 ScrollView {
@@ -42,7 +42,7 @@ struct CreateTemplateView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color.textPrimary)
                     .fontWeight(.medium)
                 }
                 
@@ -50,7 +50,7 @@ struct CreateTemplateView: View {
                     Button("Save") {
                         saveTemplate()
                     }
-                    .foregroundColor(isValidTemplate ? .white : .white.opacity(0.5))
+                    .foregroundColor(isValidTemplate ? Color.textPrimary : Color.textSecondary)
                     .fontWeight(.semibold)
                     .disabled(!isValidTemplate)
                 }
@@ -83,7 +83,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "doc.text.fill")
-                    .foregroundColor(Color.primaryOrange1)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Template Details")
@@ -131,7 +131,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .foregroundColor(Color.primaryOrange2)
+                    .foregroundColor(Color.primaryBlue1)
                     .font(.title2)
                 
                 Text("Exercises")
@@ -149,7 +149,7 @@ struct CreateTemplateView: View {
                 .foregroundColor(.white)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Color.buttonPrimary)
+                .background(Color.primaryGradient)
                 .cornerRadius(20)
                 .shadow(color: Color.black.opacity(0.3), radius: 4, x: 0, y: 2)
             }
@@ -173,7 +173,7 @@ struct CreateTemplateView: View {
         VStack(spacing: 16) {
             Image(systemName: "dumbbell.fill")
                 .font(.system(size: 50))
-                .foregroundColor(Color.primaryOrange1.opacity(0.6))
+                .foregroundColor(Color.primaryBlue1.opacity(0.6))
             
             Text("No exercises added")
                 .font(.title3)
@@ -230,7 +230,7 @@ struct CreateTemplateView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(selectedGoal == goal ? Color.primaryOrange1 : Color.surfaceBackground)
+                    .background(selectedGoal == goal ? AnyShapeStyle(Color.warningGradient) : AnyShapeStyle(Color.surfaceBackground))
                     .foregroundColor(selectedGoal == goal ? .white : .primary)
                     .font(.subheadline)
                     .fontWeight(.medium)
@@ -328,7 +328,7 @@ struct ExercisePreviewCard: View {
                         parameterChip(icon: "scalemass", value: String(format: "%.1f", exerciseData.weight) + "kg")
                     }
                     
-                    parameterChip(icon: "clock", value: "\(exerciseData.restTime)s")
+                    parameterChip(icon: "clock", value: exerciseData.restTime.formattedRestTime)
                 }
                 
                 if !exerciseData.notes.isEmpty {
@@ -675,7 +675,7 @@ struct ExercisePickerView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(selectedMuscleGroup == group ? Color.primaryOrange1 : Color(.systemGray5))
+                        .background(selectedMuscleGroup == group ? AnyShapeStyle(Color.warningGradient) : AnyShapeStyle(Color(.systemGray5)))
                         .foregroundColor(selectedMuscleGroup == group ? .white : .primary)
                         .cornerRadius(20)
                     }
@@ -756,9 +756,9 @@ struct ExercisePickerRow: View {
             }
             .padding(.vertical, 8)
             .padding(.horizontal, 12)
-            .background(Color.white)
+            .background(Color.cardBackground)
             .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 1, x: 0, y: 1)
+            .shadow(color: Color.shadowMedium, radius: 1, x: 0, y: 1)
         }
         .buttonStyle(PlainButtonStyle())
     }

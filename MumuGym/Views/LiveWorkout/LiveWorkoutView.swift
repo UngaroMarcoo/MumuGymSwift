@@ -597,7 +597,7 @@ struct RestTimerView: View {
                 }
             }
             
-            Text("\(timer.remainingTime)")
+            Text(timer.formattedTime)
                 .font(.system(size: 48, weight: .bold, design: .monospaced))
                 .foregroundColor(.orange)
                 .padding(.vertical, 8)
