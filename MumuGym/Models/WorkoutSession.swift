@@ -118,13 +118,18 @@ class WorkoutSession: ObservableObject {
     }
 }
 
-class LiveExercise: ObservableObject {
+class LiveExercise: ObservableObject, Equatable {
+    let id = UUID()
     @Published var name: String
     @Published var targetMuscle: String?
     @Published var instructions: String?
     @Published var imageUrl: String?
     @Published var sets: [LiveSet] = []
     @Published var restTime: Int
+    
+    static func == (lhs: LiveExercise, rhs: LiveExercise) -> Bool {
+        return lhs.id == rhs.id
+    }
     
     var isCompleted: Bool {
         return sets.allSatisfy { $0.completed }

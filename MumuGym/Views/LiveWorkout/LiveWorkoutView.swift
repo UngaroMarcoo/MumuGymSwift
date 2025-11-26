@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreData
+import UniformTypeIdentifiers
 
 struct LiveWorkoutView: View {
     @Environment(\.managedObjectContext) private var viewContext
@@ -563,14 +564,7 @@ struct SetRow: View {
                     .font(.headline)
                     .fontWeight(.bold)
                     .frame(width: 40, height: 40)
-                    .background(
-                        Circle()
-                            .fill(set.completed ? Color.green : Color.blue.opacity(0.1))
-                            .overlay(
-                                Circle()
-                                    .stroke(set.completed ? Color.clear : Color.blue.opacity(0.3), lineWidth: 2)
-                            )
-                    )
+                    .background(setNumberBackground)
                     .foregroundColor(set.completed ? .white : Color.blue)
                     .shadow(color: set.completed ? Color.green.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
                 
@@ -582,12 +576,12 @@ struct SetRow: View {
                         Label("Completed", systemImage: "checkmark.circle.fill")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.successGreen)
+                            .foregroundColor(.green)
                     } else if set.reps > 0 || set.weight > 0 {
                         Label("In Progress", systemImage: "clock.fill")
                             .font(.subheadline)
                             .fontWeight(.medium)
-                            .foregroundColor(.warningOrange)
+                            .foregroundColor(.orange)
                     } else {
                         Label("Not Started", systemImage: "circle")
                             .font(.subheadline)
@@ -674,15 +668,7 @@ struct SetRow: View {
             .disabled(set.completed)
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(set.completed ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)
-                )
-                .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
-        )
+        .background(setRowBackground)
         .sheet(isPresented: $showingRepsPicker) {
             NumberPickerView(
                 title: "Reps for Set \(setNumber)",
@@ -707,6 +693,25 @@ struct SetRow: View {
     
     private var canComplete: Bool {
         return set.reps > 0
+    }
+    
+    private var setNumberBackground: some View {
+        Circle()
+            .fill(set.completed ? Color.green : Color.blue.opacity(0.1))
+            .overlay(
+                Circle()
+                    .stroke(set.completed ? Color.clear : Color.blue.opacity(0.3), lineWidth: 2)
+            )
+    }
+    
+    private var setRowBackground: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(Color.white)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(set.completed ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)
+            )
+            .shadow(color: Color.black.opacity(0.15), radius: 6, x: 0, y: 3)
     }
     
     private func toggleCompletion() {
@@ -954,6 +959,25 @@ struct ExerciseReorderRow: View {
         exercise.sets.filter { $0.completed }.count
     }
     
+    private var exerciseNumberBackground: some View {
+        Circle()
+            .fill(isCurrentExercise ? Color.blue : Color.gray.opacity(0.1))
+            .overlay(
+                Circle()
+                    .stroke(isCurrentExercise ? Color.clear : Color.textSecondary.opacity(0.3), lineWidth: 1)
+            )
+    }
+    
+    private var rowBackground: some View {
+        RoundedRectangle(cornerRadius: 12)
+            .fill(isCurrentExercise ? Color.blue.opacity(0.1) : Color.white)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isCurrentExercise ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 2)
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+    
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 16) {
@@ -964,14 +988,7 @@ struct ExerciseReorderRow: View {
                         .fontWeight(.bold)
                         .foregroundColor(isCurrentExercise ? .white : .textPrimary)
                         .frame(width: 32, height: 32)
-                        .background(
-                            Circle()
-                                .fill(isCurrentExercise ? Color.blue : Color.gray.opacity(0.1))
-                                .overlay(
-                                    Circle()
-                                        .stroke(isCurrentExercise ? Color.clear : Color.textSecondary.opacity(0.3), lineWidth: 1)
-                                )
-                        )
+                        .background(exerciseNumberBackground)
                     
                     if isCurrentExercise {
                         Text("Current")
@@ -981,7 +998,7 @@ struct ExerciseReorderRow: View {
                     } else if exercise.isCompleted {
                         Text("Done")
                             .font(.caption2)
-                            .foregroundColor(.successGreen)
+                            .foregroundColor(.green)
                             .fontWeight(.medium)
                     }
                 }
@@ -1004,7 +1021,7 @@ struct ExerciseReorderRow: View {
                         Label("\(completedSets)/\(exercise.sets.count) sets", 
                               systemImage: "checkmark.circle.fill")
                             .font(.caption)
-                            .foregroundColor(exercise.isCompleted ? .successGreen : .textSecondary)
+                            .foregroundColor(exercise.isCompleted ? .green : .textSecondary)
                         
                         Label(exercise.restTime.formattedRestTime, 
                               systemImage: "clock.fill")
@@ -1026,15 +1043,7 @@ struct ExerciseReorderRow: View {
             }
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(isCurrentExercise ? Color.blue.opacity(0.1) : Color.white)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(isCurrentExercise ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 2)
-                )
-                .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-        )
+        .background(rowBackground)
     }
 }
 
@@ -1070,7 +1079,7 @@ struct ExerciseDropDelegate: DropDelegate {
             }
             
             withAnimation(.default) {
-                exercises.move(from: IndexSet([fromIndex]), to: toIndex > fromIndex ? toIndex + 1 : toIndex)
+                exercises.move(fromOffsets: IndexSet([fromIndex]), toOffset: toIndex > fromIndex ? toIndex + 1 : toIndex)
             }
         }
     }
