@@ -191,9 +191,9 @@ struct LiveWorkoutView: View {
     }
     
     private var templatesListView: some View {
-        VStack(spacing: 0) {
-            // Header section
-            VStack(spacing: 16) {
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                // Header section
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Choose Your Workout")
@@ -222,27 +222,28 @@ struct LiveWorkoutView: View {
                         .cornerRadius(20)
                     }
                 }
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 10)
-            .padding(.bottom, 20)
-            
-            // Templates list
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(templates, id: \.objectID) { template in
-                        TemplateWorkoutCard(
-                            template: template,
-                            onTapCard: {
-                                selectedTemplate = template
-                            },
-                            onTapPlay: {
-                                setupWorkoutFromTemplate(template)
-                            }
-                        )
-                    }
-                }
+                .padding(.horizontal, 16)
+                .padding(.top, 10)
                 .padding(.bottom, 20)
+                
+                // Templates list
+                ScrollView {
+                    VStack(spacing: 8) {
+                        ForEach(templates, id: \.objectID) { template in
+                            FullWidthTemplateCard(
+                                template: template,
+                                screenWidth: geometry.size.width,
+                                onTapCard: {
+                                    selectedTemplate = template
+                                },
+                                onTapPlay: {
+                                    setupWorkoutFromTemplate(template)
+                                }
+                            )
+                        }
+                    }
+                    .padding(.bottom, 20)
+                }
             }
         }
         .sheet(item: $selectedTemplate) { template in
@@ -449,8 +450,9 @@ struct LiveWorkoutView: View {
     }
 }
 
-struct TemplateWorkoutCard: View {
+struct FullWidthTemplateCard: View {
     let template: WorkoutTemplate
+    let screenWidth: CGFloat
     let onTapCard: () -> Void
     let onTapPlay: () -> Void
     
@@ -487,6 +489,8 @@ struct TemplateWorkoutCard: View {
                     }
                 }
                 
+                Spacer()
+                
                 // Start button
                 Button(action: onTapPlay) {
                     Image(systemName: "play.circle.fill")
@@ -502,15 +506,14 @@ struct TemplateWorkoutCard: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
-            .padding(.horizontal, 0)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.white)
-                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-            )
         }
+        .frame(width: screenWidth)
+        .background(
+            Rectangle()
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+        )
         .buttonStyle(PlainButtonStyle())
-        .frame(maxWidth: .infinity)
     }
 }
 
