@@ -223,7 +223,7 @@ struct LiveWorkoutView: View {
                     }
                 }
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 8)
             .padding(.top, 10)
             .padding(.bottom, 20)
             
@@ -242,7 +242,7 @@ struct LiveWorkoutView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 12)
+                .padding(.horizontal, 8)
                 .padding(.bottom, 20)
             }
         }
