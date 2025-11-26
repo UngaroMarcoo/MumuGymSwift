@@ -13,6 +13,7 @@ struct LiveWorkoutView: View {
     @State private var showingAddExercise = false
     @State private var currentExerciseIndex = 0
     @State private var showingExerciseList = false
+    @State private var selectedTemplate: WorkoutTemplate?
     
     @FetchRequest(
         entity: WorkoutTemplate.entity(),
@@ -230,14 +231,23 @@ struct LiveWorkoutView: View {
             ScrollView {
                 LazyVStack(spacing: 12) {
                     ForEach(templates, id: \.objectID) { template in
-                        TemplateWorkoutCard(template: template) {
-                            setupWorkoutFromTemplate(template)
-                        }
+                        TemplateWorkoutCard(
+                            template: template,
+                            onTapCard: {
+                                selectedTemplate = template
+                            },
+                            onTapPlay: {
+                                setupWorkoutFromTemplate(template)
+                            }
+                        )
                     }
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
+        }
+        .sheet(item: $selectedTemplate) { template in
+            TemplateDetailView(template: template)
         }
     }
     
@@ -442,22 +452,31 @@ struct LiveWorkoutView: View {
 
 struct TemplateWorkoutCard: View {
     let template: WorkoutTemplate
-    let action: () -> Void
+    let onTapCard: () -> Void
+    let onTapPlay: () -> Void
     
     var exerciseCount: Int {
         template.exercises?.count ?? 0
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: onTapCard) {
             HStack(spacing: 16) {
                 // Template info
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(template.name ?? "Unknown")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
+                    HStack {
+                        Text(template.name ?? "Unknown")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                            .lineLimit(1)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                     
                     HStack(spacing: 6) {
                         Text("\(exerciseCount) exercises")
@@ -477,12 +496,18 @@ struct TemplateWorkoutCard: View {
                     }
                 }
                 
-                Spacer()
-                
                 // Start button
-                Image(systemName: "play.circle.fill")
-                    .font(.title)
-                    .foregroundColor(.green)
+                Button(action: onTapPlay) {
+                    Image(systemName: "play.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .background(
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 40, height: 40)
+                        )
+                }
+                .buttonStyle(PlainButtonStyle())
             }
             .padding(16)
             .background(
