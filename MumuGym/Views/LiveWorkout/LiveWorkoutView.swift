@@ -507,9 +507,9 @@ struct FullWidthTemplateCard: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
         }
-        .frame(width: screenWidth)
+        .frame(width: screenWidth - 32)
         .background(
-            Rectangle()
+            RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white)
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         )
