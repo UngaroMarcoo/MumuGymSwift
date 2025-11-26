@@ -223,7 +223,7 @@ struct LiveWorkoutView: View {
                     }
                 }
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 20)
             .padding(.top, 10)
             .padding(.bottom, 20)
             
@@ -242,7 +242,7 @@ struct LiveWorkoutView: View {
                         )
                     }
                 }
-                .padding(.horizontal, 8)
+                .padding(.horizontal, 20)
                 .padding(.bottom, 20)
             }
         }
@@ -501,7 +501,7 @@ struct TemplateWorkoutCard: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
-            .padding(16)
+            .padding(12)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.white)
