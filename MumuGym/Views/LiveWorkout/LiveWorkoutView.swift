@@ -14,6 +14,11 @@ struct LiveWorkoutView: View {
     @State private var currentExerciseIndex = 0
     @State private var showingExerciseList = false
     
+    @FetchRequest(
+        entity: WorkoutTemplate.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \WorkoutTemplate.createdDate, ascending: false)]
+    ) private var templates: FetchedResults<WorkoutTemplate>
+    
     init(template: WorkoutTemplate? = nil) {
         self.template = template
     }
@@ -127,13 +132,21 @@ struct LiveWorkoutView: View {
     }
     
     private var workoutSetupView: some View {
+        Group {
+            if templates.isEmpty {
+                emptyTemplatesView
+            } else {
+                templatesListView
+            }
+        }
+    }
+    
+    private var emptyTemplatesView: some View {
         VStack(spacing: 32) {
             Spacer()
             
-            // Action buttons
             VStack(spacing: 16) {
-                
-                // Header with gradient
+                // Header
                 VStack(spacing: 16) {
                     Image(systemName: "dumbbell.fill")
                         .font(.system(size: 40))
@@ -144,7 +157,7 @@ struct LiveWorkoutView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.primary)
                     
-                    Text("Start a new workout session or continue from a template")
+                    Text("Start your first workout session")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
@@ -163,18 +176,6 @@ struct LiveWorkoutView: View {
                 .cornerRadius(12)
                 .fontWeight(.semibold)
                 .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
-                
-                NavigationLink(destination: TemplatesView()) {
-                    Text("Browse Templates")
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.blue)
-                        )
-                        .foregroundColor(.white)
-                        .fontWeight(.semibold)
-                }
             }
             .padding(20)
             .background(
@@ -186,6 +187,58 @@ struct LiveWorkoutView: View {
             Spacer()
         }
         .padding(.horizontal, 20)
+    }
+    
+    private var templatesListView: some View {
+        VStack(spacing: 0) {
+            // Header section
+            VStack(spacing: 16) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Choose Your Workout")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
+                        
+                        Text("Select a template or start empty")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: startEmptyWorkout) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Empty")
+                        }
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.green)
+                        .cornerRadius(20)
+                    }
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 20)
+            
+            // Templates list
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(templates, id: \.objectID) { template in
+                        TemplateWorkoutCard(template: template) {
+                            setupWorkoutFromTemplate(template)
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+            }
+        }
     }
     
     private var activeWorkoutView: some View {
@@ -384,6 +437,61 @@ struct LiveWorkoutView: View {
     
     private func endWorkout() {
         workoutSession.endWorkout(context: viewContext, user: authManager.currentUser)
+    }
+}
+
+struct TemplateWorkoutCard: View {
+    let template: WorkoutTemplate
+    let action: () -> Void
+    
+    var exerciseCount: Int {
+        template.exercises?.count ?? 0
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                // Template info
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(template.name ?? "Unknown")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
+                    
+                    HStack(spacing: 6) {
+                        Text("\(exerciseCount) exercises")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        
+                        if let goal = template.goal {
+                            Text("•")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            
+                            Text(goal)
+                                .font(.subheadline)
+                                .foregroundColor(.primaryOrange1)
+                                .fontWeight(.medium)
+                        }
+                    }
+                }
+                
+                Spacer()
+                
+                // Start button
+                Image(systemName: "play.circle.fill")
+                    .font(.title)
+                    .foregroundColor(.green)
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.white)
+                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 
