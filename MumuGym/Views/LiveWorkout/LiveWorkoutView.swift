@@ -500,8 +500,9 @@ struct TemplateWorkoutCard: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
+            .padding(.horizontal, 16)
             .padding(.vertical, 16)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 0)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(Color.white)
