@@ -509,6 +509,7 @@ struct TemplateWorkoutCard: View {
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .frame(maxWidth: .infinity)
     }
 }
 
