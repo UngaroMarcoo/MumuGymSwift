@@ -464,19 +464,11 @@ struct TemplateWorkoutCard: View {
             HStack(spacing: 16) {
                 // Template info
                 VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(template.name ?? "Unknown")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
+                    Text(template.name ?? "Unknown")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                        .lineLimit(1)
                     
                     HStack(spacing: 6) {
                         Text("\(exerciseCount) exercises")
