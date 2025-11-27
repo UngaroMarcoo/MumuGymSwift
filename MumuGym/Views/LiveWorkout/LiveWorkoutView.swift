@@ -55,6 +55,33 @@ struct LiveWorkoutView: View {
             .navigationBarHidden(!workoutSession.isActive)
             .toolbar {
                 if workoutSession.isActive {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        HStack(spacing: 8) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "clock.fill")
+                                    .foregroundColor(Color.primaryGreen1)
+                                    .font(.caption)
+                                Text("\(workoutSession.formattedDuration)")
+                                    .fontWeight(.semibold)
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.textPrimary)
+                            
+                            Button(action: { showingExerciseList = true }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "list.bullet")
+                                        .foregroundColor(Color.primaryGreen1)
+                                        .font(.caption)
+                                    Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
+                                        .fontWeight(.medium)
+                                }
+                                .font(.caption)
+                                .foregroundColor(.textPrimary)
+                            }
+                            .disabled(workoutSession.exercises.isEmpty)
+                        }
+                    }
+                    
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Finish") {
                             showingEndWorkoutAlert = true
@@ -252,63 +279,17 @@ struct LiveWorkoutView: View {
     }
     
     private var activeWorkoutView: some View {
-        ZStack(alignment: .topLeading) {
-            // Main content
-            VStack(spacing: 0) {
-                if !workoutSession.exercises.isEmpty {
-                    currentExerciseView
-                        .padding(.top, 100) // Space for sticky header
-                } else {
-                    emptyWorkoutView
-                        .padding(.top, 100) // Space for sticky header
-                }
-                
-                workoutControls
+        VStack(spacing: 0) {
+            if !workoutSession.exercises.isEmpty {
+                currentExerciseView
+            } else {
+                emptyWorkoutView
             }
             
-            // Sticky header in top-left
-            stickyWorkoutHeader
+            workoutControls
         }
     }
     
-    private var stickyWorkoutHeader: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Timer
-            HStack(spacing: 6) {
-                Image(systemName: "clock.fill")
-                    .foregroundColor(Color.primaryGreen1)
-                Text("\(workoutSession.formattedDuration)")
-                    .fontWeight(.bold)
-                    .font(.title3)
-            }
-            .foregroundColor(.textPrimary)
-            
-            // Exercise list button
-            Button(action: { showingExerciseList = true }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "list.bullet")
-                        .foregroundColor(Color.primaryGreen1)
-                    Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
-                        .fontWeight(.medium)
-                }
-                .font(.subheadline)
-                .foregroundColor(.primary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.cardBackground)
-                .cornerRadius(12)
-            }
-            .disabled(workoutSession.exercises.isEmpty)
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.cardBackground)
-                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
-        )
-        .padding(.leading, 20)
-        .padding(.top, 10) // Align with toolbar
-    }
     
     private var workoutHeader: some View {
         VStack(spacing: 12) {
@@ -364,7 +345,8 @@ struct LiveWorkoutView: View {
                     onNextExercise: moveToNextExercise,
                     onPreviousExercise: moveToPreviousExercise,
                     canGoNext: currentExerciseIndex < workoutSession.exercises.count - 1,
-                    canGoPrevious: currentExerciseIndex > 0
+                    canGoPrevious: currentExerciseIndex > 0,
+                    onAddExercise: addExercise
                 )
             }
         }
@@ -385,10 +367,22 @@ struct LiveWorkoutView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.primary)
                 
-                Text("Tap the + button to add exercises to your workout")
+                Text("Start building your workout by adding exercises")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                
+                Button("Add Exercise") {
+                    addExercise()
+                }
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .background(Color.primaryOrange1)
+                .cornerRadius(16)
+                .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 4, x: 0, y: 2)
             }
             .padding(.vertical, 30)
             .padding(.horizontal, 25)
@@ -405,26 +399,8 @@ struct LiveWorkoutView: View {
     }
     
     private var workoutControls: some View {
-        Button(action: addExercise) {
-            HStack {
-                Image(systemName: "plus")
-                Text("Add Exercise")
-            }
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(Color.buttonPrimary)
-            .foregroundColor(.white)
-            .cornerRadius(25)
-            .fontWeight(.semibold)
-            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 6, x: 0, y: 3)
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 0)
-                .fill(Color.white.opacity(0.95))
-                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: -4)
-        )
+        // Empty view - Add Exercise button moved to sets section
+        EmptyView()
     }
     
     private func setupWorkoutFromTemplate(_ template: WorkoutTemplate) {
@@ -549,6 +525,7 @@ struct CurrentExerciseView: View {
     let onPreviousExercise: () -> Void
     let canGoNext: Bool
     let canGoPrevious: Bool
+    let onAddExercise: () -> Void
     
     @StateObject private var restTimer = RestTimer()
     
@@ -558,6 +535,7 @@ struct CurrentExerciseView: View {
             setsSection
             restSection
             navigationButtons
+            addExerciseButton
         }
         .padding(20)
     }
@@ -642,6 +620,7 @@ struct CurrentExerciseView: View {
             .background(Color.primaryOrange1)
             .cornerRadius(16)
             .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 4, x: 0, y: 2)
+            
         }
         .padding(.vertical, 24)
         .padding(.horizontal, 20)
@@ -695,6 +674,20 @@ struct CurrentExerciseView: View {
             .shadow(color: canGoNext ? Color.primaryOrange1.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
             .disabled(!canGoNext)
         }
+    }
+    
+    private var addExerciseButton: some View {
+        Button("Add Exercise") {
+            onAddExercise()
+        }
+        .font(.subheadline)
+        .fontWeight(.semibold)
+        .foregroundColor(.white)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .background(Color.primaryOrange1)
+        .cornerRadius(16)
+        .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 4, x: 0, y: 2)
     }
     
     private func startRest() {
