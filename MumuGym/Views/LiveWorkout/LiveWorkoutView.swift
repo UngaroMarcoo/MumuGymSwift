@@ -33,7 +33,7 @@ struct LiveWorkoutView: View {
                         Text("Workout")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                            .foregroundColor(Color.white)
+                            .foregroundColor(Color.cardBackground)
                         
                         Spacer()
                     }
@@ -56,7 +56,7 @@ struct LiveWorkoutView: View {
             .toolbar {
                 if workoutSession.isActive {
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("End") {
+                        Button("Finish") {
                             showingEndWorkoutAlert = true
                         }
                         .foregroundColor(.deleteButtonColor)
@@ -199,11 +199,11 @@ struct LiveWorkoutView: View {
                         Text("Choose Your Workout")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.cardBackground)
                         
                         Text("Select a template or start empty")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.surfaceBackground)
                     }
                     
                     Spacer()
@@ -252,17 +252,62 @@ struct LiveWorkoutView: View {
     }
     
     private var activeWorkoutView: some View {
-        VStack(spacing: 0) {
-            workoutHeader
-            
-            if !workoutSession.exercises.isEmpty {
-                currentExerciseView
-            } else {
-                emptyWorkoutView
+        ZStack(alignment: .topLeading) {
+            // Main content
+            VStack(spacing: 0) {
+                if !workoutSession.exercises.isEmpty {
+                    currentExerciseView
+                        .padding(.top, 100) // Space for sticky header
+                } else {
+                    emptyWorkoutView
+                        .padding(.top, 100) // Space for sticky header
+                }
+                
+                workoutControls
             }
             
-            workoutControls
+            // Sticky header in top-left
+            stickyWorkoutHeader
         }
+    }
+    
+    private var stickyWorkoutHeader: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Timer
+            HStack(spacing: 6) {
+                Image(systemName: "clock.fill")
+                    .foregroundColor(Color.primaryGreen1)
+                Text("\(workoutSession.formattedDuration)")
+                    .fontWeight(.bold)
+                    .font(.title3)
+            }
+            .foregroundColor(.textPrimary)
+            
+            // Exercise list button
+            Button(action: { showingExerciseList = true }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "list.bullet")
+                        .foregroundColor(Color.primaryGreen1)
+                    Text("\(currentExerciseIndex + 1)/\(workoutSession.exercises.count)")
+                        .fontWeight(.medium)
+                }
+                .font(.subheadline)
+                .foregroundColor(.primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.cardBackground)
+                .cornerRadius(12)
+            }
+            .disabled(workoutSession.exercises.isEmpty)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
+        )
+        .padding(.leading, 20)
+        .padding(.top, 10) // Align with toolbar
     }
     
     private var workoutHeader: some View {
@@ -360,37 +405,18 @@ struct LiveWorkoutView: View {
     }
     
     private var workoutControls: some View {
-        HStack(spacing: 16) {
-            Button(action: addExercise) {
-                HStack {
-                    Image(systemName: "plus")
-                    Text("Add Exercise")
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.buttonPrimary)
-                .foregroundColor(.white)
-                .cornerRadius(25)
-                .fontWeight(.semibold)
-                .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 6, x: 0, y: 3)
-            }
-            
-            Button("Finish") {
-                showingEndWorkoutAlert = true
+        Button(action: addExercise) {
+            HStack {
+                Image(systemName: "plus")
+                Text("Add Exercise")
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.green, Color.green.opacity(0.8)]),
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
+            .background(Color.buttonPrimary)
             .foregroundColor(.white)
             .cornerRadius(25)
             .fontWeight(.semibold)
-            .shadow(color: Color.green.opacity(0.3), radius: 6, x: 0, y: 3)
+            .shadow(color: Color.primaryOrange1.opacity(0.3), radius: 6, x: 0, y: 3)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -468,13 +494,13 @@ struct FullWidthTemplateCard: View {
                     Text(template.name ?? "Unknown")
                         .font(.headline)
                         .fontWeight(.semibold)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.textPrimary)
                         .lineLimit(1)
                     
                     HStack(spacing: 6) {
                         Text("\(exerciseCount) exercises")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                         
                         if let goal = template.goal {
                             Text("•")
@@ -495,7 +521,7 @@ struct FullWidthTemplateCard: View {
                 Button(action: onTapPlay) {
                     Image(systemName: "play.circle.fill")
                         .font(.title)
-                        .foregroundColor(.white)
+                        .foregroundColor(.cardBackground)
                         .background(
                             Circle()
                                 .fill(Color.green)
@@ -510,7 +536,7 @@ struct FullWidthTemplateCard: View {
         .frame(width: screenWidth - 32)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white)
+                .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         )
         .buttonStyle(PlainButtonStyle())
@@ -583,7 +609,7 @@ struct CurrentExerciseView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
+                .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
         .padding(.horizontal, 20)
