@@ -56,15 +56,19 @@ struct LiveWorkoutView: View {
             .toolbar {
                 if workoutSession.isActive {
                     ToolbarItem(placement: .navigationBarLeading) {
-                        HStack(spacing: 6) {
+                        HStack(spacing: 4) {
                             Image(systemName: "clock.fill")
                                 .foregroundColor(Color.primaryGreen1)
-                                .font(.subheadline)
+                                .font(.caption)
                             Text("\(workoutSession.formattedDuration)")
                                 .fontWeight(.semibold)
-                                .font(.subheadline)
+                                .font(.caption)
                                 .foregroundColor(.textPrimary)
                         }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.cardBackground.opacity(0.9))
+                        .cornerRadius(8)
                     }
                     
                     ToolbarItem(placement: .navigationBarTrailing) {
