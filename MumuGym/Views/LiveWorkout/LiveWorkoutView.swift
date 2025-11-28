@@ -13,12 +13,20 @@ struct LiveWorkoutView: View {
     @State private var showingAddExercise = false
     @State private var currentExerciseIndex = 0
     @State private var showingExerciseList = false
+    @State private var showingExercisePicker = false
+    @State private var showingExerciseConfiguration = false
+    @State private var selectedExerciseForConfig: Exercise?
     @State private var selectedTemplate: WorkoutTemplate?
     
     @FetchRequest(
         entity: WorkoutTemplate.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \WorkoutTemplate.createdDate, ascending: false)]
     ) private var templates: FetchedResults<WorkoutTemplate>
+    
+    @FetchRequest(
+        entity: Exercise.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Exercise.name, ascending: true)]
+    ) private var availableExercises: FetchedResults<Exercise>
     
     init(template: WorkoutTemplate? = nil) {
         self.template = template
@@ -130,6 +138,26 @@ struct LiveWorkoutView: View {
                         }
                     }
                 }
+            }
+        }
+        .sheet(isPresented: $showingExercisePicker) {
+            ExercisePickerView(
+                exercises: Array(availableExercises),
+                onExerciseAdded: { exerciseData in
+                    addExerciseFromTemplate(exerciseData)
+                }
+            )
+        }
+        .sheet(isPresented: $showingExerciseConfiguration) {
+            if let exercise = selectedExerciseForConfig {
+                ExerciseConfigurationView(
+                    exercise: exercise,
+                    onSave: { exerciseData in
+                        addExerciseFromTemplate(exerciseData)
+                        showingExerciseConfiguration = false
+                        selectedExerciseForConfig = nil
+                    }
+                )
             }
         }
         .onAppear {
@@ -398,7 +426,31 @@ struct LiveWorkoutView: View {
     }
     
     private func addExercise() {
-        showingAddExercise = true
+        showingExercisePicker = true
+    }
+    
+    private func addExerciseFromTemplate(_ exerciseData: TemplateExerciseData) {
+        let liveExercise = LiveExercise(
+            name: exerciseData.exercise.name ?? "Unknown",
+            targetMuscle: exerciseData.exercise.targetMuscle,
+            instructions: exerciseData.exercise.instructions,
+            imageUrl: exerciseData.exercise.imageUrl,
+            restTime: exerciseData.restTime
+        )
+        
+        // Add configured number of sets with configured reps and weight
+        for _ in 0..<exerciseData.sets {
+            let set = LiveSet()
+            set.reps = exerciseData.reps
+            set.weight = exerciseData.weight
+            set.completed = false
+            liveExercise.sets.append(set)
+        }
+        
+        workoutSession.exercises.append(liveExercise)
+        currentExerciseIndex = workoutSession.exercises.count - 1
+        
+        showingExercisePicker = false
     }
     
     private func addExerciseToWorkout(_ exercise: Exercise) {
@@ -1377,6 +1429,7 @@ struct NumberPickerView: View {
         }
     }
 }
+
 
 #Preview {
     LiveWorkoutView()
