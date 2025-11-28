@@ -163,7 +163,32 @@ struct LiveWorkoutView: View {
         .onAppear {
             if let template = template {
                 setupWorkoutFromTemplate(template)
+            } else {
+                // Check if there's a workout already in progress
+                workoutSession.resumeWorkoutIfActive()
             }
+            
+            // Add notification observers for app lifecycle
+            NotificationCenter.default.addObserver(
+                forName: UIApplication.willResignActiveNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                workoutSession.enterBackground()
+            }
+            
+            NotificationCenter.default.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                workoutSession.enterForeground()
+            }
+        }
+        .onDisappear {
+            // Remove observers to prevent memory leaks
+            NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
+            NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
         }
     }
     
@@ -449,6 +474,9 @@ struct LiveWorkoutView: View {
         
         workoutSession.exercises.append(liveExercise)
         currentExerciseIndex = workoutSession.exercises.count - 1
+        
+        // Save updated exercises to UserDefaults for persistence
+        workoutSession.enterBackground()
         
         showingExercisePicker = false
     }
