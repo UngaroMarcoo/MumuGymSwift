@@ -603,7 +603,8 @@ struct CurrentExerciseView: View {
             navigationButtons
             addExerciseButton
         }
-        .padding(20)
+        .padding(.vertical, 25)
+        .padding(.horizontal, 20)
     }
     
     private var exerciseHeader: some View {
@@ -650,7 +651,6 @@ struct CurrentExerciseView: View {
                     )
             }
         }
-        .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.cardBackground)
