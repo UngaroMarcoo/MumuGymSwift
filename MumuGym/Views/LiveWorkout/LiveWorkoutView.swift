@@ -66,9 +66,16 @@ struct LiveWorkoutView: View {
                 if workoutSession.isActive {
                     ToolbarItem(placement: .navigationBarLeading) {
                         Text("\(workoutSession.formattedDuration)")
-                            .font(.caption)
+                            .font(workoutSession.currentDuration >= 3600 ? .caption2 : .caption)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(Color.black.opacity(0.3))
+                            )
+                            .fixedSize()
                     }
                     
                     ToolbarItem(placement: .navigationBarTrailing) {
@@ -95,51 +102,16 @@ struct LiveWorkoutView: View {
             }
         }
         .sheet(isPresented: $showingExerciseList) {
-            NavigationView {
-                List {
-                    ForEach(workoutSession.exercises.indices, id: \.self) { index in
-                        Button(action: {
-                            currentExerciseIndex = index
-                            showingExerciseList = false
-                        }) {
-                            HStack {
-                                Text("\(index + 1)")
-                                    .fontWeight(.bold)
-                                    .frame(width: 30, height: 30)
-                                    .background(currentExerciseIndex == index ? Color.blue : Color.gray.opacity(0.3))
-                                    .foregroundColor(currentExerciseIndex == index ? .white : .primary)
-                                    .cornerRadius(15)
-                                
-                                Text(workoutSession.exercises[index].name)
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(.primary)
-                                
-                                Spacer()
-                                
-                                if currentExerciseIndex == index {
-                                    Text("Current")
-                                        .font(.caption)
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                        }
-                    }
-                    .onMove { from, to in
-                        workoutSession.exercises.move(fromOffsets: from, toOffset: to)
-                    }
+            LiveWorkoutExerciseListView(
+                exercises: workoutSession.exercises,
+                currentIndex: $currentExerciseIndex,
+                onReorder: { from, to in
+                    workoutSession.exercises.move(fromOffsets: from, toOffset: to)
+                },
+                onDismiss: {
+                    showingExerciseList = false
                 }
-                .navigationTitle("Exercise Order")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        EditButton()
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            showingExerciseList = false
-                        }
-                    }
-                }
-            }
+            )
         }
         .sheet(isPresented: $showingExercisePicker) {
             ExercisePickerView(
@@ -369,23 +341,57 @@ struct LiveWorkoutView: View {
         .padding(.top, 10)
     }
     
+    @StateObject private var restTimer = RestTimer()
+    
     private var currentExerciseView: some View {
         ScrollView {
-            if currentExerciseIndex < workoutSession.exercises.count {
-                let exercise = workoutSession.exercises[currentExerciseIndex]
-                CurrentExerciseView(
-                    exercise: exercise,
-                    onNextExercise: moveToNextExercise,
-                    onPreviousExercise: moveToPreviousExercise,
-                    canGoNext: currentExerciseIndex < workoutSession.exercises.count - 1,
-                    canGoPrevious: currentExerciseIndex > 0,
-                    onAddExercise: addExercise,
-                    onShowExerciseList: { showingExerciseList = true },
-                    currentExerciseIndex: currentExerciseIndex,
-                    totalExercises: workoutSession.exercises.count
-                )
+            LazyVStack(spacing: 16) {
+                if currentExerciseIndex < workoutSession.exercises.count {
+                    let exercise = workoutSession.exercises[currentExerciseIndex]
+                    
+                    // Exercise header card
+                    CurrentExerciseHeaderView(
+                        exercise: exercise,
+                        onShowExerciseList: { showingExerciseList = true },
+                        currentExerciseIndex: currentExerciseIndex,
+                        totalExercises: workoutSession.exercises.count
+                    )
+                    .padding(.horizontal, 20)
+                    
+                    // Show either sets card or rest timer card
+                    if restTimer.isActive {
+                        // Rest timer card
+                        RestTimerCardView(
+                            restTimer: restTimer,
+                            onSkipRest: {
+                                restTimer.stop()
+                            }
+                        )
+                        .padding(.horizontal, 20)
+                    } else {
+                        // Sets card
+                        CurrentExerciseSetsView(
+                            exercise: exercise,
+                            onNextExercise: moveToNextExercise,
+                            onPreviousExercise: moveToPreviousExercise,
+                            canGoNext: currentExerciseIndex < workoutSession.exercises.count - 1,
+                            canGoPrevious: currentExerciseIndex > 0,
+                            onAddExercise: addExercise,
+                            onSetCompleted: {
+                                startRestTimer(for: exercise)
+                            }
+                        )
+                        .padding(.horizontal, 20)
+                    }
+                }
             }
+            .padding(.top, 16)
+            .padding(.bottom, 100)
         }
+    }
+    
+    private func startRestTimer(for exercise: LiveExercise) {
+        restTimer.start(duration: exercise.restTime)
     }
     
     private var emptyWorkoutView: some View {
@@ -582,6 +588,210 @@ struct FullWidthTemplateCard: View {
     }
 }
 
+// MARK: - New Template-Style Card Views
+struct CurrentExerciseHeaderView: View {
+    @ObservedObject var exercise: LiveExercise
+    let onShowExerciseList: () -> Void
+    let currentExerciseIndex: Int
+    let totalExercises: Int
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            DetailedExerciseImageView(
+                imageUrl: exercise.imageUrl,
+                exerciseName: exercise.name
+            )
+            
+            Text(exercise.name)
+                .font(.title2)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+            
+            HStack {
+                Text(exercise.targetMuscle ?? "Unknown")
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.primaryOrange1)
+                    .cornerRadius(12)
+                
+                Spacer()
+                
+                Button(action: onShowExerciseList) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "list.bullet")
+                        Text("\(currentExerciseIndex + 1)/\(totalExercises)")
+                            .fontWeight(.medium)
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+                }
+            }
+            
+            if let instructions = exercise.instructions, !instructions.isEmpty {
+                Text(instructions)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
+    }
+}
+
+struct CurrentExerciseSetsView: View {
+    @ObservedObject var exercise: LiveExercise
+    let onNextExercise: () -> Void
+    let onPreviousExercise: () -> Void
+    let canGoNext: Bool
+    let canGoPrevious: Bool
+    let onAddExercise: () -> Void
+    let onSetCompleted: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Sets")
+                .font(.title3)
+                .fontWeight(.bold)
+            
+            LazyVStack(spacing: 12) {
+                ForEach(exercise.sets.indices, id: \.self) { index in
+                    SetRow(
+                        set: $exercise.sets[index],
+                        setNumber: index + 1,
+                        onComplete: onSetCompleted
+                    )
+                }
+            }
+            
+            Button("Add Set") {
+                exercise.addSet()
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 44)
+            .background(Color.gray.opacity(0.1))
+            .foregroundColor(.primary)
+            .cornerRadius(12)
+            .fontWeight(.medium)
+            
+            // Navigation buttons
+            HStack(spacing: 16) {
+                Button("Previous") {
+                    onPreviousExercise()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(canGoPrevious ? Color.gray : Color.gray.opacity(0.3))
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+                .disabled(!canGoPrevious)
+                
+                Button("Next") {
+                    onNextExercise()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(canGoNext ? Color.primaryGradient : LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+                .disabled(!canGoNext)
+            }
+            
+            Button("Add Exercise") {
+                onAddExercise()
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(Color.successGradient)
+            .foregroundColor(.white)
+            .cornerRadius(25)
+            .fontWeight(.semibold)
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
+    }
+}
+
+struct RestTimerCardView: View {
+    @ObservedObject var restTimer: RestTimer
+    let onSkipRest: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Image(systemName: "clock.fill")
+                    .font(.title2)
+                    .foregroundColor(.orange)
+                
+                Text("Rest Time")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                if !restTimer.isPaused {
+                    Circle()
+                        .fill(Color.orange)
+                        .frame(width: 8, height: 8)
+                        .scaleEffect(restTimer.isActive ? 1.2 : 0.8)
+                        .animation(.easeInOut(duration: 1).repeatForever(), value: restTimer.isActive)
+                }
+            }
+            
+            Text(restTimer.formattedTime)
+                .font(.system(size: 48, weight: .bold, design: .monospaced))
+                .foregroundColor(.orange)
+                .padding(.vertical, 8)
+            
+            HStack(spacing: 16) {
+                Button("Skip Rest") {
+                    onSkipRest()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.gray.opacity(0.2))
+                .foregroundColor(.primary)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+                
+                Button(restTimer.isPaused ? "Resume" : "Pause") {
+                    restTimer.togglePause()
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(restTimer.isPaused ? Color.green : Color.orange)
+                .foregroundColor(.white)
+                .cornerRadius(25)
+                .fontWeight(.semibold)
+            }
+        }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 2)
+        )
+    }
+}
+
 struct CurrentExerciseView: View {
     @ObservedObject var exercise: LiveExercise
     let onNextExercise: () -> Void
@@ -733,7 +943,7 @@ struct CurrentExerciseView: View {
             }
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(canGoNext ? Color.buttonPrimary : LinearGradient(gradient: Gradient(colors: [Color.primaryOrange1.opacity(0.3), Color.primaryOrange2.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
+            .background(canGoNext ? Color.buttonPrimary : LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
             .foregroundColor(.white)
             .cornerRadius(25)
             .fontWeight(.semibold)
@@ -783,6 +993,7 @@ struct SetRow: View {
     @Binding var set: LiveSet
     let setNumber: Int
     let onComplete: () -> Void
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     @State private var showingRepsPicker = false
     @State private var showingWeightPicker = false
@@ -893,10 +1104,10 @@ struct SetRow: View {
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(set.completed ? Color.green : (canComplete ? Color.blue : Color.textSecondary.opacity(0.3)))
+                        .fill(set.completed ? Color.green : (canComplete ? themeManager.customBackgroundColor : Color.textSecondary.opacity(0.3)))
                 )
                 .foregroundColor(.white)
-                .shadow(color: set.completed ? Color.green.opacity(0.3) : (canComplete ? Color.blue.opacity(0.3) : Color.clear), radius: 4, x: 0, y: 2)
+                .shadow(color: set.completed ? Color.green.opacity(0.3) : (canComplete ? themeManager.customBackgroundColor.opacity(0.3) : Color.clear), radius: 4, x: 0, y: 2)
             }
             .disabled(set.completed)
         }
@@ -1458,6 +1669,327 @@ struct NumberPickerView: View {
     }
 }
 
+
+// MARK: - Live Workout Exercise List
+struct LiveWorkoutExerciseListView: View {
+    let exercises: [LiveExercise]
+    @Binding var currentIndex: Int
+    let onReorder: (IndexSet, Int) -> Void
+    let onDismiss: () -> Void
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.surfaceBackground
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    // Header section
+                    headerSection
+                    
+                    // Exercise list
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
+                            ForEach(exercises.indices, id: \.self) { index in
+                                LiveExerciseListCard(
+                                    exercise: exercises[index],
+                                    exerciseNumber: index + 1,
+                                    isCurrentExercise: index == currentIndex,
+                                    onTap: {
+                                        currentIndex = index
+                                        onDismiss()
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 16)
+                    }
+                }
+                .padding(16)
+            }
+            .navigationBarHidden(true)
+        }
+    }
+    
+    private var headerSection: some View {
+        VStack(spacing: 16) {
+            // Top bar
+            HStack {
+                
+                Button("Order") {
+                    // TODO: Implement reorder functionality
+                }
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.red)
+                
+                Spacer()
+                
+                Text("Workout Plan")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.textPrimary)
+                
+                Spacer()
+                
+                Button("Done") {
+                    onDismiss()
+                }
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.textPrimary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            
+            // Progress indicator
+            HStack(spacing: 12) {
+                Image(systemName: "list.bullet.circle.fill")
+                    .font(.title)
+                    .foregroundColor(.primaryGreen1)
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(exercises.count) Exercises")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.textPrimary)
+                    
+                    Text("Exercise \(currentIndex + 1) of \(exercises.count)")
+                        .font(.subheadline)
+                        .foregroundColor(.textSecondary)
+                }
+                
+                Spacer()
+                
+                // Progress circle
+                ZStack {
+                    Circle()
+                        .stroke(Color.primaryGreen1.opacity(0.3), lineWidth: 3)
+                        .frame(width: 40, height: 40)
+                    
+                    Circle()
+                        .trim(from: 0, to: CGFloat(currentIndex + 1) / CGFloat(max(1, exercises.count)))
+                        .stroke(Color.primaryGreen1, lineWidth: 3)
+                        .frame(width: 40, height: 40)
+                        .rotationEffect(.degrees(-90))
+                    
+                    Text("\(Int((Double(currentIndex + 1) / Double(max(1, exercises.count))) * 100))%")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primaryGreen1)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
+    }
+}
+
+// MARK: - Live Exercise Card
+struct LiveExerciseListCard: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
+    
+    let exercise: LiveExercise
+    let exerciseNumber: Int
+    let isCurrentExercise: Bool
+    let onTap: () -> Void
+    
+    private var completedSets: Int {
+        exercise.sets.filter { $0.completed }.count
+    }
+    
+    private var isExerciseCompleted: Bool {
+        exercise.isCompleted
+    }
+    
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                // Exercise number indicator
+                exerciseNumberView
+                    .frame(width: 50)
+                
+                // Exercise image
+                exerciseImageView
+                    .frame(width: 60)
+                
+                // Exercise info (flexible but with priority)
+                exerciseInfoView
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Status indicator (fixed width)
+                statusIndicatorView
+                    .frame(width: 30)
+            }
+            .padding(20)
+            .background(cardBackground)
+            .cornerRadius(16)
+            .shadow(color: shadowColor, radius: shadowRadius, x: 0, y: shadowOffset)
+            .scaleEffect(isCurrentExercise ? 1.02 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isCurrentExercise)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    private var exerciseNumberView: some View {
+        VStack(spacing: 8) {
+            Text("\(exerciseNumber)")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(numberTextColor)
+                .frame(width: 40, height: 40)
+                .background(numberBackground)
+                .cornerRadius(20)
+            
+            if isCurrentExercise {
+                Text("Current")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.customBackgroundColor)
+            } else if isExerciseCompleted {
+                Text("Done")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.green)
+            }
+        }
+    }
+    
+    private var exerciseImageView: some View {
+        DetailedExerciseImageView(
+            imageUrl: exercise.imageUrl,
+            exerciseName: exercise.name
+        )
+        .frame(width: 60, height: 60)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+        )
+    }
+    
+    private var exerciseInfoView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(exercise.name)
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+                .lineLimit(1)
+            
+            if let targetMuscle = exercise.targetMuscle {
+                Text(targetMuscle)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
+            }
+            
+            // Sets progress
+            HStack(spacing: 8) {
+                Label("\(completedSets)/\(exercise.sets.count)", systemImage: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(isExerciseCompleted ? .green : .secondary)
+                    .fixedSize()
+                
+                Label(exercise.restTime.formattedRestTime, systemImage: "clock.fill")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize()
+            }
+            .fixedSize()
+        }
+    }
+    
+    private var statusIndicatorView: some View {
+        VStack(spacing: 8) {
+            if isCurrentExercise {
+                Image(systemName: "play.circle.fill")
+                    .font(.title)
+                    .foregroundColor(themeManager.customBackgroundColor)
+            } else if isExerciseCompleted {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title)
+                    .foregroundColor(Color.primaryGreen1)
+            } else {
+                Image(systemName: "circle")
+                    .font(.title)
+                    .foregroundColor(.textSecondary.opacity(0.5))
+            }
+        }
+    }
+    
+    // MARK: - Computed Properties for Styling
+    
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 16)
+            .fill(backgroundColor)
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(borderColor, lineWidth: borderWidth)
+            )
+    }
+    
+    private var backgroundColor: Color {
+        if isCurrentExercise {
+            return themeManager.customBackgroundColor.opacity(0.1)
+        } else if isExerciseCompleted {
+            return Color.green.opacity(0.05)
+        } else {
+            return Color.cardBackground
+        }
+    }
+    
+    private var borderColor: Color {
+        if isCurrentExercise {
+            return themeManager.customBackgroundColor.opacity(0.3)
+        } else if isExerciseCompleted {
+            return Color.green.opacity(0.2)
+        } else {
+            return Color.clear
+        }
+    }
+    
+    private var borderWidth: CGFloat {
+        isCurrentExercise ? 2 : 0
+    }
+    
+    private var numberBackground: Color {
+        if isCurrentExercise {
+            return themeManager.customBackgroundColor
+        } else if isExerciseCompleted {
+            return Color.primaryGreen1
+        } else {
+            return Color.secondary.opacity(0.1)
+        }
+    }
+    
+    private var numberTextColor: Color {
+        if isCurrentExercise || isExerciseCompleted {
+            return .white
+        } else {
+            return .primary
+        }
+    }
+    
+    private var shadowColor: Color {
+        if isCurrentExercise {
+            return themeManager.customBackgroundColor.opacity(0.3)
+        } else if isExerciseCompleted {
+            return Color.green.opacity(0.2)
+        } else {
+            return Color.black.opacity(0.1)
+        }
+    }
+    
+    private var shadowRadius: CGFloat {
+        isCurrentExercise ? 8 : 4
+    }
+    
+    private var shadowOffset: CGFloat {
+        isCurrentExercise ? 4 : 2
+    }
+}
 
 #Preview {
     LiveWorkoutView()
