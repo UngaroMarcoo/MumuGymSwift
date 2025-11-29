@@ -230,7 +230,7 @@ struct CreateTemplateView: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(selectedGoal == goal ? AnyShapeStyle(Color.warningGradient) : AnyShapeStyle(Color.surfaceBackground))
+                    .background(selectedGoal == goal ? AnyShapeStyle(Color.dynamicBackgroundGradient) : AnyShapeStyle(Color.surfaceBackground))
                     .foregroundColor(selectedGoal == goal ? .white : .primary)
                     .font(.subheadline)
                     .fontWeight(.medium)
@@ -676,7 +676,7 @@ struct ExercisePickerView: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(selectedMuscleGroup == group ? AnyShapeStyle(Color.warningGradient) : AnyShapeStyle(Color(.systemGray5)))
+                        .background(selectedMuscleGroup == group ? AnyShapeStyle(Color.dynamicBackgroundGradient) : AnyShapeStyle(Color(.systemGray5)))
                         .foregroundColor(selectedMuscleGroup == group ? .white : .primary)
                         .cornerRadius(20)
                     }

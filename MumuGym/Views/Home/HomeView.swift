@@ -13,7 +13,7 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            Color.warningGradient
+            Color.dynamicBackgroundGradient
                 .ignoresSafeArea()
             
             ScrollView {

@@ -259,8 +259,8 @@ struct ModernTemplateExerciseDetailCard: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.warningGradient.opacity(0.15))
-                    .foregroundStyle(Color.warningGradient)
+                    .background(Color.dynamicBackgroundGradient.opacity(0.15))
+                    .foregroundStyle(Color.dynamicBackgroundGradient)
                     .cornerRadius(8)
             }
             

@@ -22,11 +22,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Color.dynamicBackgroundGradient
                 .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
