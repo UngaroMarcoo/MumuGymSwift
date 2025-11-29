@@ -96,7 +96,7 @@ struct ProfileView: View {
                     
                     Image(systemName: "person.crop.circle.fill")
                         .font(.system(size: 80))
-                        .foregroundColor(.primaryOrange1)
+                        .foregroundColor(themeManager.customBackgroundColor)
                 }
                 .padding(.top, 19)
                 

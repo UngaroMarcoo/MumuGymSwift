@@ -5,17 +5,23 @@ struct BackgroundColorPickerView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedColor: Color = Color.primaryOrange1
     
-    let predefinedColors: [Color] = [
-        Color.primaryOrange1, // Orange (default)
-        Color.primaryBlue1,
-        Color.primaryGreen1,
-        Color.primaryPurple1,
-        Color.primaryRed,
-        Color.accentTeal,
-        Color.primaryWater1,
-        Color.pink,
-        Color.indigo,
-        Color.mint
+    // Struct per associare colore e gradient
+    struct ColorOption {
+        let color: Color
+        let gradient: LinearGradient
+    }
+    
+    let predefinedColorOptions: [ColorOption] = [
+        ColorOption(color: Color.primaryOrange1, gradient: Color.warningGradient),
+        ColorOption(color: Color.primaryBlue1, gradient: Color.primaryGradient),
+        ColorOption(color: Color.primaryGreen1, gradient: Color.successGradient),
+        ColorOption(color: Color.primaryPurple1, gradient: Color.purpleGradient),
+        ColorOption(color: Color.primaryWater1, gradient: Color.waterGradient),
+        ColorOption(color: Color.primaryRed, gradient: LinearGradient(gradient: Gradient(colors: [Color.primaryRed, Color.primaryRed.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
+        ColorOption(color: Color.accentTeal, gradient: LinearGradient(gradient: Gradient(colors: [Color.accentTeal, Color.accentTeal.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
+        ColorOption(color: Color.pink, gradient: LinearGradient(gradient: Gradient(colors: [Color.pink, Color.pink.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
+        ColorOption(color: Color.indigo, gradient: LinearGradient(gradient: Gradient(colors: [Color.indigo, Color.indigo.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
+        ColorOption(color: Color.mint, gradient: LinearGradient(gradient: Gradient(colors: [Color.mint, Color.mint.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing))
     ]
     
     var body: some View {
@@ -192,22 +198,22 @@ struct BackgroundColorPickerView: View {
             }
             
             VStack(spacing: 20) {
-                // Predefined colors
+                // Predefined colors with their gradients
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 16) {
-                    ForEach(0..<predefinedColors.count, id: \.self) { index in
-                        let color = predefinedColors[index]
+                    ForEach(0..<predefinedColorOptions.count, id: \.self) { index in
+                        let colorOption = predefinedColorOptions[index]
                         Button(action: {
-                            selectedColor = color
-                            themeManager.saveCustomColor(color)
+                            selectedColor = colorOption.color
+                            themeManager.saveCustomColor(colorOption.color)
                         }) {
                             Circle()
-                                .fill(color.gradient)
+                                .fill(colorOption.gradient)
                                 .frame(width: 50, height: 50)
                                 .overlay(
                                     Circle()
-                                        .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 1)
+                                        .stroke(Color.white, lineWidth: selectedColor == colorOption.color ? 3 : 1)
                                 )
-                                .scaleEffect(selectedColor == color ? 1.1 : 1.0)
+                                .scaleEffect(selectedColor == colorOption.color ? 1.1 : 1.0)
                                 .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedColor)
                         }
                         .buttonStyle(PlainButtonStyle())
