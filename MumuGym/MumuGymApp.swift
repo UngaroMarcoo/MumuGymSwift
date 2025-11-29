@@ -17,7 +17,6 @@ struct MumuGymApp: App {
             ContentView()
                 .environment(\.managedObjectContext, persistenceController.context)
                 .environmentObject(AuthenticationManager.shared)
-                .environmentObject(ThemeManager.shared)
         }
     }
 }

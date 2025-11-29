@@ -4,7 +4,7 @@ import CoreData
 struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
-    @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var themeManager = Color.themeManager
     
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false
@@ -27,7 +27,7 @@ struct ProfileView: View {
                 .padding(.bottom, 20)
                 .id(refreshID) // This forces the view to refresh when refreshID changes
             }
-            .background(themeManager.currentBackgroundGradient)
+            .background(Color.dynamicBackgroundGradient)
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarHidden(true)

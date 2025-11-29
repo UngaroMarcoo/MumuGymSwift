@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BackgroundColorPickerView: View {
-    @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var themeManager = Color.themeManager
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedColor: Color = Color.primaryOrange1
     

@@ -18,7 +18,6 @@ struct PredefinedExercise {
 
 struct TemplatesView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    @EnvironmentObject private var themeManager: ThemeManager
     @EnvironmentObject private var authManager: AuthenticationManager
     
     @FetchRequest var templates: FetchedResults<WorkoutTemplate>
@@ -70,7 +69,7 @@ struct TemplatesView: View {
                     }
                 }
             }
-            .background(themeManager.currentBackgroundGradient)
+            .background(Color.dynamicBackgroundGradient)
             .navigationBarHidden(true)
         }
         .sheet(isPresented: $showingCreateTemplate) {
