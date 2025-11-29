@@ -3,6 +3,7 @@ import CoreData
 import SwiftUI
 import Combine
 
+@MainActor
 class WorkoutSession: ObservableObject {
     @Published var isActive = false
     @Published var workoutName = "Workout"

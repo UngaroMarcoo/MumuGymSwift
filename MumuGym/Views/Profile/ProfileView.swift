@@ -4,7 +4,7 @@ import CoreData
 struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
-    @StateObject private var themeManager = Color.themeManager
+    @StateObject private var themeManager = ThemeManager.shared
     
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false

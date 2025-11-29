@@ -4,7 +4,7 @@ import CoreData
 struct HomeView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
-    @ObservedObject private var themeManager = Color.themeManager
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Binding var selectedTab: Int
     
     @State private var currentWeight = ""

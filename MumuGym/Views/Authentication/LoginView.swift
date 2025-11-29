@@ -2,7 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
-    @ObservedObject private var themeManager = Color.themeManager
+    @ObservedObject private var themeManager = ThemeManager.shared
     @State private var email = ""
     @State private var password = ""
     @State private var showingRegistration = false

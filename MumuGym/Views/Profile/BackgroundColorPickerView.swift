@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct BackgroundColorPickerView: View {
-    @StateObject private var themeManager = Color.themeManager
+    @StateObject private var themeManager = ThemeManager.shared
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedColor: Color = Color.primaryOrange1
     
@@ -155,8 +155,8 @@ struct BackgroundColorPickerView: View {
                     
                     Toggle("", isOn: $themeManager.useDeviceAccentColor)
                         .toggleStyle(SwitchToggleStyle())
-                        .onChange(of: themeManager.useDeviceAccentColor) { value in
-                            themeManager.saveDeviceAccentPreference(value)
+                        .onChange(of: themeManager.useDeviceAccentColor) { _, newValue in
+                            themeManager.saveDeviceAccentPreference(newValue)
                         }
                 }
                 .padding()
@@ -232,8 +232,8 @@ struct BackgroundColorPickerView: View {
                                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
                             )
                     )
-                    .onChange(of: selectedColor) { color in
-                        themeManager.saveCustomColor(color)
+                    .onChange(of: selectedColor) { _, newColor in
+                        themeManager.saveCustomColor(newColor)
                     }
             }
         }

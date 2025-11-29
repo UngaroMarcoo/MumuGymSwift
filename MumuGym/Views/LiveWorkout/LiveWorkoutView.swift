@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 struct LiveWorkoutView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var authManager: AuthenticationManager
-    @ObservedObject private var themeManager = Color.themeManager
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     let template: WorkoutTemplate?
     
