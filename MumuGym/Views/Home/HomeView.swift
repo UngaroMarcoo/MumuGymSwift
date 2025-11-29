@@ -76,7 +76,7 @@ struct HomeView: View {
                     Button(action: { showingProfile = true }) {
                         Image(systemName: "person.crop.circle.fill")
                             .font(.system(size: 34))
-                            .foregroundColor(.primaryOrange1)
+                            .foregroundColor(themeManager.customBackgroundColor)
                     }
                 }
             }

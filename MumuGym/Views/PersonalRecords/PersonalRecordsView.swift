@@ -109,7 +109,7 @@ struct PersonalRecordsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(Color.dynamicBackgroundGradient)
+                .background(Color.warningGradient)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .fontWeight(.semibold)
