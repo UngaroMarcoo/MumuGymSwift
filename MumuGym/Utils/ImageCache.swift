@@ -135,9 +135,9 @@ struct DetailedExerciseImageView: View {
                             .foregroundColor(.secondary)
                     }
                 )
-                .frame(height: 200)
+                .frame(height: 100)
         }
-        .frame(height: 200)
+        .frame(height: 100)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

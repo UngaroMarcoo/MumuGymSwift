@@ -366,7 +366,6 @@ struct LiveWorkoutView: View {
                 .fill(Color.white.opacity(0.95))
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
-        .padding(.horizontal, 20)
         .padding(.top, 10)
     }
     
@@ -387,6 +386,7 @@ struct LiveWorkoutView: View {
                 )
             }
         }
+        .padding(.horizontal, 20)
     }
     
     private var emptyWorkoutView: some View {
@@ -651,13 +651,12 @@ struct CurrentExerciseView: View {
                     )
             }
         }
-        .padding(.horizontal, 20)
+        .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.cardBackground)
                 .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
         )
-        .padding(.horizontal, 20)
     }
     
     private var setsSection: some View {
@@ -710,7 +709,6 @@ struct CurrentExerciseView: View {
                             .fill(Color.white.opacity(0.95))
                             .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
                     )
-                    .padding(.horizontal, 20)
             }
         }
     }
