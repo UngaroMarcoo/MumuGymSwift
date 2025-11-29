@@ -17,19 +17,19 @@ struct SplashView: View {
             VStack(spacing: 20) {
                 Image(systemName: "dumbbell.fill")
                     .font(.system(size: 80))
-                    .foregroundColor(.white)
+                    .foregroundColor(.cardBackground)
                     .scaleEffect(scale)
                     .opacity(opacity)
                 
                 Text("MumuGym")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(.cardBackground)
                     .opacity(opacity)
                 
                 Text("Your Personal Fitness Companion")
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.surfaceBackground)
                     .opacity(opacity)
             }
         }

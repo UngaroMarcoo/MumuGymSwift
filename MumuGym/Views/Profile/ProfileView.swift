@@ -4,11 +4,13 @@ import CoreData
 struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
+    @StateObject private var themeManager = ThemeManager.shared
     
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false
     @State private var showingLogoutConfirmation = false
     @State private var showingWeightAnalytics = false
+    @State private var showingBackgroundColorPicker = false
     @State private var refreshID = UUID()
     
     var body: some View {
@@ -25,7 +27,7 @@ struct ProfileView: View {
                 .padding(.bottom, 20)
                 .id(refreshID) // This forces the view to refresh when refreshID changes
             }
-            .background(Color.warningGradient)
+            .background(themeManager.currentBackgroundGradient)
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarHidden(true)
@@ -41,6 +43,9 @@ struct ProfileView: View {
             refreshID = UUID()
         }) {
             EditProfileView()
+        }
+        .sheet(isPresented: $showingBackgroundColorPicker) {
+            BackgroundColorPickerView()
         }
         .alert("Logout Confirmation", isPresented: $showingLogoutConfirmation) {
             Button("Cancel", role: .cancel) { }
@@ -191,7 +196,7 @@ struct ProfileView: View {
                             startPoint: .leading,
                             endPoint: .trailing
                         ))
-                        .shadow(color: Color.accentTeal.opacity(0.3), radius: 6, x: 0, y: 2)
+                        .shadow(color: Color.primaryPurple1.opacity(0.3), radius: 6, x: 0, y: 2)
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -221,6 +226,38 @@ struct ProfileView: View {
             }
             
             VStack(spacing: 12) {
+                // Background Color Settings Button
+                Button(action: { showingBackgroundColorPicker = true }) {
+                    HStack {
+                        Image(systemName: "paintpalette.fill")
+                            .font(.title3)
+                            .foregroundColor(.primaryBlue1)
+                        
+                        Text("Background Color")
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.textPrimary)
+                        
+                        Spacer()
+                        
+                        Circle()
+                            .fill(themeManager.customBackgroundColor.gradient)
+                            .frame(width: 20, height: 20)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.white, lineWidth: 1)
+                            )
+                    }
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.surfaceBackground)
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                // Logout Button
                 Button(action: { showingLogoutConfirmation = true }) {
                     HStack {
                         Image(systemName: "rectangle.portrait.and.arrow.right")

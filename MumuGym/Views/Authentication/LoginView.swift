@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var email = ""
     @State private var password = ""
     @State private var showingRegistration = false
@@ -11,7 +12,7 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            Color.warningGradient
+            themeManager.currentBackgroundGradient
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {

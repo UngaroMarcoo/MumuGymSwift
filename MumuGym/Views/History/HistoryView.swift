@@ -119,13 +119,13 @@ struct HistoryView: View {
                     VStack(spacing: 12) {
                         HStack {
                             Image(systemName: "calendar.circle.fill")
-                                .foregroundColor(Color.primaryOrange2)
+                                .foregroundColor(Color.primaryWater1)
                                 .font(.title2)
                             
                             Text(dateGroup.key)
                                 .font(.headline)
                                 .fontWeight(.bold)
-                                .foregroundColor(.primary)
+                                .foregroundColor(.textPrimary)
                             
                             Spacer()
                         }
@@ -133,8 +133,8 @@ struct HistoryView: View {
                         .padding(.horizontal, 20)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.white.opacity(0.95))
-                                .shadow(color: Color.black.opacity(0.10), radius: 6, x: 0, y: 3)
+                                .fill(Color.cardBackground)
+                                .shadow(color: Color.shadowMedium, radius: 6, x: 0, y: 3)
                         )
                         
                         ForEach(dateGroup.value, id: \.objectID) { workout in
@@ -149,6 +149,7 @@ struct HistoryView: View {
                             .padding(.horizontal, 20)
                         }
                     }
+                    .padding(.horizontal, 20)
                 }
             }
             .padding(.top, 16)
@@ -223,11 +224,11 @@ struct WorkoutHistoryCard: View {
                         Text(workout.name ?? "Workout")
                             .font(.headline)
                             .fontWeight(.semibold)
-                            .foregroundColor(.primary)
+                            .foregroundColor(.textPrimary)
                         
                         Text("Started at \(formattedTime)")
                             .font(.subheadline)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                     }
                     
                     Spacer()
@@ -249,8 +250,8 @@ struct WorkoutHistoryCard: View {
             .padding(20)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(0.95))
-                    .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    .fill(Color.cardBackground)
+                    .shadow(color: Color.shadowMedium, radius: 8, x: 0, y: 4)
             )
         }
         .buttonStyle(PlainButtonStyle())
@@ -274,7 +275,7 @@ struct WorkoutStat: View {
         VStack(spacing: 6) {
             Image(systemName: icon)
                 .font(.title3)
-                .foregroundColor(Color.primaryOrange1)
+                .foregroundColor(Color.primaryWater1)
             
             Text(value)
                 .font(.headline)
@@ -322,11 +323,7 @@ struct WorkoutDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Color.surfaceBackground
                 .ignoresSafeArea()
                 
                 ScrollView {
@@ -340,13 +337,13 @@ struct WorkoutDetailView: View {
             }
             .navigationTitle(workout.name ?? "Workout")
             .navigationBarTitleDisplayMode(.large)
-            .foregroundColor(.white)
+            .foregroundColor(.textPrimary)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.textPrimary)
                     .fontWeight(.medium)
                 }
             }
@@ -357,7 +354,7 @@ struct WorkoutDetailView: View {
         VStack(spacing: 16) {
             Text(formattedDate)
                 .font(.subheadline)
-                .foregroundColor(.secondary)
+                .foregroundColor(.textSecondary)
             
             HStack(spacing: 20) {
                 InfoCard(title: "Duration", value: formattedDuration, icon: "clock")
@@ -369,8 +366,8 @@ struct WorkoutDetailView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
-                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 10, x: 0, y: 5)
         )
     }
     
@@ -378,13 +375,13 @@ struct WorkoutDetailView: View {
         VStack(spacing: 16) {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .foregroundColor(Color.primaryOrange2)
+                    .foregroundColor(Color.primaryWater1)
                     .font(.title2)
                 
                 Text("Exercises")
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(.primary)
+                    .foregroundColor(.textPrimary)
                 
                 Spacer()
             }
@@ -399,8 +396,8 @@ struct WorkoutDetailView: View {
         .padding(.horizontal, 20)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.95))
-                .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
+                .fill(Color.cardBackground)
+                .shadow(color: Color.shadowMedium, radius: 10, x: 0, y: 5)
         )
     }
     
@@ -434,7 +431,7 @@ struct WorkoutExerciseDetailCard: View {
                 
                 if workoutExercise.completed {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
+                        .foregroundColor(.primaryWater1)
                 }
             }
             
@@ -443,23 +440,23 @@ struct WorkoutExerciseDetailCard: View {
                     HStack {
                         Text("Set")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                             .frame(width: 30)
                         
                         Text("Reps")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                             .frame(width: 50)
                         
                         Text("Weight")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                         
                         Spacer()
                         
                         Text("✓")
                             .font(.caption)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.textSecondary)
                     }
                     
                     ForEach(exerciseSets.indices, id: \.self) { index in
@@ -479,7 +476,7 @@ struct WorkoutExerciseDetailCard: View {
                             Spacer()
                             
                             Image(systemName: set.completed ? "checkmark.circle.fill" : "circle")
-                                .foregroundColor(set.completed ? .green : .gray)
+                                .foregroundColor(set.completed ? .primaryWater1 : .textSecondary)
                         }
                     }
                 }
@@ -489,8 +486,8 @@ struct WorkoutExerciseDetailCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.9))
-                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                .fill(Color.surfaceBackground)
+                .shadow(color: Color.shadowMedium, radius: 4, x: 0, y: 2)
         )
     }
 }

@@ -4,6 +4,7 @@ import CoreData
 struct PersonalRecordsView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var authManager: AuthenticationManager
+    @EnvironmentObject private var themeManager: ThemeManager
     
     @FetchRequest var personalRecords: FetchedResults<PersonalRecord>
     @FetchRequest var exercises: FetchedResults<Exercise>
@@ -112,7 +113,7 @@ struct PersonalRecordsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 54)
-                .background(Color.warningGradient)
+                .background(themeManager.currentBackgroundGradient)
                 .foregroundColor(.white)
                 .cornerRadius(12)
                 .fontWeight(.semibold)

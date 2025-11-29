@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct LiveWorkoutView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var authManager: AuthenticationManager
+    @EnvironmentObject private var themeManager: ThemeManager
     
     let template: WorkoutTemplate?
     
@@ -58,7 +59,7 @@ struct LiveWorkoutView: View {
                     }
                 }
             }
-            .background(Color.warningGradient)
+            .background(themeManager.currentBackgroundGradient)
             .navigationBarBackButtonHidden(workoutSession.isActive)
             .navigationBarHidden(!workoutSession.isActive)
             .toolbar {
