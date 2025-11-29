@@ -12,11 +12,11 @@ struct BackgroundColorPickerView: View {
     }
     
     let predefinedColorOptions: [ColorOption] = [
-        ColorOption(color: Color.primaryOrange1, gradient: Color.warningGradient),
-        ColorOption(color: Color.primaryBlue1, gradient: Color.primaryGradient),
-        ColorOption(color: Color.primaryGreen1, gradient: Color.successGradient),
-        ColorOption(color: Color.primaryPurple1, gradient: Color.purpleGradient),
-        ColorOption(color: Color.primaryWater1, gradient: Color.waterGradient),
+        ColorOption(color: Color.primaryOrange1, gradient: Color.warningGradient), // Usa primaryOrange1 + primaryOrange2
+        ColorOption(color: Color.primaryBlue1, gradient: Color.primaryGradient), // Usa primaryBlue1 + primaryBlue2
+        ColorOption(color: Color.primaryGreen1, gradient: Color.successGradient), // Usa primaryGreen1 + primaryGreen2  
+        ColorOption(color: Color.primaryPurple1, gradient: Color.purpleGradient), // Usa primaryPurple1 + primaryPurple2
+        ColorOption(color: Color.primaryWater1, gradient: Color.waterGradient), // Usa primaryWater1 + primaryWater2
         ColorOption(color: Color.primaryRed, gradient: LinearGradient(gradient: Gradient(colors: [Color.primaryRed, Color.primaryRed.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
         ColorOption(color: Color.accentTeal, gradient: LinearGradient(gradient: Gradient(colors: [Color.accentTeal, Color.accentTeal.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),
         ColorOption(color: Color.pink, gradient: LinearGradient(gradient: Gradient(colors: [Color.pink, Color.pink.opacity(0.8)]), startPoint: .topLeading, endPoint: .bottomTrailing)),

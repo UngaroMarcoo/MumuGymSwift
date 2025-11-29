@@ -177,13 +177,28 @@ class ThemeManager: ObservableObject {
     
     private var customBackgroundGradient: LinearGradient {
         let baseColor = customBackgroundColor
-        let secondaryColor = customBackgroundColor.opacity(0.8)
         
-        return LinearGradient(
-            gradient: Gradient(colors: [baseColor, secondaryColor]),
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
+        // Usa i gradient predefiniti per i colori del tema
+        switch baseColor {
+        case Color.primaryOrange1:
+            return Color.warningGradient
+        case Color.primaryBlue1:
+            return Color.primaryGradient
+        case Color.primaryGreen1:
+            return Color.successGradient
+        case Color.primaryPurple1:
+            return Color.purpleGradient
+        case Color.primaryWater1:
+            return Color.waterGradient
+        default:
+            // Per colori personalizzati, usa opacity
+            let secondaryColor = customBackgroundColor.opacity(0.8)
+            return LinearGradient(
+                gradient: Gradient(colors: [baseColor, secondaryColor]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
     }
     
     private var deviceAccentGradient: LinearGradient {
