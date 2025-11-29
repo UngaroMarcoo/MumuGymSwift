@@ -27,7 +27,7 @@ struct ProfileView: View {
                 .padding(.bottom, 20)
                 .id(refreshID) // This forces the view to refresh when refreshID changes
             }
-            .background(Color.dynamicBackgroundGradient)
+            .background(Color.surfaceBackground)
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
             .navigationBarHidden(true)
@@ -65,7 +65,7 @@ struct ProfileView: View {
                 Text("Profile")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(Color.cardBackground)
+                    .foregroundColor(Color.textPrimary)
                 
                 Spacer()
                 

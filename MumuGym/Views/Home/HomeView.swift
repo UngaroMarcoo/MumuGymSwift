@@ -4,6 +4,7 @@ import CoreData
 struct HomeView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
+    @ObservedObject private var themeManager = Color.themeManager
     @Binding var selectedTab: Int
     
     @State private var currentWeight = ""
@@ -13,7 +14,7 @@ struct HomeView: View {
     
     var body: some View {
         ZStack {
-            Color.dynamicBackgroundGradient
+            themeManager.currentBackgroundGradient
                 .ignoresSafeArea()
             
             ScrollView {

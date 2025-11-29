@@ -4,6 +4,7 @@ import CoreData
 struct PersonalRecordsView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var authManager: AuthenticationManager
+    @ObservedObject private var themeManager = Color.themeManager
     
     @FetchRequest var personalRecords: FetchedResults<PersonalRecord>
     @FetchRequest var exercises: FetchedResults<Exercise>
@@ -31,11 +32,7 @@ struct PersonalRecordsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                themeManager.currentBackgroundGradient
                 .ignoresSafeArea()
                 
                 VStack(spacing: 0) {

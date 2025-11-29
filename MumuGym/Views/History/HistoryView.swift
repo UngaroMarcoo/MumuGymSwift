@@ -4,6 +4,7 @@ import CoreData
 struct HistoryView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject private var authManager: AuthenticationManager
+    @ObservedObject private var themeManager = Color.themeManager
     
     @FetchRequest var workouts: FetchedResults<Workout>
     
@@ -22,7 +23,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.dynamicBackgroundGradient
+                themeManager.currentBackgroundGradient
                 .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
