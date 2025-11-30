@@ -1,0 +1,31 @@
+{
+  "images" : [
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "Tirate_al_mento_light.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity", 
+          "value" : "dark"
+        }
+      ],
+      "filename" : "Tirate_al_mento_dark.png",
+      "idiom" : "universal"
+    },
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

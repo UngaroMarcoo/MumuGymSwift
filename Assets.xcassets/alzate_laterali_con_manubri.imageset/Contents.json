@@ -1,0 +1,31 @@
+{
+  "images" : [
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "alzate_laterali_con_manubri_light.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity", 
+          "value" : "dark"
+        }
+      ],
+      "filename" : "alzate_laterali_con_manubri_dark.png",
+      "idiom" : "universal"
+    },
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

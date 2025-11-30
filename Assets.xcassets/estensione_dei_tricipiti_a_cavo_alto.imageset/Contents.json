@@ -1,0 +1,31 @@
+{
+  "images" : [
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "estensione_dei_tricipiti_a_cavo_alto_light.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity", 
+          "value" : "dark"
+        }
+      ],
+      "filename" : "estensione_dei_tricipiti_a_cavo_alto_dark.png",
+      "idiom" : "universal"
+    },
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

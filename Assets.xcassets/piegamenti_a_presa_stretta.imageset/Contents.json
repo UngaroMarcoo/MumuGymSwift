@@ -1,0 +1,31 @@
+{
+  "images" : [
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "piegamenti_a_presa_stretta_light.png",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity", 
+          "value" : "dark"
+        }
+      ],
+      "filename" : "piegamenti_a_presa_stretta_dark.png",
+      "idiom" : "universal"
+    },
+    {
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

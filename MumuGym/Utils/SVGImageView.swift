@@ -1,35 +1,20 @@
 import SwiftUI
 
-// MARK: - Themed PNG Image View  
+// MARK: - Themed Exercise Image View from Assets
 struct ThemedExerciseImageView: View {
     let imageName: String
-    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        let suffix = colorScheme == .dark ? "_dark" : "_light"
-        let fullImageName = imageName + suffix
-        
-        if let image = loadImageFromBundle(fullImageName) {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        } else if let defaultImage = loadImageFromBundle(imageName) {
-            // Fallback to image without suffix
-            Image(uiImage: defaultImage)
+        // SwiftUI automatically handles dark/light mode with Assets.xcassets
+        if UIImage(named: imageName) != nil {
+            Image(imageName)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
         } else {
-            // Final fallback to system icon
+            // Fallback to system icon
             Image(systemName: "dumbbell.fill")
                 .foregroundColor(.primary)
         }
-    }
-    
-    private func loadImageFromBundle(_ name: String) -> UIImage? {
-        if let path = Bundle.main.path(forResource: name, ofType: "png", inDirectory: "Resources/ExerciseImages") {
-            return UIImage(contentsOfFile: path)
-        }
-        return nil
     }
 }
 
