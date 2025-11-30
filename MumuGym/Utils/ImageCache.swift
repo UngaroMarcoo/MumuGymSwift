@@ -39,23 +39,8 @@ struct ExerciseImageView: View {
     }
     
     var body: some View {
-        CachedAsyncImage(
-            url: URL(string: imageUrl ?? "")
-        ) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-        } placeholder: {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.blue.opacity(0.1))
-                .overlay(
-                    Image(systemName: "dumbbell.fill")
-                        .foregroundColor(.blue)
-                        .font(.title3)
-                )
-        }
-        .frame(width: size.width, height: size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        // Always use local SVG images instead of remote URLs
+        LocalExerciseImageView(exerciseName: exerciseName, size: size)
     }
 }
 
@@ -115,29 +100,8 @@ struct DetailedExerciseImageView: View {
     let exerciseName: String
     
     var body: some View {
-        CachedAsyncImage(
-            url: URL(string: imageUrl ?? "")
-        ) { image in
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        } placeholder: {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.blue.opacity(0.1))
-                .overlay(
-                    VStack(spacing: 8) {
-                        Image(systemName: "dumbbell.fill")
-                            .foregroundColor(.blue)
-                            .font(.title)
-                        
-                        Text("Exercise Image")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                )
-                .frame(height: 100)
-        }
-        .frame(height: 100)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        LocalExerciseImageView(exerciseName: exerciseName, size: CGSize(width: 100, height: 100))
+            .frame(height: 100)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
