@@ -1209,7 +1209,7 @@ struct SetRow: View {
     
     private var setRowBackground: some View {
         RoundedRectangle(cornerRadius: 16)
-            .fill(Color.white)
+            .fill(Color.surfaceBackground)
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
                     .stroke(set.completed ? Color.green.opacity(0.3) : Color.clear, lineWidth: 2)

@@ -9,6 +9,7 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             themeManager.currentBackgroundGradient
+                .ignoresSafeArea()
             
             VStack(spacing: 20) {
                 Image(systemName: "dumbbell.fill")
