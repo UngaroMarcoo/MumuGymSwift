@@ -5,6 +5,7 @@ struct ProfileView: View {
     @EnvironmentObject private var authManager: AuthenticationManager
     @Environment(\.managedObjectContext) private var viewContext
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var networkManager = NetworkManager.shared
     
     @State private var showingWeightEntry = false
     @State private var showingEditProfile = false
@@ -226,6 +227,37 @@ struct ProfileView: View {
             }
             
             VStack(spacing: 12) {
+                // Network Status Indicator
+                HStack {
+                    Image(systemName: networkManager.isConnected ? "wifi" : "wifi.slash")
+                        .font(.title3)
+                        .foregroundColor(networkManager.isConnected ? .green : .red)
+                    
+                    Text("Connection Status")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.textPrimary)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(networkManager.isConnected ? Color.green : Color.red)
+                            .frame(width: 8, height: 8)
+                        
+                        Text(networkManager.isConnected ? "Online" : "Offline")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(networkManager.isConnected ? .green : .red)
+                    }
+                }
+                .padding(.vertical, 16)
+                .padding(.horizontal, 16)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.surfaceBackground)
+                )
+                
                 // Background Color Settings Button
                 Button(action: { showingBackgroundColorPicker = true }) {
                     HStack {
