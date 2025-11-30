@@ -220,6 +220,11 @@ class LiveExercise: ObservableObject, Equatable {
         let newSet = LiveSet(reps: reps, weight: weight)
         sets.append(newSet)
     }
+    
+    func removeSet(at index: Int) {
+        guard index < sets.count && sets.count > 1 else { return }
+        sets.remove(at: index)
+    }
 }
 
 class LiveSet: ObservableObject {

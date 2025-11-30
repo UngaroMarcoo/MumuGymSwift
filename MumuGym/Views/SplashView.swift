@@ -4,15 +4,11 @@ struct SplashView: View {
     @State private var isLoading = true
     @State private var scale = 0.5
     @State private var opacity = 0.0
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [Color.primaryOrange1, Color.primaryOrange2]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            themeManager.currentBackgroundGradient
             
             VStack(spacing: 20) {
                 Image(systemName: "dumbbell.fill")

@@ -101,7 +101,7 @@ struct LiveWorkoutView: View {
                 addExerciseToWorkout(exercise)
             }
         }
-        .sheet(isPresented: $showingExerciseList) {
+        .fullScreenCover(isPresented: $showingExerciseList) {
             LiveWorkoutExerciseListView(
                 exercises: workoutSession.exercises,
                 currentIndex: $currentExerciseIndex,
@@ -134,11 +134,17 @@ struct LiveWorkoutView: View {
             }
         }
         .onAppear {
-            if let template = template {
+            // First, try to resume any active workout
+            workoutSession.resumeWorkoutIfActive()
+            
+            // Update duration if returning to an active workout
+            if workoutSession.isActive {
+                workoutSession.enterForeground()
+            }
+            
+            // Only setup from template if no workout is active
+            if !workoutSession.isActive, let template = template {
                 setupWorkoutFromTemplate(template)
-            } else {
-                // Check if there's a workout already in progress
-                workoutSession.resumeWorkoutIfActive()
             }
             
             // Add notification observers for app lifecycle
@@ -159,6 +165,11 @@ struct LiveWorkoutView: View {
             }
         }
         .onDisappear {
+            // Save workout state when leaving the view
+            if workoutSession.isActive {
+                workoutSession.enterBackground()
+            }
+            
             // Remove observers to prevent memory leaks
             NotificationCenter.default.removeObserver(self, name: UIApplication.willResignActiveNotification, object: nil)
             NotificationCenter.default.removeObserver(self, name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -652,12 +663,29 @@ struct CurrentExerciseHeaderView: View {
 
 struct CurrentExerciseSetsView: View {
     @ObservedObject var exercise: LiveExercise
+    @ObservedObject private var themeManager = ThemeManager.shared
     let onNextExercise: () -> Void
     let onPreviousExercise: () -> Void
     let canGoNext: Bool
     let canGoPrevious: Bool
     let onAddExercise: () -> Void
     let onSetCompleted: () -> Void
+    
+    private var previousButtonBackground: AnyShapeStyle {
+        if canGoPrevious {
+            return AnyShapeStyle(themeManager.currentBackgroundGradient)
+        } else {
+            return AnyShapeStyle(themeManager.currentBackgroundGradient.opacity(0.4))
+        }
+    }
+    
+    private var nextButtonBackground: AnyShapeStyle {
+        if canGoNext {
+            return AnyShapeStyle(themeManager.currentBackgroundGradient)
+        } else {
+            return AnyShapeStyle(themeManager.currentBackgroundGradient.opacity(0.4))
+        }
+    }
     
     var body: some View {
         VStack(spacing: 20) {
@@ -670,20 +698,28 @@ struct CurrentExerciseSetsView: View {
                     SetRow(
                         set: $exercise.sets[index],
                         setNumber: index + 1,
-                        onComplete: onSetCompleted
+                        onComplete: onSetCompleted,
+                        onRemove: exercise.sets.count > 1 ? {
+                            exercise.removeSet(at: index)
+                        } : nil
                     )
                 }
             }
             
-            Button("Add Set") {
-                exercise.addSet()
+            // Add Set button (circular)
+            HStack {
+                Spacer()
+                Button(action: { exercise.addSet() }) {
+                    Image(systemName: "plus")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(width: 44, height: 44)
+                        .background(Color.successGradient)
+                        .clipShape(Circle())
+                }
+                Spacer()
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 44)
-            .background(Color.gray.opacity(0.1))
-            .foregroundColor(.primary)
-            .cornerRadius(12)
-            .fontWeight(.medium)
             
             // Navigation buttons
             HStack(spacing: 16) {
@@ -692,7 +728,7 @@ struct CurrentExerciseSetsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(canGoPrevious ? Color.gray : Color.gray.opacity(0.3))
+                .background(previousButtonBackground)
                 .foregroundColor(.white)
                 .cornerRadius(25)
                 .fontWeight(.semibold)
@@ -703,7 +739,7 @@ struct CurrentExerciseSetsView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 50)
-                .background(canGoNext ? Color.primaryGradient : LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
+                .background(nextButtonBackground)
                 .foregroundColor(.white)
                 .cornerRadius(25)
                 .fontWeight(.semibold)
@@ -880,7 +916,10 @@ struct CurrentExerciseView: View {
                     SetRow(
                         set: $exercise.sets[index],
                         setNumber: index + 1,
-                        onComplete: { startRest() }
+                        onComplete: { startRest() },
+                        onRemove: exercise.sets.count > 1 ? {
+                            exercise.removeSet(at: index)
+                        } : nil
                     )
                 }
             }
@@ -993,12 +1032,23 @@ struct SetRow: View {
     @Binding var set: LiveSet
     let setNumber: Int
     let onComplete: () -> Void
+    let onRemove: (() -> Void)?
     @ObservedObject private var themeManager = ThemeManager.shared
     
     @State private var showingRepsPicker = false
     @State private var showingWeightPicker = false
     @FocusState private var isRepsFieldFocused: Bool
     @FocusState private var isWeightFieldFocused: Bool
+    
+    private var completeButtonBackground: AnyShapeStyle {
+        if set.completed {
+            return AnyShapeStyle(Color.green)
+        } else if canComplete {
+            return AnyShapeStyle(themeManager.currentBackgroundGradient)
+        } else {
+            return AnyShapeStyle(LinearGradient(gradient: Gradient(colors: [Color.textSecondary.opacity(0.3), Color.textSecondary.opacity(0.3)]), startPoint: .leading, endPoint: .trailing))
+        }
+    }
     
     var body: some View {
         VStack(spacing: 12) {
@@ -1009,7 +1059,7 @@ struct SetRow: View {
                     .fontWeight(.bold)
                     .frame(width: 40, height: 40)
                     .background(setNumberBackground)
-                    .foregroundColor(set.completed ? .white : Color.blue)
+                    .foregroundColor(set.completed ? .white : themeManager.customBackgroundColor)
                     .shadow(color: set.completed ? Color.green.opacity(0.3) : Color.clear, radius: 4, x: 0, y: 2)
                 
                 Spacer()
@@ -1031,6 +1081,15 @@ struct SetRow: View {
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.secondary)
+                    }
+                }
+                
+                // Remove button
+                if let onRemove = onRemove {
+                    Button(action: onRemove) {
+                        Image(systemName: "minus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.red.opacity(0.7))
                     }
                 }
             }
@@ -1104,7 +1163,7 @@ struct SetRow: View {
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(set.completed ? Color.green : (canComplete ? themeManager.customBackgroundColor : Color.textSecondary.opacity(0.3)))
+                        .fill(completeButtonBackground)
                 )
                 .foregroundColor(.white)
                 .shadow(color: set.completed ? Color.green.opacity(0.3) : (canComplete ? themeManager.customBackgroundColor.opacity(0.3) : Color.clear), radius: 4, x: 0, y: 2)
@@ -1141,10 +1200,10 @@ struct SetRow: View {
     
     private var setNumberBackground: some View {
         Circle()
-            .fill(set.completed ? Color.green : Color.blue.opacity(0.1))
+            .fill(set.completed ? Color.green : themeManager.customBackgroundColor.opacity(0.1))
             .overlay(
                 Circle()
-                    .stroke(set.completed ? Color.clear : Color.blue.opacity(0.3), lineWidth: 2)
+                    .stroke(set.completed ? Color.clear : themeManager.customBackgroundColor.opacity(0.3), lineWidth: 2)
             )
     }
     
@@ -1677,6 +1736,37 @@ struct LiveWorkoutExerciseListView: View {
     let onReorder: (IndexSet, Int) -> Void
     let onDismiss: () -> Void
     @ObservedObject private var themeManager = ThemeManager.shared
+    @State private var isEditMode: Bool = false
+    
+    private var progressPercentage: CGFloat {
+        let totalSets = exercises.reduce(0) { $0 + $1.sets.count }
+        let completedSets = exercises.reduce(0) { $0 + $1.sets.filter { $0.completed }.count }
+        
+        guard totalSets > 0 else { return 0 }
+        return CGFloat(completedSets) / CGFloat(totalSets)
+    }
+    
+    private func moveExercises(from source: IndexSet, to destination: Int) {
+        onReorder(source, destination)
+        
+        // Update current index if necessary
+        if let sourceIndex = source.first {
+            if sourceIndex == currentIndex {
+                // The current exercise is being moved
+                if destination > sourceIndex {
+                    currentIndex = destination - 1
+                } else {
+                    currentIndex = destination
+                }
+            } else if sourceIndex < currentIndex && destination > currentIndex {
+                // Exercise moved from before current to after current
+                currentIndex -= 1
+            } else if sourceIndex > currentIndex && destination <= currentIndex {
+                // Exercise moved from after current to before current
+                currentIndex += 1
+            }
+        }
+    }
     
     var body: some View {
         NavigationView {
@@ -1689,22 +1779,49 @@ struct LiveWorkoutExerciseListView: View {
                     headerSection
                     
                     // Exercise list
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(exercises.indices, id: \.self) { index in
+                    if isEditMode {
+                        // Edit mode with reordering
+                        List {
+                            ForEach(Array(exercises.enumerated()), id: \.element.id) { index, exercise in
                                 LiveExerciseListCard(
-                                    exercise: exercises[index],
+                                    exercise: exercise,
                                     exerciseNumber: index + 1,
                                     isCurrentExercise: index == currentIndex,
+                                    isEditMode: true,
                                     onTap: {
-                                        currentIndex = index
-                                        onDismiss()
+                                        // No navigation in edit mode
                                     }
                                 )
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10))
+                                .clipShape(RoundedRectangle(cornerRadius: 16))
                             }
+                            .onMove(perform: moveExercises)
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 16)
+                        .listStyle(PlainListStyle())
+                        .scrollContentBackground(.hidden)
+                        .environment(\.editMode, .constant(.active))
+                    } else {
+                        // Normal mode
+                        ScrollView {
+                            LazyVStack(spacing: 12) {
+                                ForEach(Array(exercises.enumerated()), id: \.element.id) { index, exercise in
+                                    LiveExerciseListCard(
+                                        exercise: exercise,
+                                        exerciseNumber: index + 1,
+                                        isCurrentExercise: index == currentIndex,
+                                        isEditMode: false,
+                                        onTap: {
+                                            currentIndex = index
+                                            onDismiss()
+                                        }
+                                    )
+                                }
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 16)
+                        }
                     }
                 }
                 .padding(16)
@@ -1718,12 +1835,12 @@ struct LiveWorkoutExerciseListView: View {
             // Top bar
             HStack {
                 
-                Button("Order") {
-                    // TODO: Implement reorder functionality
+                Button(isEditMode ? "Done" : "Order") {
+                    isEditMode.toggle()
                 }
                 .font(.headline)
                 .fontWeight(.semibold)
-                .foregroundColor(.red)
+                .foregroundColor(isEditMode ? .primaryGreen1 : .red)
                 
                 Spacer()
                 
@@ -1734,12 +1851,14 @@ struct LiveWorkoutExerciseListView: View {
                 
                 Spacer()
                 
-                Button("Done") {
-                    onDismiss()
+                if !isEditMode {
+                    Button("Done") {
+                        onDismiss()
+                    }
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
                 }
-                .font(.headline)
-                .fontWeight(.semibold)
-                .foregroundColor(.textPrimary)
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
@@ -1770,12 +1889,12 @@ struct LiveWorkoutExerciseListView: View {
                         .frame(width: 40, height: 40)
                     
                     Circle()
-                        .trim(from: 0, to: CGFloat(currentIndex + 1) / CGFloat(max(1, exercises.count)))
+                        .trim(from: 0, to: progressPercentage)
                         .stroke(Color.primaryGreen1, lineWidth: 3)
                         .frame(width: 40, height: 40)
                         .rotationEffect(.degrees(-90))
                     
-                    Text("\(Int((Double(currentIndex + 1) / Double(max(1, exercises.count))) * 100))%")
+                    Text("\(Int(progressPercentage * 100))%")
                         .font(.caption)
                         .fontWeight(.bold)
                         .foregroundColor(.primaryGreen1)
@@ -1794,6 +1913,7 @@ struct LiveExerciseListCard: View {
     let exercise: LiveExercise
     let exerciseNumber: Int
     let isCurrentExercise: Bool
+    let isEditMode: Bool
     let onTap: () -> Void
     
     private var completedSets: Int {
@@ -1903,19 +2023,20 @@ struct LiveExerciseListCard: View {
     
     private var statusIndicatorView: some View {
         VStack(spacing: 8) {
-            if isCurrentExercise {
+            if isCurrentExercise && !isEditMode {
                 Image(systemName: "play.circle.fill")
                     .font(.title)
                     .foregroundColor(themeManager.customBackgroundColor)
-            } else if isExerciseCompleted {
+            } else if isExerciseCompleted && !isEditMode {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title)
                     .foregroundColor(Color.primaryGreen1)
-            } else {
+            } else if !isEditMode {
                 Image(systemName: "circle")
                     .font(.title)
                     .foregroundColor(.textSecondary.opacity(0.5))
             }
+            // In edit mode, don't show any icon here - we'll use long press
         }
     }
     
@@ -1931,7 +2052,9 @@ struct LiveExerciseListCard: View {
     }
     
     private var backgroundColor: Color {
-        if isCurrentExercise {
+        if isEditMode {
+            return Color.cardBackground.opacity(0.95)
+        } else if isCurrentExercise {
             return themeManager.customBackgroundColor.opacity(0.1)
         } else if isExerciseCompleted {
             return Color.green.opacity(0.05)
@@ -1983,11 +2106,19 @@ struct LiveExerciseListCard: View {
     }
     
     private var shadowRadius: CGFloat {
-        isCurrentExercise ? 8 : 4
+        if isEditMode {
+            return 6
+        } else {
+            return isCurrentExercise ? 8 : 4
+        }
     }
     
     private var shadowOffset: CGFloat {
-        isCurrentExercise ? 4 : 2
+        if isEditMode {
+            return 3
+        } else {
+            return isCurrentExercise ? 4 : 2
+        }
     }
 }
 
