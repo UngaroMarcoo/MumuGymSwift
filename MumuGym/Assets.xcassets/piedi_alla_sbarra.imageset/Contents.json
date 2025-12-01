@@ -1,27 +1,78 @@
 {
   "images" : [
     {
-      "filename" : "piedi_alla_sbarra_light.png",
       "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
-      ]
+      ],
+      "idiom" : "universal",
+      "scale" : "1x"
     },
     {
-      "filename" : "piedi_alla_sbarra_dark.png",
-      "idiom" : "universal",
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "dark"
         }
-      ]
+      ],
+      "idiom" : "universal",
+      "scale" : "1x"
     },
     {
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "light"
+        }
+      ],
+      "filename" : "piedi_alla_sbarra_light.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "piedi_alla_sbarra_dark.png",
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
