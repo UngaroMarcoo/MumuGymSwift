@@ -1,8 +1,7 @@
 {
   "images" : [
     {
-      "idiom" : "universal",
-      "scale" : "1x"
+      "idiom" : "universal"
     },
     {
       "appearances" : [
@@ -11,8 +10,8 @@
           "value" : "light"
         }
       ],
-      "idiom" : "universal",
-      "scale" : "1x"
+      "filename" : "Rullo_per_Addominali.png",
+      "idiom" : "universal"
     },
     {
       "appearances" : [
@@ -21,58 +20,8 @@
           "value" : "dark"
         }
       ],
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "scale" : "3x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "light"
-        }
-      ],
-      "filename" : "rullo_per_addominali_light@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "filename" : "rullo_per_addominali_dark@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "Rullo_per_Addominali_white.png",
+      "idiom" : "universal"
     }
   ],
   "info" : {

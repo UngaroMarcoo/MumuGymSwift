@@ -1,24 +1,26 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
+      "filename" : "rematore_t_bar.png",
       "idiom" : "universal"
     },
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "universal"
-    },
-    {
+      "filename" : "rematore_t_bar_white.png",
       "idiom" : "universal"
     }
   ],

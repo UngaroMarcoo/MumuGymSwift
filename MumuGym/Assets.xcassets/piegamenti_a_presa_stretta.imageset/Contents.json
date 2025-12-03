@@ -1,24 +1,26 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
+      "filename" : "piegamenti_a_presa_stretta.png",
       "idiom" : "universal"
     },
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "universal"
-    },
-    {
+      "filename" : "piegamenti_a_presa_stretta_white.png",
       "idiom" : "universal"
     }
   ],

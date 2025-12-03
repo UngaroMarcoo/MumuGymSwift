@@ -1,24 +1,26 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
+      "filename" : "piegamenti_declinati.png",
       "idiom" : "universal"
     },
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "universal"
-    },
-    {
+      "filename" : "piegamenti_declinati_white.png",
       "idiom" : "universal"
     }
   ],

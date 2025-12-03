@@ -1,24 +1,26 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
+      "filename" : "sollevamento_gambe_sdraiati.png",
       "idiom" : "universal"
     },
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "universal"
-    },
-    {
+      "filename" : "sollevamento_gambe_sdraiati_white.png",
       "idiom" : "universal"
     }
   ],

@@ -1,24 +1,26 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
           "value" : "light"
         }
       ],
+      "filename" : "leg_press_orrizontale.png",
       "idiom" : "universal"
     },
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
-      "idiom" : "universal"
-    },
-    {
+      "filename" : "leg_press_orrizontale_white.png",
       "idiom" : "universal"
     }
   ],

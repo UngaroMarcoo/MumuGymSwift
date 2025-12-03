@@ -1,6 +1,9 @@
 {
   "images" : [
     {
+      "idiom" : "universal"
+    },
+    {
       "appearances" : [
         {
           "appearance" : "luminosity",
@@ -13,14 +16,11 @@
     {
       "appearances" : [
         {
-          "appearance" : "luminosity", 
+          "appearance" : "luminosity",
           "value" : "dark"
         }
       ],
       "filename" : "sollevamento_delle_gambe_alla_sbarra_dark.png",
-      "idiom" : "universal"
-    },
-    {
       "idiom" : "universal"
     }
   ],
