@@ -689,10 +689,38 @@ struct ExercisePickerView: View {
     
     private var exerciseList: some View {
         List {
-            ForEach(filteredExercises, id: \.objectID) { exercise in
-                ExercisePickerRow(exercise: exercise) {
-                    selectedExercise = exercise
-                    showingConfiguration = true
+            if filteredExercises.isEmpty && searchText.isEmpty && selectedMuscleGroup == "All" {
+                VStack(spacing: 16) {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.secondary)
+                    
+                    Text("No exercises found")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    Text("There might be an issue loading exercises. Please restart the app.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Button("Retry Loading") {
+                        PersistenceController.shared.ensureExercisesSeeded()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+            } else {
+                ForEach(filteredExercises, id: \.objectID) { exercise in
+                    ExercisePickerRow(exercise: exercise) {
+                        selectedExercise = exercise
+                        showingConfiguration = true
+                    }
                 }
             }
         }

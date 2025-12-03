@@ -118,8 +118,11 @@ class ExerciseData {
     static func seedExercises(context: NSManagedObjectContext, forceReseed: Bool = false) {
         let request: NSFetchRequest<Exercise> = Exercise.fetchRequest()
         
+        print("🌱 Starting exercise seeding... forceReseed: \(forceReseed)")
+        
         do {
             let existingCount = try context.count(for: request)
+            print("📊 Found \(existingCount) existing exercises")
             
             if forceReseed && existingCount > 0 {
                 // Delete all existing exercises
@@ -132,8 +135,10 @@ class ExerciseData {
             }
             
             let finalCount = try context.count(for: request)
+            print("📊 Final count before seeding: \(finalCount)")
             
             if finalCount == 0 {
+                print("🌱 Starting to create \(exercisesFromCSV.count) exercises...")
                 for exerciseData in exercisesFromCSV {
                     let exercise = Exercise(context: context)
                     exercise.name = exerciseData.name
@@ -143,12 +148,16 @@ class ExerciseData {
                     exercise.imageUrl = exerciseData.imageUrl
                 }
                 try context.save()
-                print("✅ Seeded \(exercisesFromCSV.count) exercises successfully!")
-            } else {
+                
+                // Verify the seeding worked
+                let verifyCount = try context.count(for: request)
+                print("✅ Seeded \(exercisesFromCSV.count) exercises successfully! Verified: \(verifyCount)")
+            } else if !forceReseed {
                 print("📋 Exercises already exist in database (\(finalCount) found)")
             }
         } catch {
-            print("❌ Failed to seed exercises: \(error)")
+            print("❌ Failed to seed exercises: \(error.localizedDescription)")
+            print("❌ Error details: \(error)")
         }
     }
     

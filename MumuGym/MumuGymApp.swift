@@ -12,6 +12,11 @@ import CoreData
 struct MumuGymApp: App {
     let persistenceController = PersistenceController.shared
     
+    init() {
+        // Ensure exercises are seeded when app starts
+        persistenceController.ensureExercisesSeeded()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()

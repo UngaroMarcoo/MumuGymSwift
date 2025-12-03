@@ -12,6 +12,7 @@ class PersistenceController {
                 fatalError("Core Data failed to load: \(error.localizedDescription)")
             }
             
+            print("🏪 Core Data store loaded: \(description)")
             // Seed exercises when the store loads
             ExerciseData.seedExercises(context: container.viewContext)
         }
@@ -27,6 +28,23 @@ class PersistenceController {
     func save() {
         if context.hasChanges {
             try? context.save()
+        }
+    }
+    
+    func ensureExercisesSeeded() {
+        let request: NSFetchRequest<Exercise> = Exercise.fetchRequest()
+        do {
+            let count = try context.count(for: request)
+            if count == 0 {
+                print("🌱 No exercises found, forcing seed...")
+                ExerciseData.seedExercises(context: context, forceReseed: true)
+            } else {
+                print("📋 Found \(count) exercises in database")
+            }
+        } catch {
+            print("❌ Error checking exercise count: \(error)")
+            // Force seed anyway if we can't check
+            ExerciseData.seedExercises(context: context, forceReseed: true)
         }
     }
     
